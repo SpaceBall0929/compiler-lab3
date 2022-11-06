@@ -117,31 +117,49 @@ int tree_analys(treeNode *mytree)
     treeNode* temp;
     seqStack myStack;
     seqStack* stack_ptr;
-    initStack(&myStack);
-    push(&myStack, mytree);
+    stack_ptr = &myStack;
+    initStack(stack_ptr);
+    push(stack_ptr, mytree);
 
     do
     {
         reversed_insert(stack_ptr, pop(stack_ptr));
-        temp = pop(stack_ptr);
+        temp = top(stack_ptr);
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
+        //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
         case N_EXT_DEF_L:
-            if(temp->child == NULL){
-                //孩子为空表明这个list的所有内容已经结束了,直接break。
-                break;
-            }
-            ext_def(temp->child);
-            if(temp->child->sibling == NULL){
-                printf("ERROR: An Unexpected 3rd child in childs of ExtDefList.\n");
-            }
-            push(stack_ptr, temp->child->sibling);
+            printf("ExtDefList detected\n");
+            // if(temp->child->sibling->sibling != NULL){
+            //     printf("ERROR: Unexpected 3rd child in childs of the NONTERMINAL ExtDefList.\n");
+            // }
             break;
         case N_EXT_DEF:
-            
+            printf("ExtDef detected\n");
+            break;
+        case N_SPECI:
+            if(temp -> sibling -> nodeType == N_EXT_DEC_L){
+                
+
+            }else if(temp -> sibling -> nodeType == N_SEMI){
+
+            }else if(temp -> sibling -> nodeType == N_FUN_DEC){
+
+            }else{
+
+            }
+
+            break;
+
 
         default:
+            // 这里给出一个列表：
+            // ExtDecList
+            // 这些非终结符，理论上应该在函数中被处理掉
+            // 但是既然走到了这一步，显然没有，所以这里肯定要报错
+            printf("ERROR: Unexpected node token with name %s\n", temp->character);
+
             break;
         }
         //节点处理完了，下一个

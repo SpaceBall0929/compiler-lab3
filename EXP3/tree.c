@@ -200,6 +200,9 @@ int isEmpty(seqStack *s) //检查是否栈空
 int count_child(treeNode *t)
 { //计算t的儿子数量
     treeNode *p = t->child;
+    if(p == NULL){
+        return 0;
+    }
     int count_child = 1;
     while (!p->sibling)
     {
@@ -212,6 +215,10 @@ int count_child(treeNode *t)
 void reversed_insert(seqStack *s, treeNode *t)
 { //使节点t的孩子调转顺序入栈
     int count = count_child(t);
+    if (count == 0)
+    {
+        return;
+    }
     s->top += count;
     treeNode *p = t->child;
     rev_push(s, p);
