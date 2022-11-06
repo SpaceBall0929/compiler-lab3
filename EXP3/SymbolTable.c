@@ -1,4 +1,5 @@
 # include "tree.c"
+# include "AssistantFuncs.c"
 # include <math.h>
 # include <string.h>
 # define TABLESIZE 128
@@ -77,10 +78,11 @@ struct table1{
 
 typedef struct table1 SymbolTableVar;
 
-void tableVarInit(SymbolTableVar st, int d, int sz){
-    st.divitor = d;
+void tableVarInit(SymbolTableVar st){
+    //st.divitor = d;
     st.curSize = 0;
-    st.tableSize = sz;
+    st.tableSize = TABLESIZE;
+    st.divitor = GetClosestPrime(TABLESIZE);
     st.data = (dataNodeVar*)calloc(sz, sizeof(dataNodeVar));
     st.sta = (enum Status*)calloc(sz, sizeof(enum Status));
     for(int i = 0; i < st.tableSize; i++)
@@ -98,10 +100,10 @@ struct table2{
 
 typedef struct table2 SymbolTableFunc;
 
-void tableFuncInit(SymbolTableFunc st, int d, int sz){
-    st.divitor = d;
+void tableFuncInit(SymbolTableFunc st){
     st.curSize = 0;
-    st.tableSize = sz;
+    st.tableSize = TABLESIZE;
+    st.divitor = GetClosestPrime(TABLESIZE);
     st.data = (dataNodeFunc*)calloc(sz, sizeof(dataNodeFunc));
     st.sta = (enum Status*)calloc(sz, sizeof(enum Status));
     for(int i = 0; i < st.tableSize; i++)
@@ -119,10 +121,10 @@ struct table3{
 
 typedef struct table3 SymbolTableStruct;
 
-void tableStructInit(SymbolTableStruct st, int d, int sz){
-    st.divitor = d;
+void tableStructInit(SymbolTableStruct st){
     st.curSize = 0;
-    st.tableSize = sz;
+    st.tableSize = TABLESIZE;
+    st.divitor = GetClosestPrime(TABLESIZE);
     st.data = (dataNodeStruct*)calloc(sz, sizeof(dataNodeStruct));
     st.sta = (enum Status*)calloc(sz, sizeof(enum Status));
     for(int i = 0; i < st.tableSize; i++)
