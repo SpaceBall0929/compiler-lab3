@@ -11,6 +11,7 @@
     void myerror(char *msg);
     int yylex();
     int error_count = 0;
+    Tree myTree;
 %}
 %token INT                         /* int 类型 */
 %token FLOAT                       /* float 类型 */
