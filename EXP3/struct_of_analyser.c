@@ -114,12 +114,17 @@ int ext_def(treeNode* ExtDef){
 
 int tree_analys(treeNode *mytree)
 {
+    
+    //栈初始化部分
     treeNode* temp;
     seqStack myStack;
     seqStack* stack_ptr;
     stack_ptr = &myStack;
     initStack(stack_ptr);
     push(stack_ptr, mytree);
+
+    //表初始化部分
+
 
     do
     {
