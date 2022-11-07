@@ -78,15 +78,15 @@ struct table1{
 
 typedef struct table1 SymbolTableVar;
 
-void tableVarInit(SymbolTableVar st){
+void tableVarInit(SymbolTableVar* st){
     //st.divitor = d;
-    st.curSize = 0;
-    st.tableSize = TABLESIZE;
-    st.divitor = GetClosestPrime(TABLESIZE);
-    st.data = (dataNodeVar*)calloc(sz, sizeof(dataNodeVar));
-    st.sta = (enum Status*)calloc(sz, sizeof(enum Status));
-    for(int i = 0; i < st.tableSize; i++)
-        st.sta[i] = (enum Status)Empty;
+    st->curSize = 0;
+    st->curSize = TABLESIZE;
+    st->divitor = GetClosestPrime(TABLESIZE);
+    st->data = (dataNodeVar*)calloc(TABLESIZE, sizeof(dataNodeVar));
+    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
+    for(int i = 0; i < st->tableSize; i++)
+        st->sta[i] = (enum Status)Empty;
     return;
 }
 
@@ -100,14 +100,14 @@ struct table2{
 
 typedef struct table2 SymbolTableFunc;
 
-void tableFuncInit(SymbolTableFunc st){
-    st.curSize = 0;
-    st.tableSize = TABLESIZE;
-    st.divitor = GetClosestPrime(TABLESIZE);
-    st.data = (dataNodeFunc*)calloc(sz, sizeof(dataNodeFunc));
-    st.sta = (enum Status*)calloc(sz, sizeof(enum Status));
-    for(int i = 0; i < st.tableSize; i++)
-        st.sta[i] = (enum Status)Empty;
+void tableFuncInit(SymbolTableFunc* st){
+    st->curSize = 0;
+    st->tableSize = TABLESIZE;
+    st->divitor = GetClosestPrime(TABLESIZE);
+    st->data = (dataNodeFunc*)calloc(TABLESIZE, sizeof(dataNodeFunc));
+    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
+    for(int i = 0; i < st->tableSize; i++)
+        st->sta[i] = (enum Status)Empty;
     return;
 }
 
@@ -121,14 +121,14 @@ struct table3{
 
 typedef struct table3 SymbolTableStruct;
 
-void tableStructInit(SymbolTableStruct st){
-    st.curSize = 0;
-    st.tableSize = TABLESIZE;
-    st.divitor = GetClosestPrime(TABLESIZE);
-    st.data = (dataNodeStruct*)calloc(sz, sizeof(dataNodeStruct));
-    st.sta = (enum Status*)calloc(sz, sizeof(enum Status));
-    for(int i = 0; i < st.tableSize; i++)
-        st.sta[i] = (enum Status)Empty;
+void tableStructInit(SymbolTableStruct* st){
+    st->curSize = 0;
+    st->tableSize = TABLESIZE;
+    st->divitor = GetClosestPrime(TABLESIZE);
+    st->data = (dataNodeStruct*)calloc(TABLESIZE, sizeof(dataNodeStruct));
+    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
+    for(int i = 0; i < st->tableSize; i++)
+        st->sta[i] = (enum Status)Empty;
     return;
 }
 
@@ -186,40 +186,40 @@ int ifExistStruct(SymbolTableStruct st, char* key){
     return 0;
 }
 
-void InsertVar(SymbolTableVar st, dataNodeVar elem)
+void InsertVar(SymbolTableVar* st, dataNodeVar elem)
 {
 	int i = findPosVar(st, elem.varName);
-	if (st.sta[i] != Active)
+	if (st.->ta[i] != Active)
 	{
-		st.data[i] = elem;
-		st.sta[i] = (enum Status)Active;
-		st.curSize++;
+		st->data[i] = elem;
+		st->sta[i] = (enum Status)Active;
+		st->curSize++;
 	}
     else
         printf("Symbol table is full. Insert failed");
 }
 
-void InsertFunc(SymbolTableFunc st, dataNodeFunc elem)
+void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 {
 	int i = findPosFunc(st, elem.funcName);
-	if (st.sta[i] != Active)
+	if (st->sta[i] != Active)
 	{
-		st.data[i] = elem;
-		st.sta[i] = (enum Status)Active;
-		st.curSize++;
+		st->data[i] = elem;
+		st->sta[i] = (enum Status)Active;
+		st->curSize++;
 	}
     else
         printf("Symbol table is full. Insert failed");
 }
 
-void InsertStruct(SymbolTableStruct st, dataNodeStruct elem)
+void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 {
 	int i = findPosStruct(st, elem.structName);
-	if (st.sta[i] != Active)
+	if (st->sta[i] != Active)
 	{
-		st.data[i] = elem;
-		st.sta[i] = (enum Status)Active;
-		st.curSize++;
+		st->data[i] = elem;
+		st->sta[i] = (enum Status)Active;
+		st->curSize++;
 	}
     else
         printf("Symbol table is full. Insert failed");
