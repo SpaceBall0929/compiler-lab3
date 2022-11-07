@@ -5,8 +5,7 @@
 # define TABLESIZE 128
 
 enum Status { Active, Empty, Deleted };
-enum DataType {Int, Float, Array, Struct, StructDomain};
-
+typedef enum DataType {Int, Float, Array, Struct, StructDomain}DataType;
 
 struct datanode1{
     char* varName;  //变量名
@@ -18,15 +17,18 @@ struct datanode1{
 
 typedef struct datanode1 dataNodeVar;
 
-dataNodeVar newNodeVar(char* name, enum DataType type, int nd){
-    dataNodeVar newNode;
-    newNode.varName = name;
-    newNode.varType = type;
-    newNode.numdim = nd;
-    if(nd > 0)  //若为数组，使用int* len_of_dims存储每个维度长度
-        newNode.len_of_dims = (int*)calloc(newNode.numdim, sizeof(int));
-    else        //若非数组，numdim传入0，len_of_dims为NULL
-        newNode.len_of_dims = NULL;
+dataNodeVar* newNodeVar(char* name, enum DataType type){
+    dataNodeVar* newNode;
+    newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+    newNode -> varName = name;
+    newNode -> varType = type;
+    newNode -> len_of_dims = NULL;
+    newNode -> next = NULL;
+     if(type == Array){
+        newNode ->numdim = -1;
+        return newNode;
+    }
+    newNode -> numdim = 0;
     return newNode;
 }
 
@@ -39,12 +41,12 @@ struct datanode2{
 
 typedef struct datanode2 dataNodeFunc;
 
-dataNodeFunc newNodeFunc(char* name, enum DataType type, int de, dataNodeVar* ar){
-    dataNodeFunc newNode;
-    newNode.funcName = name;
-    newNode.returnType = type;
-    newNode.defined = de;
-    newNode.args = ar;
+dataNodeFunc* newNodeFunc(char* name, enum DataType type, int de, dataNodeVar* ar){
+    dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
+    newNode -> funcName = name;
+    newNode -> returnType = type;
+    newNode -> defined = de;
+    newNode -> args = ar;
     return newNode;
 }
 
@@ -56,10 +58,10 @@ struct datanode3{
 
 typedef struct datanode3 dataNodeStruct;
 
-dataNodeStruct newNodeStruct(char* name, char* tname){
-    dataNodeStruct newNode;
-    newNode.structName = name;
-    newNode.structTypeName = tname;
+dataNodeStruct* newNodeStruct(char* name, char* tname){
+    dataNodeStruct* newNode = (dataNodeStruct*)malloc(sizeof(dataNodeStruct));
+    newNode -> structName = name;
+    newNode -> structTypeName = tname;
     return newNode;
 }
 
