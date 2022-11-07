@@ -108,7 +108,22 @@ typedef treeNode Tree;
 // //关闭当前作用域，退到上一层作用域
 // int close_block();
 
-int ext_def(treeNode* ExtDef){
+int ext_def(treeNode* ExtDef, seqStack* stack){
+    enum DataType type;
+    type = ;
+
+
+                if(ExtDef -> child -> sibling -> nodeType == N_EXT_DEC_L){
+                
+            }else if(ExtDef -> sibling -> nodeType == N_SEMI){
+
+            }else if(ExtDef -> sibling -> nodeType == N_FUN_DEC){
+
+            }else{
+
+            }
+    
+    
     return 0;
 }
 
@@ -124,6 +139,14 @@ int tree_analys(treeNode *mytree)
     push(stack_ptr, mytree);
 
     //表初始化部分
+
+
+    //用于存储变量信息
+    int define_flag = 0;
+    enum DataType type_now;
+
+
+
 
 
     do
@@ -142,18 +165,10 @@ int tree_analys(treeNode *mytree)
             break;
         case N_EXT_DEF:
             printf("ExtDef detected\n");
+            ext_def(temp, stack_ptr);
             break;
         case N_SPECI:
-            if(temp -> sibling -> nodeType == N_EXT_DEC_L){
-                
 
-            }else if(temp -> sibling -> nodeType == N_SEMI){
-
-            }else if(temp -> sibling -> nodeType == N_FUN_DEC){
-
-            }else{
-
-            }
 
             break;
 
