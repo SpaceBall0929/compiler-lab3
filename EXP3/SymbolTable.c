@@ -189,7 +189,7 @@ int ifExistStruct(SymbolTableStruct st, char* key){
 void InsertVar(SymbolTableVar* st, dataNodeVar elem)
 {
 	int i = findPosVar(st, elem.varName);
-	if (st.->ta[i] != Active)
+	if (st->ta[i] != Active)
 	{
 		st->data[i] = elem;
 		st->sta[i] = (enum Status)Active;
@@ -224,44 +224,3 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
     else
         printf("Symbol table is full. Insert failed");
 }
-
-//以下是作用域管理期望的接口
-
-//创建变量表子域
-//经过修改后，st_ptr指向新的子表
-//如果需要的话，也可以这样给出新表：返回值可以是SymbolTableVar*，指向新的子表
-//如果需要的话，输入变量可以再增加一个栈指针，来方便子域管理
-void createVarSubtable(SymbolTableVar* st_ptr);
-
-//关闭变量表子域
-//经过修改后，st_ptr指向原来表的父一级表
-//如果需要的话，也可以这样给出新表：返回值可以是SymbolTableVar*，指向原来的父表
-//如果需要的话，输入变量可以再增加一个栈指针，来方便子域管理
-//注意这个问题：如果已经返回到顶级父表了，就把输入的指针原样输出，printf一个warning
-void closeVarSubtable(SymbolTableVar* st_ptr);
-
-//创建函数表子域
-//经过修改后，st_ptr指向新的子表
-//如果需要的话，也可以这样给出新表：返回值可以是SymbolTableFunc*，指向新的子表
-//如果需要的话，输入变量可以再增加一个栈指针，来方便子域管理
-void createFuncSubtable(SymbolTableFunc* st_ptr);
-
-//关闭函数表子域
-//经过修改后，st_ptr指向原来表的父一级表
-//如果需要的话，也可以这样给出新表：返回值可以是SymbolTableFunc*，指向原来的父表
-//如果需要的话，输入变量可以再增加一个栈指针，来方便子域管理
-//注意这个问题：如果已经返回到顶级父表了，就把输入的指针原样输出，printf一个warning
-void closeFuncSubtable(SymbolTableFunc* st_ptr);
-
-//创建结构体表子域
-//经过修改后，st_ptr指向新的子表
-//如果需要的话，也可以这样给出新表：返回值可以是SymbolTableStruct*，指向新的子表
-//如果需要的话，输入变量可以再增加一个栈指针，来方便子域管理
-void createStructSubtable(SymbolTableStruct* st_ptr);
-
-//关闭函数表子域
-//经过修改后，st_ptr指向原来表的父一级表
-//如果需要的话，也可以这样给出新表：返回值可以是SymbolTableFunc*，指向原来的父表
-//如果需要的话，输入变量可以再增加一个栈指针，来方便子域管理
-//注意这个问题：如果已经返回到顶级父表了，就把输入的指针原样输出，printf一个warning
-void closeStructSubtable(SymbolTableStruct* st_ptr);
