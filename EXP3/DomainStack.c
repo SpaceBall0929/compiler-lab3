@@ -1,21 +1,21 @@
 # include "SymbolTable.c"
 
-struct node
+struct stacknode
 {
-    struct node* next;
-    struct node* last;
+    struct stacknode* next;
+    struct stacknode* last;
     /* data */
     SymbolTableVar tVar;
     SymbolTableFunc tFunc;
     SymbolTableStruct tStruct;
 };
-typedef struct node stackNode;
-typedef struct node* domainStack;
+typedef struct stacknode stackNode;
+typedef struct stacknode* domainStack;
 
 stackNode* createStackNode(){
-    stackNode* newNode = (stackNode*)malloc(stackNode);
-    newNode->last = (stackNode*)malloc(stackNode);
-    newNode->next = (stackNode*)malloc(stackNode);
+    stackNode* newNode = (stackNode*)malloc(sizeof(stackNode));
+    newNode->last = (stackNode*)malloc(sizeof(stackNode));
+    newNode->next = (stackNode*)malloc(sizeof(stackNode));
     tableVarInit(newNode->tVar);
     tableFuncInit(newNode->tFunc);
     tableStructInit(newNode->tStruct);
