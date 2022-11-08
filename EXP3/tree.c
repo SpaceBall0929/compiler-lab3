@@ -144,7 +144,6 @@ void preOrderTraverse(Tree t, int depth){
 /*栈实现树的遍历：
 根节点入栈，每次从栈顶取出一个节点 u，把 u 的所有子节点逆序推入栈*/
 
-// https://blog.csdn.net/qq_40663787/article/details/83342603?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522166748364716782412563744%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=166748364716782412563744&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-83342603-null-null.142^v62^pc_search_tree,201^v3^control_2,213^v1^t3_control1&utm_term=c%E8%AF%AD%E8%A8%80n%E5%8F%89%E6%A0%91%E9%81%8D%E5%8E%86&spm=1018.2226.3001.4187
 typedef struct stack //栈结构
 {
     treeNode *tree[1000];
