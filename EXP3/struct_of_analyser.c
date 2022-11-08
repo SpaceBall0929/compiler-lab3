@@ -136,7 +136,7 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
 int ext_def(treeNode* ExtDef, seqStack* stack){
     enum DataType node_type;
     treeNode* type_node = ExtDef -> child -> child;
-    
+    treeNode* core_node = ExtDef -> child -> sibling;
 
     //判断一下这到底是个什么类型的声明
     if(type_node -> nodeType == N_TYPE){
@@ -145,10 +145,14 @@ int ext_def(treeNode* ExtDef, seqStack* stack){
         }else{
             node_type = Float;
         }
+        if(core_node -> nodeType == N_EXT_DEC_L){
 
+        }else{
+            
+        }
 
     }else{
-        node_type = Struct;
+        struct_specifier(type_node);
     }
 
        
