@@ -188,17 +188,19 @@ int ifExistStruct(SymbolTableStruct st, char* key){
     return 0;
 }
 
-void InsertVar(SymbolTableVar* st, dataNodeVar elem)
+void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 {
-	int i = findPosVar(st, elem.varName);
+	int i = findPosVar(st, elem -> varName);
 	if (st->ta[i] != Active)
 	{
-		st->data[i] = elem;
+		st->data[i] = *elem;
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
 	}
     else
         printf("Symbol table is full. Insert failed");
+    free(elem);
+
 }
 
 void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)

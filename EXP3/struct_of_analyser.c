@@ -133,22 +133,29 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
 
 
 
-int ext_def(treeNode* ExtDef, seqStack* stack){
-    enum DataType node_type;
+int ext_def(treeNode* ExtDef, seqStack* stack, domainStack* domain){
+    enum DataType def_type;
     treeNode* type_node = ExtDef -> child -> child;
     treeNode* core_node = ExtDef -> child -> sibling;
 
     //判断一下这到底是个什么类型的声明
     if(type_node -> nodeType == N_TYPE){
         if(type_node -> subtype.IDVal[0] == 'i'){
-            node_type = Int;
+            def_type = Int;
         }else{
-            node_type = Float;
+            def_type = Float;
         }
         if(core_node -> nodeType == N_EXT_DEC_L){
-
+            treeNode* temp_node;
+            do{
+                temp_node = core_node -> child;
+                core_node = temp_node -> sibling -> sibling;
+                
+                InsertVar(domain, var_dec(temp_node, def_type););
+                
+            }while(core_node != NULL);
         }else{
-            
+
         }
 
     }else{
@@ -171,15 +178,12 @@ int tree_analys(treeNode *mytree)
     push(stack_ptr, mytree);
 
     //表初始化部分
+    stackNode* domain_ptr = createStackNode();
 
 
     //用于存储变量信息
     int define_flag = 0;
     enum DataType type_now;
-
-
-
-
 
     do
     {
@@ -197,7 +201,7 @@ int tree_analys(treeNode *mytree)
             break;
         case N_EXT_DEF:
             printf("ExtDef detected\n");
-            ext_def(temp, stack_ptr);
+            ext_def(temp, stack_ptr, domain_ptr);
             break;
         case N_SPECI:
 
