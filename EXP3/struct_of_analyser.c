@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "SymbolTable.c"
 
-//这里给了一个node_type定义，其实树的头里面已经给过了
+//这里给了一个node_node_type定义，其实树的头里面已经给过了
 //这里只是为了方便编译不报错，最后应该当删除
-typedef enum node_type
+node_typedef enum node_node_type
 {
     // NONTERMINAL
     N_PROGRAM,
@@ -32,7 +32,7 @@ typedef enum node_type
     N_INT ,
     N_FLOAT = 100,
     N_ID,
-    N_TYPE,
+    N_node_type,
     N_LF,
     N_SEMI,
     N_COMMA,
@@ -57,27 +57,27 @@ typedef enum node_type
     N_IF,
     N_ELSE,
     N_WHILE
-} node_type;
+} node_node_type;
 
-typedef struct node
+node_typedef treeNode
 {
     char *character;
     int line_no; //行号
-    struct node *child;
-    struct node *sibling;
-    node_type nodeType;
+    treeNode *child;
+    treeNode *sibling;
+    node_node_type nodenode_type;
     // int flag;//遍历标记
     union
     {
         int intVal;
         float floatVal;
         char *IDVal;
-    } subtype;
+    } subnode_type;
 } treeNode;
 
-typedef treeNode Tree;
+node_typedef treeNode Tree;
 
-// enum DataType {Int, Float, Array, Struct, StructDomain};
+// enum Datanode_type {Int, Float, Array, Struct, StructDomain};
 
 // //表明继续执行深度优先遍历
 // //最终形态可能并非这样一个函数，这里有待商讨
@@ -109,17 +109,17 @@ typedef treeNode Tree;
 
 // //关闭当前作用域，退到上一层作用域
 // int close_block();
-dataNodeVar* var_dec(treeNode* dec_node, Datatype var_type){
+dataNodeVar* var_dec(treeNode* dec_node, Datanode_type var_node_type){
     dataNodeVar* new_var;
     treeNode* origrn = dec_node;
     dec_node = dec_node -> child;
     int dimension = 0;
     int dimensionlen[10];
-    while(dec_node -> nodeType != N_ID){
+    while(dec_node -> nodenode_type != N_ID){
         dec_node = dec_node -> child;
-        dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subtype.intVal;
+        dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subnode_type.intVal;
     }
-    new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
+    new_var = newNodeVar(dec_node->subnode_type.IDVal, var_node_type);
     if(dimension == 0){
         return new_var;
     }
@@ -134,26 +134,26 @@ dataNodeVar* var_dec(treeNode* dec_node, Datatype var_type){
 
 
 int ext_def(treeNode* ExtDef, seqStack* stack){
-    enum DataType type;
-    treeNode* type_node = ExtDef -> child -> child;
+    enum Datanode_type node_type;
+    treeNode* node_type_node = ExtDef -> child -> child;
     
     //判断一下这到底是个什么类型的声明
-    if(type_node -> nodeType == N_TYPE){
-        if(type_node -> subtype.IDVal[0] == 'i'){
-            type = Int;
+    if(node_type_node -> nodenode_type == N_node_type){
+        if(node_type_node -> subnode_type.IDVal[0] == 'i'){
+            node_type = Int;
         }else{
-            type = Float;
+            node_type = Float;
         }
 
     }else{
-        type = Struct;
+        node_type = Struct;
     }
 
 
-    //     if(ExtDef -> child -> sibling -> nodeType == N_EXT_DEC_L){
+    //     if(ExtDef -> child -> sibling -> nodenode_type == N_EXT_DEC_L){
         
-    // }else if(ExtDef -> sibling -> nodeType == N_SEMI){
-    // }else if(ExtDef -> sibling -> nodeType == N_FUN_DEC){
+    // }else if(ExtDef -> sibling -> nodenode_type == N_SEMI){
+    // }else if(ExtDef -> sibling -> nodenode_type == N_FUN_DEC){
     // }else{
     // }
     
@@ -177,7 +177,7 @@ int tree_analys(treeNode *mytree)
 
     //用于存储变量信息
     int define_flag = 0;
-    enum DataType type_now;
+    enum Datanode_type node_type_now;
 
 
 
@@ -188,7 +188,7 @@ int tree_analys(treeNode *mytree)
         reversed_insert(stack_ptr, pop(stack_ptr));
         temp = top(stack_ptr);
         //根据收到的不同符号调用不同的处理函数
-        switch (temp->nodeType)
+        switch (temp->nodenode_type)
         {
         //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
         case N_EXT_DEF_L:
@@ -212,7 +212,7 @@ int tree_analys(treeNode *mytree)
             // ExtDecList
             // 这些非终结符，理论上应该在函数中被处理掉
             // 但是既然走到了这一步，显然没有，所以这里肯定要报错
-            printf("ERROR: Unexpected node token with name %s\n", temp->character);
+            printf("ERROR: Unexpected node token with character %s\n", temp->character);
 
             break;
         }
@@ -230,7 +230,7 @@ int tree_analys(treeNode *mytree)
 // {
 //     treeNode sub_tree_root;
 //     treeNode child = sub_tree_root->child->sibling;
-//     switch (child->type)
+//     switch (child->node_type)
 //     {
 //     case N_EXT_DEF_L:
 //         out0 = global_var(sub_tree_root);
@@ -254,4 +254,34 @@ int tree_analys(treeNode *mytree)
 
 int specifiers(){
 
+}
+
+#include"tree.c"//不想看报错
+node_type Exp_s(treeNode*cur)
+{/**************************
+*         施工中……         *
+***************************/
+	/*Exp -> Exp ASSIGNOP Exp3
+	| Exp AND Exp3
+	| Exp OR Exp3
+	| Exp RELOP Exp3
+ 	| Exp PLUS Exp3
+	| Exp MINUS Exp3
+	| Exp STAR Exp3
+	| Exp DIV Exp3
+
+	| LP Exp RP3  
+	| MINUS Exp 2 
+	| NOT Exp 2 
+
+	| ID LP Args RP 4函数
+	| ID LP RP 3
+
+	| Exp LB Exp RB4 数组
+	| Exp DOT ID3 结构体;
+
+	| ID1 
+	| INT1 
+	| FLOAT1 
+	*/
 }
