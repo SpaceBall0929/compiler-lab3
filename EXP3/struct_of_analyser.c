@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "SymbolTable.c"
+#include "DomainStack.c"
 
 //这里给了一个node_node_type定义，其实树的头里面已经给过了
 //这里只是为了方便编译不报错，最后应该当删除
@@ -109,7 +109,7 @@ node_typedef treeNode Tree;
 
 // //关闭当前作用域，退到上一层作用域
 // int close_block();
-dataNodeVar* var_dec(treeNode* dec_node, Datanode_type var_node_type){
+dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     dataNodeVar* new_var;
     treeNode* origrn = dec_node;
     dec_node = dec_node -> child;
@@ -137,6 +137,7 @@ int ext_def(treeNode* ExtDef, seqStack* stack){
     enum Datanode_type node_type;
     treeNode* node_type_node = ExtDef -> child -> child;
     
+
     //判断一下这到底是个什么类型的声明
     if(node_type_node -> nodenode_type == N_node_type){
         if(node_type_node -> subnode_type.IDVal[0] == 'i'){
@@ -144,6 +145,7 @@ int ext_def(treeNode* ExtDef, seqStack* stack){
         }else{
             node_type = Float;
         }
+
 
     }else{
         node_type = Struct;
