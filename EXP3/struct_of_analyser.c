@@ -107,8 +107,7 @@ typedef treeNode Tree;
 // int query_fun_legal(fun_dec myfun);
 // int query_struct_legal(struct_dec mystruct);
 
-// //关闭当前作用域，退到上一层作用域
-// int close_block();
+// 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
 dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     dataNodeVar* new_var;
     treeNode* origrn = dec_node;
@@ -131,9 +130,11 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     return new_var;
 }
 
+dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
 
+}
 
-int ext_def(treeNode* ExtDef, seqStack* stack, domainStack* domain){
+int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
     enum DataType def_type;
     treeNode* type_node = ExtDef -> child -> child;
     treeNode* core_node = ExtDef -> child -> sibling;
@@ -150,9 +151,7 @@ int ext_def(treeNode* ExtDef, seqStack* stack, domainStack* domain){
             do{
                 temp_node = core_node -> child;
                 core_node = temp_node -> sibling -> sibling;
-                
-                InsertVar(domain, var_dec(temp_node, def_type););
-                
+                InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
             }while(core_node != NULL);
         }else{
 
