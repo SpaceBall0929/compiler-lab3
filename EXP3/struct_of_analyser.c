@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include "DomainStack.c"
 
-//这里给了一个node_node_type定义，其实树的头里面已经给过了
+//这里给了一个node_type定义，其实树的头里面已经给过了
 //这里只是为了方便编译不报错，最后应该当删除
-node_typedef enum node_node_type
+typedef enum node_type
 {
     // NONTERMINAL
     N_PROGRAM,
@@ -32,7 +32,7 @@ node_typedef enum node_node_type
     N_INT ,
     N_FLOAT = 100,
     N_ID,
-    N_node_type,
+    N_TYPE,
     N_LF,
     N_SEMI,
     N_COMMA,
@@ -57,25 +57,25 @@ node_typedef enum node_node_type
     N_IF,
     N_ELSE,
     N_WHILE
-} node_node_type;
+} node_type;
 
-node_typedef treeNode
+typedef struct node
 {
     char *character;
     int line_no; //行号
     treeNode *child;
     treeNode *sibling;
-    node_node_type nodenode_type;
+    node_type nodeType;
     // int flag;//遍历标记
     union
     {
         int intVal;
         float floatVal;
         char *IDVal;
-    } subnode_type;
+    } subtype;
 } treeNode;
 
-node_typedef treeNode Tree;
+typedef treeNode Tree;
 
 // enum Datanode_type {Int, Float, Array, Struct, StructDomain};
 
@@ -115,11 +115,11 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     dec_node = dec_node -> child;
     int dimension = 0;
     int dimensionlen[10];
-    while(dec_node -> nodenode_type != N_ID){
+    while(dec_node -> nodeType != N_ID){
         dec_node = dec_node -> child;
-        dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subnode_type.intVal;
+        dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subtype.intVal;
     }
-    new_var = newNodeVar(dec_node->subnode_type.IDVal, var_node_type);
+    new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
     if(dimension == 0){
         return new_var;
     }
@@ -134,13 +134,13 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
 
 
 int ext_def(treeNode* ExtDef, seqStack* stack){
-    enum Datanode_type node_type;
-    treeNode* node_type_node = ExtDef -> child -> child;
+    enum DataType node_type;
+    treeNode* type_node = ExtDef -> child -> child;
     
 
     //判断一下这到底是个什么类型的声明
-    if(node_type_node -> nodenode_type == N_node_type){
-        if(node_type_node -> subnode_type.IDVal[0] == 'i'){
+    if(type_node -> nodeType == N_TYPE){
+        if(type_node -> subtype.IDVal[0] == 'i'){
             node_type = Int;
         }else{
             node_type = Float;
@@ -151,15 +151,7 @@ int ext_def(treeNode* ExtDef, seqStack* stack){
         node_type = Struct;
     }
 
-
-    //     if(ExtDef -> child -> sibling -> nodenode_type == N_EXT_DEC_L){
-        
-    // }else if(ExtDef -> sibling -> nodenode_type == N_SEMI){
-    // }else if(ExtDef -> sibling -> nodenode_type == N_FUN_DEC){
-    // }else{
-    // }
-    
-    
+       
     return 0;
 }
 
@@ -179,7 +171,7 @@ int tree_analys(treeNode *mytree)
 
     //用于存储变量信息
     int define_flag = 0;
-    enum Datanode_type node_type_now;
+    enum DataType type_now;
 
 
 
@@ -190,7 +182,7 @@ int tree_analys(treeNode *mytree)
         reversed_insert(stack_ptr, pop(stack_ptr));
         temp = top(stack_ptr);
         //根据收到的不同符号调用不同的处理函数
-        switch (temp->nodenode_type)
+        switch (temp->nodeType)
         {
         //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
         case N_EXT_DEF_L:
