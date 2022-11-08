@@ -190,8 +190,8 @@ int ifExistStruct(SymbolTableStruct st, char* key){
 
 void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 {
-	int i = findPosVar(st, elem -> varName);
-	if (st->ta[i] != Active)
+	int i = findPosVar(*st, elem -> varName);
+	if (st->sta[i] != Active)
 	{
 		st->data[i] = *elem;
 		st->sta[i] = (enum Status)Active;
@@ -205,7 +205,7 @@ void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 
 void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 {
-	int i = findPosFunc(st, elem.funcName);
+	int i = findPosFunc(*st, elem.funcName);
 	if (st->sta[i] != Active)
 	{
 		st->data[i] = elem;
@@ -218,7 +218,7 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 
 void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 {
-	int i = findPosStruct(st, elem.structName);
+	int i = findPosStruct(*st, elem.structName);
 	if (st->sta[i] != Active)
 	{
 		st->data[i] = elem;
