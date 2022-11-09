@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include "SymbolTable.c"
+#include "DomainStack.c"
 
-//这里给了一个node_node_type定义，其实树的头里面已经给过了
+//这里给了一个node_type定义，其实树的头里面已经给过了
 //这里只是为了方便编译不报错，最后应该当删除
-node_typedef enum node_node_type
+typedef enum node_type
 {
     // NONTERMINAL
     N_PROGRAM,
@@ -32,7 +32,7 @@ node_typedef enum node_node_type
     N_INT ,
     N_FLOAT = 100,
     N_ID,
-    N_node_type,
+    N_TYPE,
     N_LF,
     N_SEMI,
     N_COMMA,
@@ -57,25 +57,25 @@ node_typedef enum node_node_type
     N_IF,
     N_ELSE,
     N_WHILE
-} node_node_type;
+} node_type;
 
-node_typedef treeNode
+typedef struct node
 {
     char *character;
     int line_no; //行号
     treeNode *child;
     treeNode *sibling;
-    node_node_type nodenode_type;
+    node_type nodeType;
     // int flag;//遍历标记
     union
     {
         int intVal;
         float floatVal;
         char *IDVal;
-    } subnode_type;
+    } subtype;
 } treeNode;
 
-node_typedef treeNode Tree;
+typedef treeNode Tree;
 
 // enum Datanode_type {Int, Float, Array, Struct, StructDomain};
 
@@ -107,19 +107,18 @@ node_typedef treeNode Tree;
 // int query_fun_legal(fun_dec myfun);
 // int query_struct_legal(struct_dec mystruct);
 
-// //关闭当前作用域，退到上一层作用域
-// int close_block();
-dataNodeVar* var_dec(treeNode* dec_node, Datanode_type var_node_type){
+// 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
+dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     dataNodeVar* new_var;
     treeNode* origrn = dec_node;
     dec_node = dec_node -> child;
     int dimension = 0;
     int dimensionlen[10];
-    while(dec_node -> nodenode_type != N_ID){
+    while(dec_node -> nodeType != N_ID){
         dec_node = dec_node -> child;
-        dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subnode_type.intVal;
+        dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subtype.intVal;
     }
-    new_var = newNodeVar(dec_node->subnode_type.IDVal, var_node_type);
+    new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
     if(dimension == 0){
         return new_var;
     }
@@ -131,33 +130,38 @@ dataNodeVar* var_dec(treeNode* dec_node, Datanode_type var_node_type){
     return new_var;
 }
 
+dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
 
+}
 
-int ext_def(treeNode* ExtDef, seqStack* stack){
-    enum Datanode_type node_type;
-    treeNode* node_type_node = ExtDef -> child -> child;
-    
+int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
+    enum DataType def_type;
+    treeNode* type_node = ExtDef -> child -> child;
+    treeNode* core_node = ExtDef -> child -> sibling;
+
     //判断一下这到底是个什么类型的声明
-    if(node_type_node -> nodenode_type == N_node_type){
-        if(node_type_node -> subnode_type.IDVal[0] == 'i'){
-            node_type = Int;
+    if(type_node -> nodeType == N_TYPE){
+        if(type_node -> subtype.IDVal[0] == 'i'){
+            def_type = Int;
         }else{
-            node_type = Float;
+            def_type = Float;
+        }
+        if(core_node -> nodeType == N_EXT_DEC_L){
+            treeNode* temp_node;
+            do{
+                temp_node = core_node -> child;
+                core_node = temp_node -> sibling -> sibling;
+                InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
+            }while(core_node != NULL);
+        }else{
+
         }
 
     }else{
-        node_type = Struct;
+        struct_specifier(type_node);
     }
 
-
-    //     if(ExtDef -> child -> sibling -> nodenode_type == N_EXT_DEC_L){
-        
-    // }else if(ExtDef -> sibling -> nodenode_type == N_SEMI){
-    // }else if(ExtDef -> sibling -> nodenode_type == N_FUN_DEC){
-    // }else{
-    // }
-    
-    
+       
     return 0;
 }
 
@@ -173,22 +177,19 @@ int tree_analys(treeNode *mytree)
     push(stack_ptr, mytree);
 
     //表初始化部分
+    stackNode* domain_ptr = createStackNode();
 
 
     //用于存储变量信息
     int define_flag = 0;
-    enum Datanode_type node_type_now;
-
-
-
-
+    enum DataType type_now;
 
     do
     {
         reversed_insert(stack_ptr, pop(stack_ptr));
         temp = top(stack_ptr);
         //根据收到的不同符号调用不同的处理函数
-        switch (temp->nodenode_type)
+        switch (temp->nodeType)
         {
         //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
         case N_EXT_DEF_L:
@@ -199,7 +200,7 @@ int tree_analys(treeNode *mytree)
             break;
         case N_EXT_DEF:
             printf("ExtDef detected\n");
-            ext_def(temp, stack_ptr);
+            ext_def(temp, stack_ptr, domain_ptr);
             break;
         case N_SPECI:
 
@@ -256,11 +257,81 @@ int specifiers(){
 
 }
 
-#include"tree.c"//不想看报错
-node_type Exp_s(treeNode*cur)
-{/**************************
-*         施工中……         *
+
+/**************************
+*       以下施工中……         *
 ***************************/
+#include"tree.c"//不想看报错
+void error_msg(int type, int line_no, char* content){//报错
+    printf("Error type %d at Line %d: ", type, line_no);
+    switch(type){
+        case 1:
+            printf("Undefined var \"%s\".\n", content);
+            break;
+        case 2:
+            printf("Undefined function \"%s\".\n", content);
+            break;
+        case 3:
+            printf("Redefined var \"%s\".\n", content);
+            break;
+        case 4:
+            printf("Redefined function \"%s\".\n", content);
+            break;
+        case 5:
+            printf("Type mismatched for assigment.\n");
+            break;
+        case 6:
+            printf("The left-hand side of an assignment must be a var.\n");
+            break;
+        case 7:
+            printf("Type mismatched for operands.\n");
+            break;
+        case 8:
+            printf("Type mismatched for return.\n");
+            break;
+        case 9:
+            printf("Function is not applicable for arguments.\n");
+            break;
+        case 10:
+            printf("This is not an array.\n");
+            break;
+        case 11:
+            printf("\"%s\" is not a function.\n", content);
+            break;
+        case 12:
+            printf("This is not an integer.\n");
+            break;
+        case 13:
+            printf("Illegal use of \".\".\n");
+            break;
+        case 14:
+            printf("Non-existent field \"%s\".\n", content);
+            break;
+        case 15:
+            printf("Redefined field \"%s\".\n", content);
+            break;
+        case 16:
+            printf("Duplicated name \"%s\".\n", content);
+            break;
+        case 17:
+            printf("Undefined structure \"%s\".\n", content);
+            break;
+        case 18:
+            printf("Undefined function \"%s\".\n", content);
+            break;
+        case 19:
+            printf("Inconsistent declaration of function \"%s\".\n", content);
+            break;
+        default:
+            printf("Wrong semantic type:%s\n", content);
+            //
+            break;
+        }
+}
+
+
+node_type Exp_s(treeNode*exp)
+{
 	/*Exp -> Exp ASSIGNOP Exp3
 	| Exp AND Exp3
 	| Exp OR Exp3
@@ -284,4 +355,68 @@ node_type Exp_s(treeNode*cur)
 	| INT1 
 	| FLOAT1 
 	*/
+	if(exp==NULL){return NULL;};
+	node_type result=NULL;
+
+	treeNode*tempnode1=getchild(exp, 0);
+	treeNode*tempnode2=getchild(exp, 1);
+
+	//ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
+	if(strcmp(tempnode1->character,"Exp")==0)
+    {
+		if(tempnode2!=NULL&&strcmp(tempnode2->character,"ASSIGNOP")==0)
+        {	//Exp ASSIGNOP Exp
+			treeNode*tempnode11=getchild(tempnode1,0);
+			treeNode*tempnode12=getchild(tempnode1,1);
+			if(tempnode12==NULL)
+            {
+				if(strcmp(tempnode11->character,"ID")!=0)
+                {	//左侧不是ID
+					error_msg(6,exp->line_no,NULL);	//报错
+					return NULL;
+				}
+		}
+            else
+            {
+				treeNode* tempnode13=getchild(tempnode1,2);
+				if(tempnode13!=NULL)
+                {
+					treeNode* tempnode14=getchild(tempnode1,3);
+					if(tempnode14==NULL)
+                    {//Exp DOT ID(结构体)
+						if(strcmp(tempnode11->character,"Exp")==0&&
+                           strcmp(tempnode12->character,"DOT")==0&&
+                           strcmp(tempnode13->character,"ID")==0)
+                        {
+							;//正确
+						}else
+                            {//报错
+							error_msg(6,exp->line_no,NULL);	
+							return NULL;
+						    }
+					}else
+                    {//EXP LB EXP RB (数组)
+						if(strcmp(tempnode11->character,"Exp")==0&&
+                           strcmp(tempnode12->character,"LB")==0&&
+                           strcmp(tempnode13->character,"Exp")==0&&
+                           strcmp(tempnode14->character,"RB")==0)
+                           {
+							;//正确
+						    }else
+                            {//报错
+							error_msg(6,exp->line_no,NULL);	
+							return NULL;
+						    }
+
+					}
+				}else
+                {//tempnode13==NULL 报错
+					error_msg(6,exp->line_no,NULL);
+					return NULL;
+				}
+			}
+		}
+	}
+
+    //未完……
 }

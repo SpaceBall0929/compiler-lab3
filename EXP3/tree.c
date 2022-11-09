@@ -144,6 +144,23 @@ void preOrderTraverse(Tree t, int depth){
 /*栈实现树的遍历：
 根节点入栈，每次从栈顶取出一个节点 u，把 u 的所有子节点逆序推入栈*/
 
+treeNode* getchild(treeNode *t, int n){//n表示第几个孩子，从0开始算
+    if(t->child)
+    {
+        treeNode* node = t->child;
+        int i = 0;
+        while(i < n){
+            node = node->sibling;
+            if(!node) return NULL;
+        }
+        return node;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
 typedef struct stack //栈结构
 {
     treeNode *tree[1000];

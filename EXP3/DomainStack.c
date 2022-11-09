@@ -14,23 +14,19 @@ typedef struct stacknode* domainStack;
 
 stackNode* createStackNode(){
     stackNode* newNode = (stackNode*)malloc(sizeof(stackNode));
-    newNode->last = (stackNode*)malloc(sizeof(stackNode));
-    newNode->next = (stackNode*)malloc(sizeof(stackNode));
-    tableVarInit(newNode->tVar);
-    tableFuncInit(newNode->tFunc);
-    tableStructInit(newNode->tStruct);
+    newNode->last = NULL;
+    newNode->next = NULL;
+    tableVarInit(&newNode->tVar);
+    tableFuncInit(&newNode->tFunc);
+    tableStructInit(&newNode->tStruct);
     return newNode;
 }
 
 //创建新作用域并开启
 domainStack domainPush(domainStack ds){
     stackNode* newNode = createStackNode();
-    if(ds == NULL){
+    if(ds == NULL)
         ds = newNode;
-        //建立第一个作用域时node->last设置为NULL
-        ds->last = NULL;
-        ds->next = NULL;
-    }
     else{
         newNode->last = ds;
         ds->next = newNode;

@@ -5,7 +5,7 @@
 # define TABLESIZE 128
 
 enum Status { Active, Empty, Deleted };
-typedef enum DataType {Int, Float, Array, Struct, StructDomain}DataType;
+enum DataType {Int, Float, Array, Struct, StructDomain};
 
 struct datanode1{
     char* varName;  //变量名
@@ -188,22 +188,24 @@ int ifExistStruct(SymbolTableStruct st, char* key){
     return 0;
 }
 
-void InsertVar(SymbolTableVar* st, dataNodeVar elem)
+void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 {
-	int i = findPosVar(st, elem.varName);
-	if (st->ta[i] != Active)
+	int i = findPosVar(*st, elem -> varName);
+	if (st->sta[i] != Active)
 	{
-		st->data[i] = elem;
+		st->data[i] = *elem;
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
 	}
     else
         printf("Symbol table is full. Insert failed");
+    free(elem);
+
 }
 
 void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 {
-	int i = findPosFunc(st, elem.funcName);
+	int i = findPosFunc(*st, elem.funcName);
 	if (st->sta[i] != Active)
 	{
 		st->data[i] = elem;
@@ -216,7 +218,7 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 
 void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 {
-	int i = findPosStruct(st, elem.structName);
+	int i = findPosStruct(*st, elem.structName);
 	if (st->sta[i] != Active)
 	{
 		st->data[i] = elem;
