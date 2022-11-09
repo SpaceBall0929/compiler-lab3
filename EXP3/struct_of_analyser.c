@@ -136,10 +136,10 @@ dataNodeVar* var_list(treeNode* arg_list){
 }
 
 dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
-    treeNode* temp_node = dec_node -> child;
+    treeNode* temp_node = dec_node -> child -> sibling -> sibling;
     dataNodeVar* arg_list = NULL;
-    if(temp_node -> sibling -> sibling -> nodeType == N_VAR_L){
-        arg_list = var_list();
+    if(temp_node -> nodeType == N_VAR_L){
+        arg_list = var_list(temp_node);
     }
     return newNodeFunc(dec_node -> child -> character, return_type, arg_list);
 }
