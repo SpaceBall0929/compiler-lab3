@@ -172,26 +172,16 @@ enum DataType specifier(treeNode* speci){
 }
 
 int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
-    enum DataType def_type;
+    
     treeNode* type_node = ExtDef -> child -> child;
     treeNode* core_node = ExtDef -> child -> sibling;
+    enum DataType def_type = specifier(type_node);
 
-    specifier(type_node);
 
-    switch (expression)
+    switch (def_type)
     {
-    case /* constant-expression */:
-        /* code */
-        break;
-    
-    default:
-        break;
-    }
-
-
-    //判断一下这到底是个什么类型的声明
-    if(type_node -> nodeType == N_TYPE){
-
+    case Int:
+    case Float:
         if(core_node -> nodeType == N_EXT_DEC_L){
             treeNode* temp_node;
             do{
@@ -200,13 +190,27 @@ int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
                 InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
             }while(core_node != NULL);
         }else{
-
+            fun_dec
         }
 
-    }else{
-        struct_specifier(type_node);
+
+        break;
+    case StructDef:
+        struct_specifier_def(type_node);
+        break;
+
+    case StructDec:
+        struct_specifier_dec(type_node);
+        break;
+
+
+    default:
+        break;
     }
 
+
+
+        
        
     return 0;
 }
