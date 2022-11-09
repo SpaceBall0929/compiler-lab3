@@ -130,6 +130,11 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     return new_var;
 }
 
+dataNodeVar* param_dec(treeNode* para){
+    treeNode* type_node = para -> child -> ;
+
+}
+
 dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
 
 }
