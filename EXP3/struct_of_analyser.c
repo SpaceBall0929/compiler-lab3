@@ -262,11 +262,81 @@ int specifiers(){
 
 }
 
-#include"tree.c"//不想看报错
-node_type Exp_s(treeNode*cur)
-{/**************************
-*         施工中……         *
+
+/**************************
+*       以下施工中……         *
 ***************************/
+#include"tree.c"//不想看报错
+void error_msg(int type, int line_no, char* content){//报错
+    printf("Error type %d at Line %d: ", type, line_no);
+    switch(type){
+        case 1:
+            printf("Undefined var \"%s\".\n", content);
+            break;
+        case 2:
+            printf("Undefined function \"%s\".\n", content);
+            break;
+        case 3:
+            printf("Redefined var \"%s\".\n", content);
+            break;
+        case 4:
+            printf("Redefined function \"%s\".\n", content);
+            break;
+        case 5:
+            printf("Type mismatched for assigment.\n");
+            break;
+        case 6:
+            printf("The left-hand side of an assignment must be a var.\n");
+            break;
+        case 7:
+            printf("Type mismatched for operands.\n");
+            break;
+        case 8:
+            printf("Type mismatched for return.\n");
+            break;
+        case 9:
+            printf("Function is not applicable for arguments.\n");
+            break;
+        case 10:
+            printf("This is not an array.\n");
+            break;
+        case 11:
+            printf("\"%s\" is not a function.\n", content);
+            break;
+        case 12:
+            printf("This is not an integer.\n");
+            break;
+        case 13:
+            printf("Illegal use of \".\".\n");
+            break;
+        case 14:
+            printf("Non-existent field \"%s\".\n", content);
+            break;
+        case 15:
+            printf("Redefined field \"%s\".\n", content);
+            break;
+        case 16:
+            printf("Duplicated name \"%s\".\n", content);
+            break;
+        case 17:
+            printf("Undefined structure \"%s\".\n", content);
+            break;
+        case 18:
+            printf("Undefined function \"%s\".\n", content);
+            break;
+        case 19:
+            printf("Inconsistent declaration of function \"%s\".\n", content);
+            break;
+        default:
+            printf("Wrong semantic type:%s\n", content);
+            //
+            break;
+        }
+}
+
+
+node_type Exp_s(treeNode*exp)
+{
 	/*Exp -> Exp ASSIGNOP Exp3
 	| Exp AND Exp3
 	| Exp OR Exp3
@@ -290,4 +360,68 @@ node_type Exp_s(treeNode*cur)
 	| INT1 
 	| FLOAT1 
 	*/
+	if(exp==NULL){return NULL;};
+	node_type result=NULL;
+
+	treeNode*tempnode1=getchild(exp, 0);
+	treeNode*tempnode2=getchild(exp, 1);
+
+	//ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
+	if(strcmp(tempnode1->character,"Exp")==0)
+    {
+		if(tempnode2!=NULL&&strcmp(tempnode2->character,"ASSIGNOP")==0)
+        {	//Exp ASSIGNOP Exp
+			treeNode*tempnode11=getchild(tempnode1,0);
+			treeNode*tempnode12=getchild(tempnode1,1);
+			if(tempnode12==NULL)
+            {
+				if(strcmp(tempnode11->character,"ID")!=0)
+                {	//左侧不是ID
+					error_msg(6,exp->line_no,NULL);	//报错
+					return NULL;
+				}
+		}
+            else
+            {
+				treeNode* tempnode13=getchild(tempnode1,2);
+				if(tempnode13!=NULL)
+                {
+					treeNode* tempnode14=getchild(tempnode1,3);
+					if(tempnode14==NULL)
+                    {//Exp DOT ID(结构体)
+						if(strcmp(tempnode11->character,"Exp")==0&&
+                           strcmp(tempnode12->character,"DOT")==0&&
+                           strcmp(tempnode13->character,"ID")==0)
+                        {
+							;//正确
+						}else
+                            {//报错
+							error_msg(6,exp->line_no,NULL);	
+							return NULL;
+						    }
+					}else
+                    {//EXP LB EXP RB (数组)
+						if(strcmp(tempnode11->character,"Exp")==0&&
+                           strcmp(tempnode12->character,"LB")==0&&
+                           strcmp(tempnode13->character,"Exp")==0&&
+                           strcmp(tempnode14->character,"RB")==0)
+                           {
+							;//正确
+						    }else
+                            {//报错
+							error_msg(6,exp->line_no,NULL);	
+							return NULL;
+						    }
+
+					}
+				}else
+                {//tempnode13==NULL 报错
+					error_msg(6,exp->line_no,NULL);
+					return NULL;
+				}
+			}
+		}
+	}
+
+    //未完……
 }
