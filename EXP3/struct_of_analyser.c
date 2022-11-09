@@ -130,13 +130,15 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     return new_var;
 }
 
-dataNodeVar* param_dec(treeNode* para){
-    treeNode* type_node = para -> child -> ;
+dataNodeVar* var_list(treeNode* arg_list){
+    treeNode* type_node = arg_list -> child -> ;
 
 }
 
 dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
-
+    dataNodeFunc* new_func;
+    treeNode* temp_node = dec_node -> child;
+    newNodeFunc(temp_node -> characterm, return_type, );
 }
 
 int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
@@ -228,35 +230,6 @@ int tree_analys(treeNode *mytree)
 
     //后续的程序等等...先不写了，我也不清楚
 }
-
-
-
-
-// int ext_def(var_dec *out0, fun_dec *out1, struct_dec *out2)
-// {
-//     treeNode sub_tree_root;
-//     treeNode child = sub_tree_root->child->sibling;
-//     switch (child->node_type)
-//     {
-//     case N_EXT_DEF_L:
-//         out0 = global_var(sub_tree_root);
-//         return 0;
-//         break;
-
-//     case N_SEMI:
-//         out1 = global_fun(sub_tree_root);
-//         return 1;
-//         break;
-
-//     case N_FUN_DEC:
-//         out2 = global_struct(sub_tree_root);
-//         return 2;
-//     default:
-//         printf("ERROR: wrong syntax tree\n");
-//         break;
-//     }
-// }
-
 
 int specifiers(){
 

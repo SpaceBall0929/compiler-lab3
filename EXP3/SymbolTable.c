@@ -5,7 +5,7 @@
 # define TABLESIZE 128
 
 enum Status { Active, Empty, Deleted };
-enum DataType {Int, Float, Array, Struct, StructDomain};
+enum DataType {Int, Float, Array, StructDef, StructDec};
 
 struct datanode1{
     char* varName;  //变量名
