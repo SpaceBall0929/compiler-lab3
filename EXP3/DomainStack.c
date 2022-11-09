@@ -79,3 +79,15 @@ int ifExistStructStack(domainStack ds, char* key){
     }
     return 0;
 }
+
+//查找结构体的域
+int ifExistStructStackDomain(domainStack ds, char* key, char* domainName){
+    domainStack p = ds;
+    while(p != NULL){
+        if(ifExistStruct(p->tStruct, key))
+            return ifExistStructDomain(p->tStruct, key, domainName); // 0 or 1
+        p = p->last;
+    }
+    //结构体类型不存在
+    return 2;
+}

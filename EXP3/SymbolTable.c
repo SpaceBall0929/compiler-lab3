@@ -5,11 +5,13 @@
 # define TABLESIZE 128
 
 enum Status { Active, Empty, Deleted };
-enum DataType {Int, Float, Array, StructDef, StructDec};
+//enum DataType {Int, Float, Array, Struct, StructDomain};
 
 struct datanode1{
     char* varName;  //变量名
-    enum DataType varType; //变量数据类型
+    /*结构体类型名不能穷举，改成用字符串表示*/
+    //对结构体变量：varType = "struct a"
+    char* varType; //变量数据类型
     int numdim;     //若为数组，数组维度
     int* len_of_dims; //每个维度的长度
     struct datanode1* next;
@@ -17,7 +19,7 @@ struct datanode1{
 
 typedef struct datanode1 dataNodeVar;
 
-dataNodeVar* newNodeVar(char* name, enum DataType type){
+dataNodeVar* newNodeVar(char* name, char* type){
     dataNodeVar* newNode;
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
     newNode -> varName = name;
@@ -34,14 +36,14 @@ dataNodeVar* newNodeVar(char* name, enum DataType type){
 
 struct datanode2{
     char* funcName;  //函数名
-    enum DataType returnType; //函数返回值类型
+    char* returnType; //函数返回值类型
     int defined;   //函数是否定义
     dataNodeVar* args;   //函数形参表
 };  //函数符号表结点
 
 typedef struct datanode2 dataNodeFunc;
 
-dataNodeFunc* newNodeFunc(char* name, enum DataType type, int de, dataNodeVar* ar){
+dataNodeFunc* newNodeFunc(char* name, char* type, int de, dataNodeVar* ar){
     dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
     newNode -> funcName = name;
     newNode -> returnType = type;
@@ -51,24 +53,32 @@ dataNodeFunc* newNodeFunc(char* name, enum DataType type, int de, dataNodeVar* a
 }
 
 struct datanode3{
-    char* structName;  //结构体名
+    //char* structName;  //结构体名
     char* structTypeName;  //结构体类型名
     dataNodeVar* structDomains;  //结构体域，为一系列变量，存储为一个变量结点链表
 };  //结构体符号表结点
 
 typedef struct datanode3 dataNodeStruct;
 
-dataNodeStruct* newNodeStruct(char* name, char* tname){
+dataNodeStruct* newNodeStruct(char* tname){
     dataNodeStruct* newNode = (dataNodeStruct*)malloc(sizeof(dataNodeStruct));
-    newNode -> structName = name;
-    newNode -> structTypeName = tname;
+    //newNode -> structName = name;
+    newNode -> structTypeName = tname;  //这里也传入“struct a”形式，和变量表保持一致
+    newnode -> structDomains = NULL;
     return newNode;
 }
 
-// typedef struct argnode{
-//     enum DataType argType;
-//     struct argnode* next;
-// }argNode;  //函数形参表结点
+//填结构体表时，用前插法填入结构体的域
+void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain){
+    if(structNode->structDomains == NULL)
+        structNode->structDomains = newDomain;
+    else{
+        //前插
+        newDomain->next = structNode->structDomains;
+        structNode->structDomains = newDomain;
+    }
+    return;
+}
 
 struct table1{
     int divitor;
@@ -183,8 +193,24 @@ int ifExistFunc(SymbolTableFunc st, char* key){
 
 int ifExistStruct(SymbolTableStruct st, char* key){
     int i = findPosStruct(st, key);
-    if(st.sta[i] == Active && st.data[i].structName == key)
+    if(st.sta[i] == Active && st.data[i].structTypeName == key)
         return 1;
+    return 0;
+}
+
+//判断某结构体类型中是否存在某个域
+int ifExistStructDomain(SymbolTableStruct st, char* key, char* domainName){
+    int i = findPosStruct(st, key);
+    //结构体类型存在
+    dataNodeVar* p = st.data[i].structDomains;
+    while (p != NULL)
+    {
+        if(p->varName == domainName)
+            //结构体域存在
+            return 1;
+        p = p->next;
+    }
+    //结构体域不存在
     return 0;
 }
 
