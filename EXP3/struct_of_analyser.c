@@ -118,7 +118,7 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
         dec_node = dec_node -> child;
         dimensionlen[dimension++] = dec_node -> sibling -> sibling -> subtype.intVal;
     }
-    new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
+    new_var = newNodeVar(dec_node -> subtype.IDVal, var_type);
     if(dimension == 0){
         return new_var;
     }
@@ -130,11 +130,14 @@ dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
     return new_var;
 }
 
+
+//函数未完工
 dataNodeVar* var_list(treeNode* arg_list){
-    treeNode* type_node = arg_list -> child -> ;
+    treeNode* type_node = arg_list -> child;
 
 }
 
+//处理FunDec
 dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
     treeNode* temp_node = dec_node -> child -> sibling -> sibling;
     dataNodeVar* arg_list = NULL;
@@ -144,18 +147,51 @@ dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
     return newNodeFunc(dec_node -> child -> character, return_type, arg_list);
 }
 
+//判定specifier的指向：整形/浮点/结构体定义/结构体使用
+enum DataType specifier(treeNode* speci){
+    switch (speci -> child -> nodeType)
+    {
+    case N_TYPE:
+        if(speci -> child -> subtype.IDVal[0] == 'i'){
+            return Int;
+        }
+        return Float;
+        
+        break;
+    
+    case N_STRUCT_SPECI:
+        if(speci -> child -> child -> sibling -> nodeType == N_TAG){
+            return StructDec;
+        }
+        return StructDef;
+    default:
+        printf("ERROR: Unexpected nodeType in the child of Specifier\n");
+        return 0;
+        break;
+    }
+}
+
 int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
     enum DataType def_type;
     treeNode* type_node = ExtDef -> child -> child;
     treeNode* core_node = ExtDef -> child -> sibling;
 
+    specifier(type_node);
+
+    switch (expression)
+    {
+    case /* constant-expression */:
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+
+
     //判断一下这到底是个什么类型的声明
     if(type_node -> nodeType == N_TYPE){
-        if(type_node -> subtype.IDVal[0] == 'i'){
-            def_type = Int;
-        }else{
-            def_type = Float;
-        }
+
         if(core_node -> nodeType == N_EXT_DEC_L){
             treeNode* temp_node;
             do{
@@ -232,10 +268,6 @@ int tree_analys(treeNode *mytree)
     } while (1);
 
     //后续的程序等等...先不写了，我也不清楚
-}
-
-int specifiers(){
-
 }
 
 
