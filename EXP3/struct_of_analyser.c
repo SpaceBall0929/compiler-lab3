@@ -76,7 +76,7 @@ typedef struct node
 } treeNode;
 
 typedef treeNode Tree;
-
+//test
 // enum Datanode_type {Int, Float, Array, Struct, StructDomain};
 
 // //表明继续执行深度优先遍历
