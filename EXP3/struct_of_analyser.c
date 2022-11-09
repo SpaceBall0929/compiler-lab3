@@ -262,6 +262,287 @@ int specifiers(){
 *       以下施工中……         *
 ***************************/
 #include"tree.c"//不想看报错
+void error_msg(int type, int line_no, char* content);
+int StmtList_s(treeNode*stmt, stackNode* domain, enum DataType d_type);
+int Stmt_s(treeNode*stmt, stackNode* domain, enum DataType d_type);
+
+
+int Exp_s(treeNode*exp)
+{//处理Exp
+	/*Exp -> 
+      Exp ASSIGNOP Exp
+	| Exp AND Exp
+	| Exp OR Exp
+	| Exp RELOP Exp
+ 	| Exp PLUS Exp
+	| Exp MINUS Exp
+	| Exp STAR Exp
+	| Exp DIV Exp
+
+	| LP Exp RP
+	| MINUS Exp
+	| NOT Exp 
+
+	| ID LP Args RP 函数
+	| ID LP RP 
+
+	| Exp LB Exp RB 数组
+	| Exp DOT ID 结构体
+
+	| ID
+	| INT
+	| FLOAT
+	*/
+	if(exp==NULL){return NULL;};
+	node_type result=NULL;
+
+	treeNode*tempnode1=getchild(exp, 0);
+	treeNode*tempnode2=getchild(exp, 1);
+
+	//ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
+	if(strcmp(tempnode1->character,"Exp")==0)
+    {
+		if(tempnode2!=NULL&&strcmp(tempnode2->character, "ASSIGNOP")==0)
+        {	//Exp ASSIGNOP Exp
+			treeNode*tempnode11=getchild(tempnode1, 0);
+			treeNode*tempnode12=getchild(tempnode1, 1);
+			if(tempnode12==NULL)
+            {
+				if(strcmp(tempnode11->character,"ID")!=0)
+                {	//左侧不是ID
+					error_msg(6, exp->line_no, NULL);	//报错
+					return NULL;
+				}
+		}
+            else
+            {
+				treeNode* tempnode13=getchild(tempnode1,2);
+				if(tempnode13!=NULL)
+                {
+					treeNode* tempnode14=getchild(tempnode1,3);
+					if(tempnode14==NULL)
+                    {//Exp DOT ID(结构体)
+						if(strcmp(tempnode11->character,"Exp")==0&&
+                           strcmp(tempnode12->character,"DOT")==0&&
+                           strcmp(tempnode13->character,"ID")==0)
+                        {
+							;//正确
+						}else
+                            {//报错
+							error_msg(6, exp->line_no, NULL);	
+							return NULL;
+						    }
+					}else
+                    {//EXP LB EXP RB (数组)
+						if(strcmp(tempnode11->character,"Exp")==0&&
+                           strcmp(tempnode12->character,"LB")==0&&
+                           strcmp(tempnode13->character,"Exp")==0&&
+                           strcmp(tempnode14->character,"RB")==0)
+                           {
+							;//正确
+						    }else
+                            {//报错
+							error_msg(6, exp->line_no, NULL);	
+							return NULL;
+						    }
+
+					}
+				}else
+                {//tempnode13==NULL 报错
+					error_msg(6, exp->line_no, NULL);
+					return NULL;
+				}
+			}
+		}
+	}
+
+    /***************************************/
+	if(tempnode2 == NULL)
+    { //ID，INT，FLOAT
+		if(strcmp(tempnode1->character,"ID") == 0)
+        {	//检查该ID是否已定义  (local & global)
+			if(/*****被定义*/1)
+            {
+				;//****当前层找到了用当前的;是普通变量,
+				result = tempnode1->nodeType;
+				return result;
+			}else
+            {
+				;//****查看全局层,如果没有或为struct则报错
+				if(/*****没找到*/1)
+                {
+					;//****没有找到全局定义,报错
+					error_msg(1,exp->line_no,tempnode1->subtype.IDVal);	//错误类型1，变量未定义
+					return NULL;
+				}else
+                {
+					result=result=tempnode1->nodeType;		//在全局层找到了
+					return result;
+				}
+			}
+		}else if(strcmp(tempnode1->character,"INT")==0)
+        {//返回适合int的type
+            result = N_INT;
+			return result;
+			;
+		}else if(strcmp(tempnode1->character,"FLOAT")==0)
+        {//处理float
+			result = N_FLOAT;
+			return result;
+		}
+		;  
+
+        }else
+        {
+            treeNode* tempnode3=getchild(exp,2);
+            //第一部分;
+            if(tempnode3!=NULL)
+            {
+                treeNode* tempnode4 = getchild(exp,3);
+                if(tempnode4==NULL&&
+                   strcmp(tempnode3->character,"Exp")==0&&
+                   strcmp(tempnode2->character,"LB")!=0)
+                   {//3元且第三项是Exp，如Exp AND Exp
+                    treeNode*Expnode1=tempnode1;
+                    treeNode*Expnode2=tempnode3;
+                    if(strcmp(Expnode1->character,"Exp")!=0)
+                    {
+                        printf("It isn't Exp xx Exp.\n");
+                    }
+                    int exp1type=Exp_s(Expnode1);
+                    int exp2type=Exp_s(Expnode2);
+                //	printf("hererer\n");
+                    if(exp1type!=NULL&&exp2type!=NULL)
+                    {
+                        //int tempresult=check_type(exp1type,exp2type);	//检查类型是否匹配
+                        int tempresult = 1;//不想报错
+                        if(tempresult==0&&0==strcmp(tempnode2->character,"ASSIGNOP"))
+                        {//赋值号
+                            error_s(5,exp->line_no,NULL);	//错误类型5，赋值号两侧类型不匹配
+                            return NULL;
+                        }
+                        if(tempresult==0)
+                        {				//不是赋值号，为运算符
+                            error_s(7,exp->line_no,NULL);	//错误类型7，操作数类型不匹配
+                            return NULL;
+                        }else
+                        {
+                            //左值错误,左值只能够是变量
+                            result=exp1type;
+                            return result;
+                        }
+                    }else
+                    {
+                        ;//如果是返回NULL的话exp里面肯定报错了,就不重复报错了;
+                        return NULL;//把NULL往前传,因为有错;
+                    }
+                }
+            }
+		//第二部分;
+		if(strcmp(tempnode1->character,"LP")==0||
+           strcmp(tempnode1->character,"MINUS")==0||
+           strcmp(tempnode1->character,"NOT")==0)
+           {	//LP Exp RP，MINUS Exp，NOT Exp
+			treeNode* expnode=tempnode2;
+			if(strcmp(expnode->character,"Exp")!=0)
+            {//第二个不是exp
+				printf("The second part should be Exp!\n");
+			}
+			int exp1type=Exp_s(expnode);
+			result=exp1type;
+			return result;
+		}
+		//第三部分;
+		/*
+		| ID LP Args RP 有参函数
+		| ID LP RP 无参函数
+
+		| Exp LB Exp RB 数组
+		| Exp DOT ID 结构体;
+		*/
+		//函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
+
+		/*********************************************
+         *                 此处未完成                  *
+         * ********************************************/
+		else{
+			treeNode*tempnode4=getchild(exp,3);
+			
+			if(tempnode4==NULL)
+            {
+				//结构体部分Exp DOT ID----结构体存在----域名存在----返回这个域名的type
+				if(strcmp(tempnode1->character,"Exp")==0&&
+                   strcmp(tempnode2->character,"DOT")==0&&
+                   strcmp(tempnode3->character,"ID")==0)
+                   {
+					int exptype=Exp_s(tempnode1);
+					
+					// if(exptype==NULL)
+					if(exptype!=NULL)
+                    {
+						if(exptype!=/****结构体*/1)
+                        {	//当前Exp不是结构体    用datatype
+							error_s(13,exp->line_no,NULL,NULL);	//错误类型13，对非结构体变量使用“.”
+							return NULL;
+						}else
+                        {
+							;//*******搜索域名;
+							
+							if(/*搜索到了*/1){
+								//找到了!
+								result=/*这个域名的type*/1;
+								return result;
+							}else{
+								//域名不存在;
+                                //////*****content待补充
+								error_s(14,exp->line_no,NULL);	//错误类型14，该域没有在访问结构体中未定义
+								return NULL;
+							}
+						}
+					;}else{
+						;return NULL;
+					}
+				}
+			}else
+            {;
+				//数组部分;| Exp LB Exp RB4 数组
+				if(strcmp(tempnode1->character,"Exp")==0&&
+                   strcmp(tempnode2->character,"LB")==0&&
+                   strcmp(tempnode3->character,"Exp")==0)
+                {
+					int type1=Exp_s(tempnode1);
+					int type3=Exp_s(tempnode3);
+					if(type1==NULL||type3==NULL)
+                    {
+						return NULL;
+					}
+					int checkresult=/****type1和type3类型是否匹配*/1;
+					if(/****Exp不是数组*/1)//****应该是用datatype那边
+                    {
+						error_s(10,exp->line_no,NULL);	//错误类型10，对非数组变量进行数组访问
+						return NULL;
+					}else
+                    {
+						if(type3==N_INT){	//Exp是整数
+							;
+						}else{					//Exp不是整数
+							error_s(12,exp->line_no,NULL);	//错误类型12，数组访问符中出现非整数
+							return NULL;
+						}
+					}
+					//返回结构体元素的类型result=type1->u.array_.elem;
+					return result;
+				}
+			}
+		}
+		;
+	}
+	return NULL;//防止漏网之鱼;
+	
+    //未完……
+
+}
+
 void error_msg(int type, int line_no, char* content){//报错
     printf("Error type %d at Line %d: ", type, line_no);
     switch(type){
@@ -311,7 +592,7 @@ void error_msg(int type, int line_no, char* content){//报错
             printf("Redefined field \"%s\".\n", content);
             break;
         case 16:
-            printf("Duplicated name \"%s\".\n", content);
+            printf("Duplicated character \"%s\".\n", content);
             break;
         case 17:
             printf("Undefined structure \"%s\".\n", content);
@@ -327,96 +608,4 @@ void error_msg(int type, int line_no, char* content){//报错
             //
             break;
         }
-}
-
-
-node_type Exp_s(treeNode*exp)
-{
-	/*Exp -> Exp ASSIGNOP Exp3
-	| Exp AND Exp3
-	| Exp OR Exp3
-	| Exp RELOP Exp3
- 	| Exp PLUS Exp3
-	| Exp MINUS Exp3
-	| Exp STAR Exp3
-	| Exp DIV Exp3
-
-	| LP Exp RP3  
-	| MINUS Exp 2 
-	| NOT Exp 2 
-
-	| ID LP Args RP 4函数
-	| ID LP RP 3
-
-	| Exp LB Exp RB4 数组
-	| Exp DOT ID3 结构体;
-
-	| ID1 
-	| INT1 
-	| FLOAT1 
-	*/
-	if(exp==NULL){return NULL;};
-	node_type result=NULL;
-
-	treeNode*tempnode1=getchild(exp, 0);
-	treeNode*tempnode2=getchild(exp, 1);
-
-	//ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
-	if(strcmp(tempnode1->character,"Exp")==0)
-    {
-		if(tempnode2!=NULL&&strcmp(tempnode2->character,"ASSIGNOP")==0)
-        {	//Exp ASSIGNOP Exp
-			treeNode*tempnode11=getchild(tempnode1,0);
-			treeNode*tempnode12=getchild(tempnode1,1);
-			if(tempnode12==NULL)
-            {
-				if(strcmp(tempnode11->character,"ID")!=0)
-                {	//左侧不是ID
-					error_msg(6,exp->line_no,NULL);	//报错
-					return NULL;
-				}
-		}
-            else
-            {
-				treeNode* tempnode13=getchild(tempnode1,2);
-				if(tempnode13!=NULL)
-                {
-					treeNode* tempnode14=getchild(tempnode1,3);
-					if(tempnode14==NULL)
-                    {//Exp DOT ID(结构体)
-						if(strcmp(tempnode11->character,"Exp")==0&&
-                           strcmp(tempnode12->character,"DOT")==0&&
-                           strcmp(tempnode13->character,"ID")==0)
-                        {
-							;//正确
-						}else
-                            {//报错
-							error_msg(6,exp->line_no,NULL);	
-							return NULL;
-						    }
-					}else
-                    {//EXP LB EXP RB (数组)
-						if(strcmp(tempnode11->character,"Exp")==0&&
-                           strcmp(tempnode12->character,"LB")==0&&
-                           strcmp(tempnode13->character,"Exp")==0&&
-                           strcmp(tempnode14->character,"RB")==0)
-                           {
-							;//正确
-						    }else
-                            {//报错
-							error_msg(6,exp->line_no,NULL);	
-							return NULL;
-						    }
-
-					}
-				}else
-                {//tempnode13==NULL 报错
-					error_msg(6,exp->line_no,NULL);
-					return NULL;
-				}
-			}
-		}
-	}
-
-    //未完……
 }
