@@ -31,7 +31,7 @@ dataNodeVar* newNodeVar(char* name, int type){
     newNode -> varType = type;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
-     if(type == Array){
+     if(type == D_ARRAY){
         newNode ->numdim = -1;
         return newNode;
     }
@@ -69,7 +69,7 @@ dataNodeStruct* newNodeStruct(char* tname){
     dataNodeStruct* newNode = (dataNodeStruct*)malloc(sizeof(dataNodeStruct));
     //newNode -> structName = name;
     newNode -> structTypeName = tname;  //这里也传入“struct a”形式，和变量表保持一致
-    newnode -> structDomains = NULL;
+    newNode -> structDomains = NULL;
     return newNode;
 }
 
