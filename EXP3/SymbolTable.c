@@ -24,21 +24,6 @@ struct datanode1{
 
 typedef struct datanode1 dataNodeVar;
 
-dataNodeVar* newNodeVar(char* name, int type){
-    dataNodeVar* newNode;
-    newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
-    newNode -> varName = charToInt(name);
-    newNode -> varType = type;
-    newNode -> len_of_dims = NULL;
-    newNode -> next = NULL;
-     if(type == D_ARRAY){
-        newNode ->numdim = -1;
-        return newNode;
-    }
-    newNode -> numdim = 0;
-    return newNode;
-}
-
 struct datanode2{
     char* funcName;  //函数名
     int returnType; //函数返回值类型
@@ -48,15 +33,6 @@ struct datanode2{
 
 typedef struct datanode2 dataNodeFunc;
 
-dataNodeFunc* newNodeFunc(char* name, char* type, int de, dataNodeVar* ar){
-    dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
-    newNode -> funcName = charToInt(name);
-    newNode -> returnType = type;
-    newNode -> defined = de;
-    newNode -> args = ar;
-    return newNode;
-}
-
 struct datanode3{
     //char* structName;  //结构体名
     char* structTypeName;  //结构体类型名
@@ -64,26 +40,6 @@ struct datanode3{
 };  //结构体符号表结点
 
 typedef struct datanode3 dataNodeStruct;
-
-dataNodeStruct* newNodeStruct(char* tname){
-    dataNodeStruct* newNode = (dataNodeStruct*)malloc(sizeof(dataNodeStruct));
-    //newNode -> structName = name;
-    newNode -> structTypeName = tname;  //这里也传入“struct a”形式，和变量表保持一致
-    newNode -> structDomains = NULL;
-    return newNode;
-}
-
-//填结构体表时，用前插法填入结构体的域
-void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain){
-    if(structNode->structDomains == NULL)
-        structNode->structDomains = newDomain;
-    else{
-        //前插
-        newDomain->next = structNode->structDomains;
-        structNode->structDomains = newDomain;
-    }
-    return;
-}
 
 struct table1{
     int divitor;
@@ -95,18 +51,6 @@ struct table1{
 
 typedef struct table1 SymbolTableVar;
 
-void tableVarInit(SymbolTableVar* st){
-    //st.divitor = d;
-    st->curSize = 0;
-    st->curSize = TABLESIZE;
-    st->divitor = GetClosestPrime(TABLESIZE);
-    st->data = (dataNodeVar*)calloc(TABLESIZE, sizeof(dataNodeVar));
-    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
-    for(int i = 0; i < st->tableSize; i++)
-        st->sta[i] = (enum Status)Empty;
-    return;
-}
-
 struct table2{
     int divitor;
  	int curSize;
@@ -117,17 +61,6 @@ struct table2{
 
 typedef struct table2 SymbolTableFunc;
 
-void tableFuncInit(SymbolTableFunc* st){
-    st->curSize = 0;
-    st->tableSize = TABLESIZE;
-    st->divitor = GetClosestPrime(TABLESIZE);
-    st->data = (dataNodeFunc*)calloc(TABLESIZE, sizeof(dataNodeFunc));
-    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
-    for(int i = 0; i < st->tableSize; i++)
-        st->sta[i] = (enum Status)Empty;
-    return;
-}
-
 struct table3{
     int divitor;
  	int curSize;
@@ -137,17 +70,6 @@ struct table3{
 };  //结构体符号表
 
 typedef struct table3 SymbolTableStruct;
-
-void tableStructInit(SymbolTableStruct* st){
-    st->curSize = 0;
-    st->tableSize = TABLESIZE;
-    st->divitor = GetClosestPrime(TABLESIZE);
-    st->data = (dataNodeStruct*)calloc(TABLESIZE, sizeof(dataNodeStruct));
-    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
-    for(int i = 0; i < st->tableSize; i++)
-        st->sta[i] = (enum Status)Empty;
-    return;
-}
 
 int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[1] + key[2]) % st.divitor;
@@ -175,11 +97,100 @@ int findPosStruct(SymbolTableStruct st, char* key){
     int i = abs(key[1] + key[2]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].structName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].structTypeName))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
     return j;
+}
+
+int charToInt(char* type, SymbolTableStruct st){
+    if(strcmp(type,"int") == 0)
+        return D_INT;
+    else if(strcmp(type,"float") == 0)
+        return D_FLOAT;
+    else if(strcmp(type,"array") == 0)
+        return D_ARRAY;
+    else
+        return findPosStruct(st, type) + D_AMT;
+}
+
+dataNodeVar* newNodeVar(char* name, char* type, SymbolTableStruct st){
+    dataNodeVar* newNode;
+    newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+    newNode -> varName = name;
+    newNode -> varType = charToInt(type, st);
+    newNode -> len_of_dims = NULL;
+    newNode -> next = NULL;
+     if(newNode -> varType == D_ARRAY){
+        newNode ->numdim = -1;
+        return newNode;
+    }
+    newNode -> numdim = 0;
+    return newNode;
+}
+
+dataNodeFunc* newNodeFunc(char* name, char* type, int de, dataNodeVar* ar, SymbolTableStruct st){
+    dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
+    newNode -> funcName = name;
+    newNode -> returnType = charToInt(type, st);
+    newNode -> defined = de;
+    newNode -> args = ar;
+    return newNode;
+}
+
+dataNodeStruct* newNodeStruct(char* tname){
+    dataNodeStruct* newNode = (dataNodeStruct*)malloc(sizeof(dataNodeStruct));
+    //newNode -> structName = name;
+    newNode -> structTypeName = tname;  //这里也传入“struct a”形式，和变量表保持一致
+    newNode -> structDomains = NULL;
+    return newNode;
+}
+
+//填结构体表时，用前插法填入结构体的域
+void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain){
+    if(structNode->structDomains == NULL)
+        structNode->structDomains = newDomain;
+    else{
+        //前插
+        newDomain->next = structNode->structDomains;
+        structNode->structDomains = newDomain;
+    }
+    return;
+}
+
+void tableVarInit(SymbolTableVar* st){
+    //st.divitor = d;
+    st->curSize = 0;
+    st->curSize = TABLESIZE;
+    st->divitor = GetClosestPrime(TABLESIZE);
+    st->data = (dataNodeVar*)calloc(TABLESIZE, sizeof(dataNodeVar));
+    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
+    for(int i = 0; i < st->tableSize; i++)
+        st->sta[i] = (enum Status)Empty;
+    return;
+}
+
+void tableFuncInit(SymbolTableFunc* st){
+    st->curSize = 0;
+    st->tableSize = TABLESIZE;
+    st->divitor = GetClosestPrime(TABLESIZE);
+    st->data = (dataNodeFunc*)calloc(TABLESIZE, sizeof(dataNodeFunc));
+    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
+    for(int i = 0; i < st->tableSize; i++)
+        st->sta[i] = (enum Status)Empty;
+    return;
+}
+
+void tableStructInit(SymbolTableStruct* st){
+    st->curSize = 0;
+    st->tableSize = TABLESIZE;
+    st->divitor = GetClosestPrime(TABLESIZE);
+    st->data = (dataNodeStruct*)calloc(TABLESIZE, sizeof(dataNodeStruct));
+    st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
+    for(int i = 0; i < st->tableSize; i++)
+        st->sta[i] = (enum Status)Empty;
+    return;
 }
 
 int ifExistVar(SymbolTableVar st, char* key){
@@ -250,7 +261,7 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 
 void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 {
-	int i = findPosStruct(*st, elem.structName);
+	int i = findPosStruct(*st, elem.structTypeName);
 	if (st->sta[i] != Active)
 	{
 		st->data[i] = elem;
@@ -259,18 +270,4 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 	}
     else
         printf("Symbol table is full. Insert failed");
-}
-
-int charToInt(char* type, SymbolTableStruct st){
-    switch (type)
-    {
-    case "int":
-        return D_INT;
-    case "float":
-        return D_FLOAT;
-    case "array":
-        return D_ARRAY;
-    default:
-        return findPosStruct(st, type) + D_AMT;
-    }
 }
