@@ -10,6 +10,7 @@ Grammar
     4 ExtDef: Specifier ExtDecList SEMI
     5       | Specifier SEMI
     6       | Specifier FunDec CompSt
+            | Specifier FunDec SEMI
 
     7 ExtDecList: VarDec
     8           | VarDec COMMA ExtDecList

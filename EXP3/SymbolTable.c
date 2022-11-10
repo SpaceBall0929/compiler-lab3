@@ -115,11 +115,11 @@ int charToInt(char* type, SymbolTableStruct st){
         return findPosStruct(st, type) + D_AMT;
 }
 
-dataNodeVar* newNodeVar(char* name, char* type, SymbolTableStruct st){
+dataNodeVar* newNodeVar(char* name, int type, SymbolTableStruct* st){
     dataNodeVar* newNode;
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
     newNode -> varName = name;
-    newNode -> varType = charToInt(type, st);
+    newNode -> varType = type;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
      if(newNode -> varType == D_ARRAY){
@@ -130,10 +130,10 @@ dataNodeVar* newNodeVar(char* name, char* type, SymbolTableStruct st){
     return newNode;
 }
 
-dataNodeFunc* newNodeFunc(char* name, char* type, int de, dataNodeVar* ar, SymbolTableStruct st){
+dataNodeFunc* newNodeFunc(char* name, int type, int de, dataNodeVar* ar, SymbolTableStruct st){
     dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
     newNode -> funcName = name;
-    newNode -> returnType = charToInt(type, st);
+    newNode -> returnType = type;
     newNode -> defined = de;
     newNode -> args = ar;
     return newNode;

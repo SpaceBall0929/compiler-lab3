@@ -79,6 +79,12 @@ ExtDef : Specifier ExtDecList SEMI{
         $2->sibling = $3;
         myTree = $$;
     }
+    | Specifier FunDec SEMI{
+        $$ = upConstruct($1, "ExtDef", @1.first_line, N_EXT_DEF);
+        $1->sibling = $2;
+        $2->sibling = $3;
+        myTree = $$;
+    }
 ;
 
 ExtDecList : VarDec{
