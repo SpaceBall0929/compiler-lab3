@@ -212,6 +212,10 @@ int specifier(treeNode *speci)
 }
 
 
+int comp_stmt(treeNode* comp_stmt, int expected_type){
+    
+}
+
 
 int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
 {
@@ -237,12 +241,12 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
         else
         {
             dataNodeFunc* abc = fun_dec(core_node, type_node -> child -> character);
-            if(){
-
+            if(core_node -> sibling ->nodeType != N_SEMI){
+                abc -> defined = 1;
+                //返回类型不匹配在这里面报错
+                comp_stmt(core_node -> sibling, def_type);
             }
-            //判断是声明还是定义
-            //判断后面的语句有没有错误
-            //还没写呢QAQ
+            
             InsertFunc(fun_table, *abc);
             free(abc);
         }
