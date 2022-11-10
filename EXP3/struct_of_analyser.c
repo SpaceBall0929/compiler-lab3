@@ -108,7 +108,7 @@ typedef treeNode Tree;
 // int query_struct_legal(struct_dec mystruct);
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
-dataNodeVar* var_dec(treeNode* dec_node, enum DataType var_type){
+dataNodeVar* var_dec(treeNode* dec_node, int var_type){
     dataNodeVar* new_var;
     treeNode* origrn = dec_node;
     dec_node = dec_node -> child;
@@ -138,7 +138,7 @@ dataNodeVar* var_list(treeNode* arg_list){
 }
 
 //处理FunDec
-dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
+dataNodeFunc* fun_dec(treeNode* dec_node, int return_type){
     treeNode* temp_node = dec_node -> child -> sibling -> sibling;
     dataNodeVar* arg_list = NULL;
     if(temp_node -> nodeType == N_VAR_L){
@@ -148,22 +148,22 @@ dataNodeFunc* fun_dec(treeNode* dec_node, enum DataType return_type){
 }
 
 //判定specifier的指向：整形/浮点/结构体定义/结构体使用
-enum DataType specifier(treeNode* speci){
+int specifier(treeNode* speci){
     switch (speci -> child -> nodeType)
     {
     case N_TYPE:
         if(speci -> child -> subtype.IDVal[0] == 'i'){
-            return Int;
+            return D_INT;
         }
-        return Float;
+        return D_FLOAT;
         
         break;
     
     case N_STRUCT_SPECI:
         if(speci -> child -> child -> sibling -> nodeType == N_TAG){
-            return StructDec;
+            return D_STRUCT_DEC;
         }
-        return StructDef;
+        return D_STRUCT_DEF;
     default:
         printf("ERROR: Unexpected nodeType in the child of Specifier\n");
         return 0;
@@ -175,13 +175,13 @@ int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
     
     treeNode* type_node = ExtDef -> child -> child;
     treeNode* core_node = ExtDef -> child -> sibling;
-    enum DataType def_type = specifier(type_node);
+    int def_type = specifier(type_node);
 
 
     switch (def_type)
     {
-    case Int:
-    case Float:
+    case D_INT:
+    case D_FLOAT:
         if(core_node -> nodeType == N_EXT_DEC_L){
             treeNode* temp_node;
             do{
@@ -195,11 +195,11 @@ int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
 
 
         break;
-    case StructDef:
+    case D_STRUCT_DEF:
         struct_specifier_def(type_node);
         break;
 
-    case StructDec:
+    case D_STRUCT_DEC:
         struct_specifier_dec(type_node);
         break;
 
@@ -232,7 +232,7 @@ int tree_analys(treeNode *mytree)
 
     //用于存储变量信息
     int define_flag = 0;
-    enum DataType type_now;
+    int type_now;
 
     do
     {

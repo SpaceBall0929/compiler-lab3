@@ -3,6 +3,12 @@
 # include <math.h>
 # include <string.h>
 # define TABLESIZE 128
+# define D_INT 0
+# define D_FLOAT 1
+# define D_ARRAY 2
+# define D_STRUCT_DEC 3
+# define D_STRUCT_DEF 4
+# define D_AMT 5
 
 enum Status { Active, Empty, Deleted };
 //enum DataType {Int, Float, Array, Struct, StructDomain};
