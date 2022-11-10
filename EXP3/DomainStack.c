@@ -5,9 +5,9 @@ struct stacknode
     struct stacknode* next;
     struct stacknode* last;
     /* data */
-    SymbolTableVar tVar;
-    SymbolTableFunc tFunc;
-    SymbolTableStruct tStruct;
+    SymbolTableVar tVar;  //只对变量做作用域管理
+    //SymbolTableFunc tFunc;  //函数和结构体类型需要两张全局的表
+    //SymbolTableStruct tStruct;
 };
 typedef struct stacknode stackNode;
 typedef struct stacknode* domainStack;
@@ -17,8 +17,8 @@ stackNode* createStackNode(){
     newNode->last = NULL;
     newNode->next = NULL;
     tableVarInit(&newNode->tVar);
-    tableFuncInit(&newNode->tFunc);
-    tableStructInit(&newNode->tStruct);
+    //tableFuncInit(&newNode->tFunc);
+    //tableStructInit(&newNode->tStruct);
     return newNode;
 }
 
@@ -48,7 +48,7 @@ domainStack domainPop(domainStack ds){
 //对未定义问题，查找所有各层作用域是否存在（重定义问题直接调用ifExistVar(ds->tVar, key)）
 //查找变量
 //建立第一个作用域时node->last设置为NULL
-int ifExistVarStack(domainStack ds, char* key){
+int ifExistVarStack(domainStack ds, char* key){  //key为变量名
     domainStack p = ds;
     while(p != NULL){
         if(ifExistVar(p->tVar, key))
@@ -56,38 +56,4 @@ int ifExistVarStack(domainStack ds, char* key){
         p = p->last;
     }
     return 0;
-}
-
-//查找函数
-int ifExistFuncStack(domainStack ds, char* key){
-    domainStack p = ds;
-    while(p != NULL){
-        if(ifExistFunc(p->tFunc, key))
-            return 1;
-        p = p->last;
-    }
-    return 0;
-}
-
-//查找结构体
-int ifExistStructStack(domainStack ds, char* key){
-    domainStack p = ds;
-    while(p != NULL){
-        if(ifExistStruct(p->tStruct, key))
-            return 1;
-        p = p->last;
-    }
-    return 0;
-}
-
-//查找结构体的域
-int ifExistStructStackDomain(domainStack ds, char* key, char* domainName){
-    domainStack p = ds;
-    while(p != NULL){
-        if(ifExistStruct(p->tStruct, key))
-            return ifExistStructDomain(p->tStruct, key, domainName); // 0 or 1
-        p = p->last;
-    }
-    //结构体类型不存在
-    return 2;
 }
