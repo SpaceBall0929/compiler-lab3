@@ -16,8 +16,7 @@ enum Status { Active, Empty, Deleted };
 struct datanode1{
     char* varName;  //变量名
     /*结构体类型名不能穷举，改成用字符串表示*/
-    //对结构体变量：varType = "struct a"
-    char* varType; //变量数据类型
+    int varType; //变量数据类型
     int numdim;     //若为数组，数组维度
     int* len_of_dims; //每个维度的长度
     struct datanode1* next;
@@ -25,10 +24,10 @@ struct datanode1{
 
 typedef struct datanode1 dataNodeVar;
 
-dataNodeVar* newNodeVar(char* name, char* type){
+dataNodeVar* newNodeVar(char* name, int type){
     dataNodeVar* newNode;
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
-    newNode -> varName = name;
+    newNode -> varName = charToInt(name);
     newNode -> varType = type;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
@@ -42,7 +41,7 @@ dataNodeVar* newNodeVar(char* name, char* type){
 
 struct datanode2{
     char* funcName;  //函数名
-    char* returnType; //函数返回值类型
+    int returnType; //函数返回值类型
     int defined;   //函数是否定义
     dataNodeVar* args;   //函数形参表
 };  //函数符号表结点
@@ -51,7 +50,7 @@ typedef struct datanode2 dataNodeFunc;
 
 dataNodeFunc* newNodeFunc(char* name, char* type, int de, dataNodeVar* ar){
     dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
-    newNode -> funcName = name;
+    newNode -> funcName = charToInt(name);
     newNode -> returnType = type;
     newNode -> defined = de;
     newNode -> args = ar;
@@ -205,10 +204,11 @@ int ifExistStruct(SymbolTableStruct st, char* key){
 }
 
 //判断某结构体类型中是否存在某个域
-int ifExistStructDomain(SymbolTableStruct st, char* key, char* domainName){
-    int i = findPosStruct(st, key);
-    //结构体类型存在
-    dataNodeVar* p = st.data[i].structDomains;
+//type -- 结构体类型，传入之前要求判断type>=3，否则报错误13
+//type通过查变量表中变量的类型获得
+int ifExistStructDomain(SymbolTableStruct st, int type, char* domainName){
+    //int i = findPosStruct(st, key);
+    dataNodeVar* p = st.data[type-D_AMT].structDomains;
     while (p != NULL)
     {
         if(p->varName == domainName)
@@ -259,4 +259,18 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 	}
     else
         printf("Symbol table is full. Insert failed");
+}
+
+int charToInt(char* type, SymbolTableStruct st){
+    switch (type)
+    {
+    case "int":
+        return D_INT;
+    case "float":
+        return D_FLOAT;
+    case "array":
+        return D_ARRAY;
+    default:
+        return findPosStruct(st, type) + D_AMT;
+    }
 }
