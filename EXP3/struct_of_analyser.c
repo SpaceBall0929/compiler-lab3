@@ -190,7 +190,7 @@ int ext_def(treeNode* ExtDef, seqStack* stack, stackNode* domain){
                 InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
             }while(core_node != NULL);
         }else{
-            fun_dec
+            fun_dec();
         }
 
 
