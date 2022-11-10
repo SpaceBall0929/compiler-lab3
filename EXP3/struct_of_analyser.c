@@ -151,7 +151,7 @@ dataNodeVar* param_dec(treeNode* para){
     return var_dec(para -> child -> sibling, para -> child -> character);
 }
 
-//函数未完工
+//处理参数表
 dataNodeVar *var_list(treeNode *arg_list)
 {
     arg_list = arg_list->child;
@@ -178,9 +178,6 @@ dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
     {
         arg_list = var_list(temp_node);
     }
-
-
-
     return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
 }
 
@@ -211,9 +208,16 @@ int specifier(treeNode *speci)
     }
 }
 
+int def_list(treeNode* defs){
+
+}
+
 
 int comp_stmt(treeNode* comp_stmt, int expected_type){
-    
+    domainPush(var_domain_ptr);
+    def_list(comp_stmt -> child -> sibling);
+    Stmt_s(comp_stmt -> child -> sibling -> sibling, var_domain_ptr, expected_type);
+    domainPop(var_domain_ptr);
 }
 
 
