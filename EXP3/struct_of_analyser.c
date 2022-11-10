@@ -115,7 +115,7 @@ SymbolTableStruct *struct_table;
 // int query_struct_legal(struct_dec mystruct);
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
-dataNodeVar *var_dec(treeNode *dec_node, int var_type)
+dataNodeVar *var_dec(treeNode *dec_node, char* var_type)
 {
     dataNodeVar *new_var;
     treeNode *origrn = dec_node;
@@ -141,16 +141,32 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     return new_var;
 }
 
+dataNodeVar* param_dec(treeNode* para){
+    int type_def = specifier(para -> child);
+    if(type_def == D_STRUCT_DEF){
+        printf("ERROR: Unexpected treeNode: structure definition in the parameters of the function.\n");
+        return NULL;
+    }
+
+    return var_dec(para -> child -> sibling, para -> child -> character);
+}
+
 //函数未完工
 dataNodeVar *var_list(treeNode *arg_list)
 {
-    treeNode* temp_node;
     arg_list = arg_list->child;
-    do
-    {
-        temp_node = arg_list -> child;
-        InsertFunc
-    } while (arg_list != NULL);
+    dataNodeVar* temp_node = param_dec(arg_list);
+    dataNodeVar* ptr = temp_node;
+    arg_list = arg_list -> sibling;
+    while (arg_list != NULL){
+        arg_list = arg_list -> sibling -> child;
+        ptr -> next = param_dec(arg_list);
+        ptr = ptr -> next;
+        arg_list = arg_list -> sibling; 
+    }
+    ptr -> next = NULL;
+
+    return temp_node;
 }
 
 //处理FunDec
@@ -163,11 +179,9 @@ dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
         arg_list = var_list(temp_node);
     }
 
-    //判断是声明还是定义
-    //判断后面的语句有没有错误
-    //还没写呢QAQ
 
-    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, ,arg_list);
+
+    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
 }
 
 //判定specifier的指向：整形/浮点/结构体定义/结构体使用
@@ -197,6 +211,8 @@ int specifier(treeNode *speci)
     }
 }
 
+
+
 int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
 {
 
@@ -215,12 +231,20 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
             {
                 temp_node = core_node->child;
                 core_node = temp_node->sibling->sibling;
-                InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
+                InsertVar(&(domain->tVar), var_dec(temp_node, type_node -> child -> character));
             } while (core_node != NULL);
         }
         else
         {
-            fun_dec();
+            dataNodeFunc* abc = fun_dec(core_node, type_node -> child -> character);
+            if(){
+
+            }
+            //判断是声明还是定义
+            //判断后面的语句有没有错误
+            //还没写呢QAQ
+            InsertFunc(fun_table, *abc);
+            free(abc);
         }
 
         break;
