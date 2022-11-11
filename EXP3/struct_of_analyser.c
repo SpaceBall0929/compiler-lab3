@@ -211,13 +211,21 @@ int specifier(treeNode *speci)
 int dec_list(treeNode* decs, char* var_type){
     dataNodeVar* temp_var;
     
-    decs = decs -> child;
     do{
-        temp_var = var_dec(decs -> child, var_type);
+        decs = decs  -> child;
+        InsertVar(&(var_domain_ptr -> tVar), var_dec(decs -> child, var_type));
         if(decs -> sibling != NULL){
-            Exp_s(decs -> sibling -> sibling);
+            if(charToInt(var_type, struct_table) !=Exp_s(decs -> sibling -> sibling)){
+                error_msg(5, decs ->line_no, decs -> child -> child -> subtype.IDVal);
+            }
         }
-    }while();
+        decs = decs -> sibling;
+        if(decs != NULL){
+            decs = decs -> sibling;
+        }
+    }while(decs != NULL);
+
+    return 0;
 }
 
 int def_list(treeNode* defs){
@@ -231,9 +239,8 @@ int def_list(treeNode* defs){
         defs = defs -> sibling -> child;
     }
     
+    return 0;
 }
-
-
 
 
 int comp_stmt(treeNode* comp_stmt, int expected_type){
@@ -241,6 +248,12 @@ int comp_stmt(treeNode* comp_stmt, int expected_type){
     def_list(comp_stmt -> child -> sibling);
     Stmt_s(comp_stmt -> child -> sibling -> sibling, var_domain_ptr, expected_type);
     domainPop(var_domain_ptr);
+
+    return 0;
+}
+
+int struct_specifier_def(treeNode* def_node){
+    
 }
 
 
