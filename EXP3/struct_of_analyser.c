@@ -208,44 +208,96 @@ int specifier(treeNode *speci)
     }
 }
 
-int dec_list(treeNode* decs, char* var_type){
-    dataNodeVar* temp_var;
-    
-    do{
-        decs = decs  -> child;
-        InsertVar(&(var_domain_ptr -> tVar), var_dec(decs -> child, var_type));
-        if(decs -> sibling != NULL){
-            if(charToInt(var_type, struct_table) !=Exp_s(decs -> sibling -> sibling)){
-                error_msg(5, decs ->line_no, decs -> child -> child -> subtype.IDVal);
+dataNodeVar *dec_list(treeNode *decs, char *var_type)
+{
+    dataNodeVar *temp_var;
+    dataNodeVar *return_vars;
+    decs = decs->child;
+    temp_var = var_dec(decs->child, var_type);
+    return_vars = temp_var;
+    if (decs->child->sibling != NULL)
+    {
+        if (charToInt(var_type, struct_table) != Exp_s(decs->child->sibling->sibling))
+        {
+            error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
+        }
+    }
+    decs = decs->sibling;
+    while (decs != NULL)
+    {
+        decs = decs->sibling->child;
+        temp_var->next = var_dec(decs->child, var_type);
+        temp_var = temp_var->next;
+        if (decs->child->sibling != NULL)
+        {
+            if (charToInt(var_type, struct_table) != Exp_s(decs->child->sibling->sibling))
+            {
+                error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
             }
         }
         decs = decs -> sibling;
-        if(decs != NULL){
-            decs = decs -> sibling;
-        }
-    }while(decs != NULL);
+    }
 
-    return 0;
+    temp_var = NULL;
+    return return_vars;
 }
 
-int def_list(treeNode* defs){
-    // int temp_type;
+// int dec_list(treeNode* decs, char* var_type){
+//     dataNodeVar* temp_var;
     
+//     do{
+//         decs = decs  -> child;
+//         InsertVar(&(var_domain_ptr -> tVar), var_dec(decs -> child, var_type));
+//         if(decs -> sibling != NULL){
+//             if(charToInt(var_type, struct_table) !=Exp_s(decs -> sibling -> sibling)){
+//                 error_msg(5, decs ->line_no, decs -> child -> child -> subtype.IDVal);
+//             }
+//         }
+//         decs = decs -> sibling;
+//         if(decs != NULL){
+//             decs = decs -> sibling;
+//         }
+//     }while(decs != NULL);
+
+//     return 0;
+// }
+
+dataNodeVar* def_list(treeNode* defs){
+    // int temp_type;
+    dataNodeVar* return_vars;
+    dataNodeVar* temp_ptr;
     defs = defs -> child;
+    if(defs == NULL){
+        return NULL;
+    }
+    return_vars = dec_list(defs -> child -> sibling, defs -> child -> child -> character);
+    temp_ptr = return_vars;
+    defs = defs -> sibling -> child;
     while (defs != NULL)
     {
-
-        dec_list(defs -> child -> sibling, defs -> child -> child -> character);
-        defs = defs -> sibling -> child;
+        temp_ptr = temp_ptr -> next;
+        temp_ptr = dec_list(defs -> child -> sibling, defs -> child -> child -> character);
+        defs = defs -> sibling -> child; 
     }
+    temp_ptr = NULL;
     
-    return 0;
+    return return_vars;
 }
 
 
 int comp_stmt(treeNode* comp_stmt, int expected_type){
+    dataNodeVar* all_vars; 
+    dataNodeVar* temp_for_del;
     domainPush(var_domain_ptr);
-    def_list(comp_stmt -> child -> sibling);
+    all_vars = def_list(comp_stmt -> child -> sibling);
+    while (all_vars != NULL)
+    {
+        temp_for_del = all_vars;
+        InsertVar(&(var_domain_ptr->tVar), all_vars);
+        all_vars = all_vars -> next;
+        free(temp_for_del);
+    }
+    
     Stmt_s(comp_stmt -> child -> sibling -> sibling, var_domain_ptr, expected_type);
     domainPop(var_domain_ptr);
 
@@ -253,7 +305,23 @@ int comp_stmt(treeNode* comp_stmt, int expected_type){
 }
 
 int struct_specifier_def(treeNode* def_node){
-    
+    char* name = NULL;
+    def_node = def_node -> child -> sibling;
+    if(def_node -> child != NULL){
+        name = def_node  -> sibling -> child -> subtype.IDVal;
+    }
+    dataNodeStruct* new_struc = newNodeStruct(name);
+    dataNodeVar* temp_for_del =new_struc ->structDomains;
+    dataNodeVar* temp2;
+    insertStructDomain(new_struc, def_list(def_node -> sibling ->sibling));
+    InsertStruct(struct_table, new_struc);
+    while(temp_for_del != NULL){
+        temp2 = temp_for_del;
+        temp_for_del = temp_for_del -> next;
+        free(temp2);
+    }
+
+    return 0;
 }
 
 
