@@ -1,81 +1,10 @@
 #include <stdio.h>
 #include "DomainStack.c"
 
-//这里给了一个node_type定义，其实树的头里面已经给过了
-//这里只是为了方便编译不报错，最后应该当删除
-// typedef enum node_type
-// {
-//     // NONTERMINAL
-//     N_PROGRAM,
-//     N_EXT_DEF_L,
-//     N_EXT_DEF,
-//     N_EXT_DEC_L,
-//     N_FUN_DEC,
-//     N_SPECI,
-//     N_STRUCT_SPECI,
-//     N_OPT_TAG,
-//     N_TAG,
-//     N_VAR_DEC,
-//     N_VAR_L,
-//     N_EXP,
-//     N_STMT,
-//     N_PARAM_DEC,
-//     N_COMPST,
-//     N_STMT_L,
-//     N_DEF_L,
-//     N_DEF,
-//     N_DEC,
-//     N_DEC_L,
-//     N_ARGS,
+//亟待解决的问题：
+//改变所有的类型传入为int型
+//锁定错误位置，增添定义部分的报错
 
-//     // TERMINAL
-//     N_INT,
-    // N_FLOAT = 100,
-//     N_ID,
-//     N_TYPE,
-//     N_LF,
-//     N_SEMI,
-//     N_COMMA,
-//     N_DOT,
-//     N_ASSIGNOP,
-//     N_RELOP,
-//     N_PLUS,
-//     N_MINUS,
-//     N_STAR,
-//     N_DIV,
-//     N_AND,
-//     N_OR,
-//     N_NOT,
-//     N_LP,
-//     N_RP,
-//     N_LB,
-//     N_RB,
-//     N_LC,
-//     N_RC,
-//     N_STRUCT,
-//     N_RETURN,
-//     N_IF,
-//     N_ELSE,
-//     N_WHILE
-// } node_type;
-
-// typedef struct node
-// {
-//     char *character;
-//     int line_no; //行号
-//     treeNode *child;
-//     treeNode *sibling;
-//     node_type nodeType;
-//     // int flag;//遍历标记
-//     union
-//     {
-//         int intVal;
-//         float floatVal;
-//         char *IDVal;
-//     } subtype;
-// } treeNode;
-
-// typedef treeNode Tree;
 
 
 stackNode *var_domain_ptr;
@@ -314,14 +243,19 @@ int struct_specifier_def(treeNode* def_node){
     dataNodeVar* temp_for_del =new_struc ->structDomains;
     dataNodeVar* temp2;
     insertStructDomain(new_struc, def_list(def_node -> sibling ->sibling));
-    InsertStruct(struct_table, new_struc);
+    InsertStruct(struct_table, *new_struc);
     while(temp_for_del != NULL){
         temp2 = temp_for_del;
         temp_for_del = temp_for_del -> next;
         free(temp2);
     }
+    free(new_struc);
 
     return 0;
+}
+
+int struct_specifier_dec(treeNode* dec_node){
+    
 }
 
 
@@ -334,6 +268,8 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
 
     switch (def_type)
     {
+    case D_STRUCT_DEC:
+        def_type = charToInt(type_node -> child -> sibling -> child -> subtype.IDVal, struct_table);
     case D_INT:
     case D_FLOAT:
         if (core_node->nodeType == N_EXT_DEC_L)
@@ -364,9 +300,9 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
         struct_specifier_def(type_node);
         break;
 
-    case D_STRUCT_DEC:
-        struct_specifier_dec(type_node);
-        break;
+    
+        // struct_specifier_dec(type_node);
+        // break;
 
     default:
         break;
