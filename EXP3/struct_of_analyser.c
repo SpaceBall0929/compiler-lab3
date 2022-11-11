@@ -3,79 +3,79 @@
 
 //这里给了一个node_type定义，其实树的头里面已经给过了
 //这里只是为了方便编译不报错，最后应该当删除
-typedef enum node_type
-{
-    // NONTERMINAL
-    N_PROGRAM,
-    N_EXT_DEF_L,
-    N_EXT_DEF,
-    N_EXT_DEC_L,
-    N_FUN_DEC,
-    N_SPECI,
-    N_STRUCT_SPECI,
-    N_OPT_TAG,
-    N_TAG,
-    N_VAR_DEC,
-    N_VAR_L,
-    N_EXP,
-    N_STMT,
-    N_PARAM_DEC,
-    N_COMPST,
-    N_STMT_L,
-    N_DEF_L,
-    N_DEF,
-    N_DEC,
-    N_DEC_L,
-    N_ARGS,
+// typedef enum node_type
+// {
+//     // NONTERMINAL
+//     N_PROGRAM,
+//     N_EXT_DEF_L,
+//     N_EXT_DEF,
+//     N_EXT_DEC_L,
+//     N_FUN_DEC,
+//     N_SPECI,
+//     N_STRUCT_SPECI,
+//     N_OPT_TAG,
+//     N_TAG,
+//     N_VAR_DEC,
+//     N_VAR_L,
+//     N_EXP,
+//     N_STMT,
+//     N_PARAM_DEC,
+//     N_COMPST,
+//     N_STMT_L,
+//     N_DEF_L,
+//     N_DEF,
+//     N_DEC,
+//     N_DEC_L,
+//     N_ARGS,
 
-    // TERMINAL
-    N_INT,
-    N_FLOAT = 100,
-    N_ID,
-    N_TYPE,
-    N_LF,
-    N_SEMI,
-    N_COMMA,
-    N_DOT,
-    N_ASSIGNOP,
-    N_RELOP,
-    N_PLUS,
-    N_MINUS,
-    N_STAR,
-    N_DIV,
-    N_AND,
-    N_OR,
-    N_NOT,
-    N_LP,
-    N_RP,
-    N_LB,
-    N_RB,
-    N_LC,
-    N_RC,
-    N_STRUCT,
-    N_RETURN,
-    N_IF,
-    N_ELSE,
-    N_WHILE
-} node_type;
+//     // TERMINAL
+//     N_INT,
+    // N_FLOAT = 100,
+//     N_ID,
+//     N_TYPE,
+//     N_LF,
+//     N_SEMI,
+//     N_COMMA,
+//     N_DOT,
+//     N_ASSIGNOP,
+//     N_RELOP,
+//     N_PLUS,
+//     N_MINUS,
+//     N_STAR,
+//     N_DIV,
+//     N_AND,
+//     N_OR,
+//     N_NOT,
+//     N_LP,
+//     N_RP,
+//     N_LB,
+//     N_RB,
+//     N_LC,
+//     N_RC,
+//     N_STRUCT,
+//     N_RETURN,
+//     N_IF,
+//     N_ELSE,
+//     N_WHILE
+// } node_type;
 
-typedef struct node
-{
-    char *character;
-    int line_no; //行号
-    treeNode *child;
-    treeNode *sibling;
-    node_type nodeType;
-    // int flag;//遍历标记
-    union
-    {
-        int intVal;
-        float floatVal;
-        char *IDVal;
-    } subtype;
-} treeNode;
+// typedef struct node
+// {
+//     char *character;
+//     int line_no; //行号
+//     treeNode *child;
+//     treeNode *sibling;
+//     node_type nodeType;
+//     // int flag;//遍历标记
+//     union
+//     {
+//         int intVal;
+//         float floatVal;
+//         char *IDVal;
+//     } subtype;
+// } treeNode;
 
-typedef treeNode Tree;
+// typedef treeNode Tree;
 
 
 stackNode *var_domain_ptr;
@@ -178,7 +178,7 @@ dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
     {
         arg_list = var_list(temp_node);
     }
-    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
+    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list, struct_table);
 }
 
 //判定specifier的指向：整形/浮点/结构体定义/结构体使用
@@ -208,9 +208,32 @@ int specifier(treeNode *speci)
     }
 }
 
-int def_list(treeNode* defs){
-
+int dec_list(treeNode* decs, char* var_type){
+    dataNodeVar* temp_var;
+    
+    decs = decs -> child;
+    do{
+        temp_var = var_dec(decs -> child, var_type);
+        if(decs -> sibling != NULL){
+            Exp_s(decs -> sibling -> sibling);
+        }
+    }while();
 }
+
+int def_list(treeNode* defs){
+    // int temp_type;
+    
+    defs = defs -> child;
+    while (defs != NULL)
+    {
+
+        dec_list(defs -> child -> sibling, defs -> child -> child -> character);
+        defs = defs -> sibling -> child;
+    }
+    
+}
+
+
 
 
 int comp_stmt(treeNode* comp_stmt, int expected_type){
@@ -460,13 +483,13 @@ int Exp_s(treeNode *exp)
         }
         else if (strcmp(tempnode1->character, "INT") == 0)
         { //返回适合int的type
-            result = N_INT;
+            result = D_INT;
             return result;
             ;
         }
         else if (strcmp(tempnode1->character, "FLOAT") == 0)
         { //处理float
-            result = N_FLOAT;
+            result = D_FLOAT;
             return result;
         };
     }
@@ -614,7 +637,7 @@ int Exp_s(treeNode *exp)
                     }
                     else
                     {
-                        if (type3 == N_INT)
+                        if (type3 == D_INT)
                         { // Exp是整数
                             ;
                         }
