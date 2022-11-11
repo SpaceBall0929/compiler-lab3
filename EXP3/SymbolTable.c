@@ -93,18 +93,18 @@ int findPosFunc(SymbolTableFunc st, char* key){
     return j;
 }
 
-int findPosStruct(SymbolTableStruct* st, char* key){
-    int i = abs(key[1] + key[2]) % st->divitor;
+int findPosStruct(SymbolTableStruct st, char* key){
+    int i = abs(key[1] + key[2]) % st.divitor;
     int j = i;
     do {
-		if (st->sta[j] == Empty || (st->sta[j] == Active && key == st->data[j].structTypeName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].structTypeName))
 			return j;
-		j = (j + 1) % st->tableSize;
+		j = (j + 1) % st.tableSize;
 	} while (j != i);
     return j;
 }
 
-int charToInt(char* type, SymbolTableStruct* st){
+int charToInt(char* type, SymbolTableStruct st){
     if(strcmp(type,"int") == 0)
         return D_INT;
     else if(strcmp(type,"float") == 0)
@@ -115,11 +115,11 @@ int charToInt(char* type, SymbolTableStruct* st){
         return findPosStruct(st, type) + D_AMT;
 }
 
-dataNodeVar* newNodeVar(char* name, char* type, SymbolTableStruct* st){
+dataNodeVar* newNodeVar(char* name, int type){
     dataNodeVar* newNode;
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
     newNode -> varName = name;
-    newNode -> varType = charToInt(type, st);
+    newNode -> varType = type;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
      if(newNode -> varType == D_ARRAY){
@@ -130,10 +130,10 @@ dataNodeVar* newNodeVar(char* name, char* type, SymbolTableStruct* st){
     return newNode;
 }
 
-dataNodeFunc* newNodeFunc(char* name, char* type, int de, dataNodeVar* ar, SymbolTableStruct* st){
+dataNodeFunc* newNodeFunc(char* name, int type, int de, dataNodeVar* ar){
     dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));
     newNode -> funcName = name;
-    newNode -> returnType = charToInt(type, st);
+    newNode -> returnType = type;
     newNode -> defined = de;
     newNode -> args = ar;
     return newNode;
@@ -208,7 +208,7 @@ int ifExistFunc(SymbolTableFunc st, char* key){
 }
 
 int ifExistStruct(SymbolTableStruct st, char* key){
-    int i = findPosStruct(&st, key);
+    int i = findPosStruct(st, key);
     if(st.sta[i] == Active && st.data[i].structTypeName == key)
         return 1;
     return 0;
@@ -261,7 +261,7 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
 
 void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 {
-	int i = findPosStruct(st, elem.structTypeName);
+	int i = findPosStruct(*st, elem.structTypeName);
 	if (st->sta[i] != Active)
 	{
 		st->data[i] = elem;
