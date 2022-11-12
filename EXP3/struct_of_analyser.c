@@ -371,10 +371,145 @@ int tree_analys(treeNode *mytree)
 /**************************
  *       以下施工中……         *
  ***************************/
+/*
+剩余要解决的问题：
+    check type
+*/
 #include "tree.c" //不想看报错
 void error_msg(int type, int line_no, char *content);
-int StmtList_s(treeNode *stmt, stackNode *domain, enum DataType d_type);
-int Stmt_s(treeNode *stmt, stackNode *domain, enum DataType d_type);
+int StmtList_s(treeNode *stmt, int d_type)
+{
+	/*
+	StmtList -> 
+      Stmt StmtList
+	| 空
+	Stmt -> 
+      Exp SEMI
+	| CompSt
+	| RETURN Exp SEMI
+	| IF LP Exp RP Stmt
+	| IF LP Exp RP Stmt ELSE Stmt
+	| WHILE LP Exp RP Stmt
+	*/
+	treeNode*Stmtnode=getchild(stmt,0);
+	treeNode*tempnode=getchild(stmt,1);
+	Stmt_s(Stmtnode, d_type);
+	if(tempnode!=NULL)
+    {
+		StmtList_s(tempnode, d_type) ;
+	}
+
+}
+int Stmt_s(treeNode *stmt, int d_type)
+{
+	/*
+	Stmt -> Exp SEMI
+	| CompSt
+	| RETURN Exp SEMI
+	| IF LP Exp RP Stmt
+	| IF LP Exp RP Stmt ELSE Stmt
+	| WHILE LP Exp RP Stmt
+	*/
+	
+	treeNode* tempnode1=getchild(stmt,0);
+	if(tempnode1->nodeType == N_COMPST)
+    {
+        /*
+		depth_ += 1;
+		struct Symbol_bucket* tempscope=enter_scope();
+		CompSt_s(tempnode1,tempscope,res_type);//进入CompSt，depth_+1,然后新开一个作用域;
+		exit_scope();
+		depth_-=1;*/
+	}else if(tempnode1->nodeType == N_EXP)
+    {
+	
+		int uselesstype=Exp_s(tempnode1);//返回exp的返回type
+	}else if(tempnode1->nodeType == N_RETURN)
+    {
+		
+		treeNode* expnode=getchild(stmt,1);
+		if(expnode->nodeType != N_EXP)
+        {
+			printf("Stmt_s bug: should be Exp!\n");
+		}
+		int returntype = Exp_s(expnode);
+		if(returntype != NULL)
+        {
+			int result=check_type(d_type, returntype);
+			if(result==0)
+            {
+				error_s(8, stmt->line_no, NULL);	//错误类型8，函数返回类型不匹配
+				return -1;
+			}else
+            {
+				;//exp里面已经因为NULL报错
+			}
+		}		
+
+	}else if(tempnode1->nodeType == N_WHILE)
+    {
+		treeNode* expnode = getchild(stmt,2);
+		treeNode* stmtnode = getchild(stmt,4);
+		int type = Exp_s(expnode);
+        ///???????
+		if(type!=NULL){
+			if(type == 0)
+            {
+				;
+			}else
+            {
+				error_s(7,stmt->line_no,NULL);	//错误类型7，while条件操作数类型不匹配
+			}
+			
+		}else
+        {
+			;//Exp里面已经报过了
+		}
+		Stmt_s(stmtnode, d_type);
+	}else if(tempnode1->nodeType == N_IF)
+    {
+		/*	| IF LP Exp RP Stmt
+	| IF LP Exp RP Stmt ELSE Stmt
+	*/
+		treeNode*expnode=getchild(stmt,2);
+		if(expnode->nodeType != N_EXP)
+        {
+			printf("Stmt_s bug: should be Exp!\n");
+			
+		}
+		treeNode* tempnode6=getchild(stmt,5);//ELSE
+		int iftype = Exp_s(expnode);
+		if(iftype!=NULL){
+			if(iftype == 0)
+            {
+				;
+			}else
+            {
+				error_s(7,stmt->line_no,NULL);	//错误类型7，if条件操作数类型不匹配
+				//return -1;
+			}
+		}
+		if(tempnode6==NULL)
+        {
+			treeNode*stmtnode1=getchild(stmt,4);
+
+			Stmt_s(stmtnode1, d_type);
+		}else
+        {
+			treeNode*stmtnode1=getchild(stmt,4);
+			treeNode*stmtnode2=getchild(stmt,6);
+
+			Stmt_s(stmtnode1, d_type);
+
+			Stmt_s(stmtnode2, d_type);
+		}
+		;
+	}else
+    {
+		printf("Stmt_s error: Impossible to be here!\n");
+	}
+	return 0;
+}
 
 int Exp_s(treeNode *exp)
 { //处理Exp
@@ -412,7 +547,7 @@ int Exp_s(treeNode *exp)
     treeNode *tempnode2 = getchild(exp, 1);
 
     // ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
-    if (strcmp(tempnode1->character, "Exp") == 0)
+    if (tempnode1->nodeType == N_EXP)
     {
         if (tempnode2 != NULL && strcmp(tempnode2->character, "ASSIGNOP") == 0)
         { // Exp ASSIGNOP Exp
