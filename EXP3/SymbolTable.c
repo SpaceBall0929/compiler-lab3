@@ -300,7 +300,7 @@ dataNodeVar getNodeStruct(SymbolTableStruct st, char* key){
 
 int getArgNum(SymbolTableFunc st, char* key){
     int num = 0;
-    int i = findPosVar(st, key);
+    int i = findPosFunc(st, key);
     dataNodeVar* arg = st.data[i].args;
     while(arg != NULL){
         num++;
