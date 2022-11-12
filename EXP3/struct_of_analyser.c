@@ -56,7 +56,7 @@ dataNodeVar *var_dec(treeNode *dec_node, char* var_type)
         dec_node = dec_node->child;
         dimensionlen[dimension++] = dec_node->sibling->sibling->subtype.intVal;
     }
-    new_var = newNodeVar(dec_node->subtype.IDVal, var_type, struct_table);
+    new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
     if (dimension == 0)
     {
         return new_var;
@@ -107,7 +107,7 @@ dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
     {
         arg_list = var_list(temp_node);
     }
-    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list, struct_table);
+    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
 }
 
 //判定specifier的指向：整形/浮点/结构体定义/结构体使用
@@ -146,7 +146,7 @@ dataNodeVar *dec_list(treeNode *decs, char *var_type)
     return_vars = temp_var;
     if (decs->child->sibling != NULL)
     {
-        if (charToInt(var_type, struct_table) != Exp_s(decs->child->sibling->sibling))
+        if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
         {
             error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
         }
@@ -159,7 +159,7 @@ dataNodeVar *dec_list(treeNode *decs, char *var_type)
         temp_var = temp_var->next;
         if (decs->child->sibling != NULL)
         {
-            if (charToInt(var_type, struct_table) != Exp_s(decs->child->sibling->sibling))
+            if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
             {
                 error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
             }
@@ -227,7 +227,7 @@ int comp_stmt(treeNode* comp_stmt, int expected_type){
         free(temp_for_del);
     }
     
-    Stmt_s(comp_stmt -> child -> sibling -> sibling, var_domain_ptr, expected_type);
+    Stmt_s(comp_stmt -> child -> sibling -> sibling, expected_type);
     domainPop(var_domain_ptr);
 
     return 0;
@@ -269,7 +269,7 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
     switch (def_type)
     {
     case D_STRUCT_DEC:
-        def_type = charToInt(type_node -> child -> sibling -> child -> subtype.IDVal, struct_table);
+        def_type = charToInt(type_node -> child -> sibling -> child -> subtype.IDVal, *struct_table);
     case D_INT:
     case D_FLOAT:
         if (core_node->nodeType == N_EXT_DEC_L)
