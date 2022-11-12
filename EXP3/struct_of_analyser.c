@@ -369,13 +369,26 @@ int tree_analys(treeNode *mytree)
 }
 
 /**************************
- *       以下施工中……         *
+ *       以下施工完了        *
  ***************************/
-/*
-剩余要解决的问题：
-    type
-*/
 #include "tree.c" //不想看报错
+
+//返回对应类型的宏
+int find_type(treeNode *n){
+    char *name = n->subtype.IDVal;
+    if(ifExistStruct(*struct_table, name))
+    {
+        return charToInt(name, *struct_table);
+    }
+    else if(ifExistFunc(*fun_table, name))
+    {
+        return 5;
+    }
+    else
+    {
+        return getNodeVar(var_domain_ptr->tVar, name).varType;
+    }
+}
 void error_msg(int type, int line_no, char *content);
 int StmtList_s(treeNode *stmt, int d_type)
 {
@@ -430,9 +443,9 @@ int Stmt_s(treeNode *stmt, int d_type)
 			printf("Stmt_s bug: should be Exp!\n");
 		}
 		int returntype = Exp_s(expnode);
-		if(returntype != NULL)
+		if(returntype != -1)
         {
-			//!!!!!!!!!!可能要改  int result=check_type(d_type, returntype);
+			//可能要改  int result=check_type(d_type, returntype);
 			if(d_type == returntype)
             {
 				error_msg(8, stmt->line_no, NULL);	//错误类型8，函数返回类型不匹配
@@ -449,7 +462,7 @@ int Stmt_s(treeNode *stmt, int d_type)
 		treeNode* stmtnode = getchild(stmt,4);
 		int type = Exp_s(expnode);
         ///可能要改
-		if(type!=NULL){
+		if(type!=-1){
 			if(type == 0)
             {
 				;
@@ -476,7 +489,7 @@ int Stmt_s(treeNode *stmt, int d_type)
 		}
 		treeNode* tempnode6=getchild(stmt,5);//ELSE
 		int iftype = Exp_s(expnode);
-		if(iftype!=NULL){
+		if(iftype!=-1){
 			if(iftype == 0)
             {
 				;
@@ -508,6 +521,7 @@ int Stmt_s(treeNode *stmt, int d_type)
 	return 0;
 }
 
+//处理Exp节点，返回对应类型，如果有错误或不存在返回-1
 int Exp_s(treeNode *exp)
 { //处理Exp
     /*Exp ->
@@ -536,9 +550,9 @@ int Exp_s(treeNode *exp)
     */
     if (exp == NULL)
     {
-        return NULL;
+        return -1;
     };
-    node_type result = NULL;
+    int result = -1;
 
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
@@ -555,7 +569,7 @@ int Exp_s(treeNode *exp)
                 if (tempnode11->nodeType != N_ID)
                 {                                     //左侧不是ID
                     error_msg(6, exp->line_no, NULL); //报错
-                    return NULL;
+                    return -1;
                 }
             }
             else
@@ -575,7 +589,7 @@ int Exp_s(treeNode *exp)
                         else
                         { //报错
                             error_msg(6, exp->line_no, NULL);
-                            return NULL;
+                            return -1;
                         }
                     }
                     else
@@ -590,31 +604,36 @@ int Exp_s(treeNode *exp)
                         else
                         { //报错
                             error_msg(6, exp->line_no, NULL);
-                            return NULL;
+                            return -1;
                         }
                     }
                 }
                 else
                 { // tempnode13==NULL 报错
                     error_msg(6, exp->line_no, NULL);
-                    return NULL;
+                    return -1;
                 }
             }
         }
     }
 
+    // ID，INT，FLOAT
     if (tempnode2 == NULL)
-    { // ID，INT，FLOAT
+    { 
         if (tempnode1->nodeType == N_ID)
-        { //检查该ID是否已定义  (local & global)
-            if (!ifExistVarStack(var_domain_ptr, tempnode1->character))
+        { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
+            if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal)&&
+                !ifExistFunc(*fun_table, tempnode1->subtype.IDVal)&&
+                !ifExistStruct(*struct_table, tempnode1->subtype.IDVal)
+                )
             {
-                error_msg(1, exp->line_no, tempnode1->character); //错误类型1，变量未定义
-                return NULL;
+                error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
+                return -1;
             }
             else
-            {
-                result = tempnode1->nodeType; //找到了
+            {   
+                result = find_type(tempnode1);//找到了,返回这个ID代表的类型
+                //result = charToInt(tempnode1->character, *struct_table);
                 return result;
             }
             
@@ -650,18 +669,18 @@ int Exp_s(treeNode *exp)
                 }
                 int exp1type = Exp_s(Expnode1);
                 int exp2type = Exp_s(Expnode2);
-                if (exp1type != NULL && exp2type != NULL)
+                if (exp1type != -1 && exp2type != -1)
                 {
                     //检查类型是否匹配
-                    if (exp1type == exp2type && tempnode2->nodeType == N_ASSIGNOP)
+                    if (exp1type != exp2type && tempnode2->nodeType == N_ASSIGNOP)
                     {                                   //赋值号
                         error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
-                        return NULL;
+                        return -1;
                     }
                     if (exp1type != exp2type)
                     {                                   //不是赋值号，为运算符
                         error_msg(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
-                        return NULL;
+                        return -1;
                     }
                     else
                     {
@@ -672,8 +691,8 @@ int Exp_s(treeNode *exp)
                 }
                 else
                 {
-                    ;            //如果是返回NULL的话exp里面肯定报错了,就不重复报错了;
-                    return NULL; //把NULL往前传,因为有错;
+                    ;            //如果是返回-1的话exp里面肯定报错了,就不重复报错了;
+                    return -1; //把-1往前传,因为有错;
                 }
             }
         }
@@ -702,25 +721,23 @@ int Exp_s(treeNode *exp)
         //函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
 		if(tempnode1->nodeType == N_ID)
         {	//当前为函数，需要去检查该函数是否已定义
-			char*funcname=tempnode1->character;
-			int querytype;
-			int queryifdef=-1;
+			char*funcname=tempnode1->subtype.IDVal;
 			int queryresult=ifExistFunc(*fun_table, funcname);	//在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname);//搜素这个函数节点
             int ret_type = func_node.returnType;//获取函数返回类型
-			if(queryresult)
-            {
-				//找到了,判断类型;
-				if(querytype != 6)
-                {		//当前ID不是函数名
-					error_msg(11,exp->line_no, funcname);//错误类型11，对普通变量调用函数，例如i()；
-					return NULL;
-				}
-			}
 
-			if(!queryresult){//没找到或者不是定义;  
-				error_msg(2, exp->line_no, funcname);		//错误类型2，函数未定义
-				return NULL;
+			if(!queryresult){//没找到或者不是定义;  或者不是函数
+                if(ifExistStruct(*struct_table, funcname)||
+                   ifExistVarStack(var_domain_ptr, funcname))
+                   {
+                       //当前ID不是函数名
+					    error_msg(11, exp->line_no, funcname);//错误类型11，对普通变量调用函数，例如i()；
+					    return -1;
+                   }
+                   else{
+                        error_msg(2, exp->line_no, funcname);		//错误类型2，函数未定义
+				        return -1;
+                   }
 			}
 
 			if(tempnode3->nodeType == N_ARGS)
@@ -728,7 +745,7 @@ int Exp_s(treeNode *exp)
 				if(func_node.args == NULL)
                 {	//函数本身没有形参，但此时有实参
 					error_msg(9, exp->line_no, NULL);	//错误类型9，函数实参形参不匹配
-					return NULL;
+					return -1;
 				}else{
 					/*Args -> Exp COMMA Args
 					| Exp;
@@ -747,19 +764,18 @@ int Exp_s(treeNode *exp)
 						//cnt+=1;
 						cntnode=getchild(cntnode, 2);
 					}
-					//printf("cnt:%d shouldbe:%d\n",cnt,querytype->u.function.paramnums);
-					if(cnt!=querytype->u.function.paramnums)
+					if(cnt != getArgNum(*fun_table, funcname))
                     {
-						error_msg(9,exp->line_no,NULL,NULL);	//错误类型9，函数实参形参个数不匹配
-						return NULL;
+						error_msg(9,exp->line_no,NULL);	//错误类型9，函数实参形参个数不匹配
+						return -1;
 					}
-					int argresult=Arg_s(tempnode3,querytype->u.function.params);
+					int argresult=Arg_s(tempnode3,func_node.args);
 					if(argresult==0)
                     {
 						return result;
 					}else
                     {
-						return NULL;
+						return -1;
 					}
 				}
 			}else
@@ -767,8 +783,8 @@ int Exp_s(treeNode *exp)
 
 				if(func_node.args!=NULL)
                 {	//函数有形参，但此时没有实参
-					error_msg(9,exp->line_no,NULL);	//错误类型9，函数实参形参个数不匹配
-					return NULL;
+					error_msg(9, exp->line_no, NULL);	//错误类型9，函数实参形参个数不匹配
+					return -1;
 				}
 				else
                 {
@@ -790,37 +806,33 @@ int Exp_s(treeNode *exp)
                 {
                     int exptype = Exp_s(tempnode1);
 
-                    // if(exptype==NULL)
-                    if (exptype != NULL)
-                    {
-                        if (exptype != /****结构体*/ 1)
+                    if (exptype != NULL && ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
+                    {   
+                        dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->subtype.IDVal);
+                        if (exptype < 6)
                         {                                          //当前Exp不是结构体    用datatype
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
-                            return NULL;
+                            return -1;
                         }
                         else
                         {
-                            ; //*******搜索域名;
-
-                            if (ifExistStructDomain(struct_table, , ))
+                             //搜索域名;
+                            if (ifExistStructDomain(*struct_table, tempnode3->nodeType, tempnode3->subtype.IDVal))
                             {
                                 //找到了!
-                                result = /*这个域名的type*/ 1;
-                                return result;
+                                result = find_type(tempnode3);
                             }
                             else
                             {
                                 //域名不存在;
-                                //////*****content待补充
-                                error_msg(14, exp->line_no, NULL); //错误类型14，该域没有在访问结构体中未定义
-                                return NULL;
+                                error_msg(14, exp->line_no, tempnode3->subtype.IDVal); //错误类型14，该域没有在访问结构体中未定义
+                                return -1;
                             }
                         };
                     }
                     else
                     {
-                        ;
-                        return NULL;
+                        return -1;
                     }
                 }
             }
@@ -834,14 +846,14 @@ int Exp_s(treeNode *exp)
                 {
                     int type1 = Exp_s(tempnode1);
                     int type3 = Exp_s(tempnode3);
-                    if (type1 == NULL || type3 == NULL)
+                    if (type1 == -1 || type3 == -1)
                     {
-                        return NULL;
+                        return -1;
                     }
                     if (type1 != 2) //type1不是数组
                     {
                         error_msg(10, exp->line_no, NULL); //错误类型10，对非数组变量进行数组访问
-                        return NULL;
+                        return -1;
                     }
                     else
                     {
@@ -852,17 +864,42 @@ int Exp_s(treeNode *exp)
                         else
                         {                                    // Exp不是整数
                             error_msg(12, exp->line_no, NULL); //错误类型12，数组访问符中出现非整数
-                            return NULL;
+                            return -1;
                         }
                     }
-                    //*****返回结构体元素的类型result=type1->u.array_.elem;
-                    result = /***这是个什么的数组?*/;
+                    //返回元素的类型
+                    dataNodeVar var_node = getNodeVar(var_domain_ptr->tVar, tempnode3->subtype.IDVal);
+                    result = var_node.arrayVarType;
                     return result;
                 }
             }
         };
     }
-    return NULL; //防止漏网之鱼;
+    return -1; 
+}
+
+//处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
+int Arg_s(treeNode*args,dataNodeVar* params)
+{
+	/*Args -> 
+      Exp COMMA Args
+	| Exp;
+	*/
+	treeNode*expnode=getchild(args, 0);
+	treeNode*tempnode=getchild(args, 1);		//判断实参是否还有参数
+
+	int temptype=Exp_s(expnode);		//检查函数形参和实参类型是否匹配
+	if(temptype == params->varType){
+		error_msg(9,args->line_no,NULL);	//错误类型9，函数实参形参类型不匹配
+		return -1;
+		}
+
+	if(tempnode!=NULL)
+    {			//实参还有参数，继续检查下一个实参和形参是否匹配
+		treeNode* argsnode=getchild(args,2);
+		return Arg_s(argsnode,params->next);
+	}
+	return 0;
 }
 
 void error_msg(int type, int line_no, char *content)

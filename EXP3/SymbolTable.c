@@ -8,7 +8,8 @@
 # define D_ARRAY 2
 # define D_STRUCT_DEC 3
 # define D_STRUCT_DEF 4
-# define D_AMT 5
+# define D_FUNC 5
+# define D_AMT 6
 
 enum Status { Active, Empty, Deleted };
 //enum DataType {Int, Float, Array, Struct, StructDomain};
@@ -305,6 +306,17 @@ int getArgNum(SymbolTableFunc st, char* key){
     while(arg != NULL){
         num++;
         arg = arg->next;
+    }
+    return num;
+}
+
+//返回结构体域数
+int getFieldNum(dataNodeStruct s){
+    dataNodeVar* a = s.structDomains;
+    int num = 0;
+    while(a != NULL){
+        num += 1;
+        a = a->next;
     }
     return num;
 }

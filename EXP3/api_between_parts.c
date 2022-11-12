@@ -5,7 +5,6 @@ enum var_type{
 
 };
 
-//随便的写几个字测试一下git
 
 typedef struct node
 {
