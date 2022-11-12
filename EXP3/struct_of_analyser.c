@@ -373,7 +373,7 @@ int tree_analys(treeNode *mytree)
  ***************************/
 /*
 剩余要解决的问题：
-    check type
+    type
 */
 #include "tree.c" //不想看报错
 void error_msg(int type, int line_no, char *content);
@@ -413,20 +413,17 @@ int Stmt_s(treeNode *stmt, int d_type)
 	
 	treeNode* tempnode1=getchild(stmt,0);
 	if(tempnode1->nodeType == N_COMPST)
-    {
-        /*
-		depth_ += 1;
-		struct Symbol_bucket* tempscope=enter_scope();
-		CompSt_s(tempnode1,tempscope,res_type);//进入CompSt，depth_+1,然后新开一个作用域;
-		exit_scope();
-		depth_-=1;*/
+    {   
+        //新开一个作用域,进入CompSt，然后溜
+        domainStack ds;
+        domainPush(ds);
+        comp_stmt(tempnode1, d_type);
+        domainPop(ds);
 	}else if(tempnode1->nodeType == N_EXP)
     {
-	
 		int uselesstype=Exp_s(tempnode1);//返回exp的返回type
 	}else if(tempnode1->nodeType == N_RETURN)
-    {
-		
+    {	
 		treeNode* expnode=getchild(stmt,1);
 		if(expnode->nodeType != N_EXP)
         {
@@ -435,10 +432,10 @@ int Stmt_s(treeNode *stmt, int d_type)
 		int returntype = Exp_s(expnode);
 		if(returntype != NULL)
         {
-			int result=check_type(d_type, returntype);
-			if(result==0)
+			//!!!!!!!!!!可能要改  int result=check_type(d_type, returntype);
+			if(d_type == returntype)
             {
-				error_s(8, stmt->line_no, NULL);	//错误类型8，函数返回类型不匹配
+				error_msg(8, stmt->line_no, NULL);	//错误类型8，函数返回类型不匹配
 				return -1;
 			}else
             {
@@ -451,14 +448,14 @@ int Stmt_s(treeNode *stmt, int d_type)
 		treeNode* expnode = getchild(stmt,2);
 		treeNode* stmtnode = getchild(stmt,4);
 		int type = Exp_s(expnode);
-        ///???????
+        ///可能要改
 		if(type!=NULL){
 			if(type == 0)
             {
 				;
 			}else
             {
-				error_s(7,stmt->line_no,NULL);	//错误类型7，while条件操作数类型不匹配
+				error_msg(7,stmt->line_no,NULL);	//错误类型7，while条件操作数类型不匹配
 			}
 			
 		}else
@@ -485,7 +482,7 @@ int Stmt_s(treeNode *stmt, int d_type)
 				;
 			}else
             {
-				error_s(7,stmt->line_no,NULL);	//错误类型7，if条件操作数类型不匹配
+				error_msg(7,stmt->line_no,NULL);	//错误类型7，if条件操作数类型不匹配
 				//return -1;
 			}
 		}
@@ -549,13 +546,13 @@ int Exp_s(treeNode *exp)
     // ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
     if (tempnode1->nodeType == N_EXP)
     {
-        if (tempnode2 != NULL && strcmp(tempnode2->character, "ASSIGNOP") == 0)
+        if (tempnode2 != NULL && tempnode2->nodeType == N_ASSIGNOP)
         { // Exp ASSIGNOP Exp
             treeNode *tempnode11 = getchild(tempnode1, 0);
             treeNode *tempnode12 = getchild(tempnode1, 1);
             if (tempnode12 == NULL)
             {
-                if (strcmp(tempnode11->character, "ID") != 0)
+                if (tempnode11->nodeType != N_ID)
                 {                                     //左侧不是ID
                     error_msg(6, exp->line_no, NULL); //报错
                     return NULL;
@@ -569,9 +566,9 @@ int Exp_s(treeNode *exp)
                     treeNode *tempnode14 = getchild(tempnode1, 3);
                     if (tempnode14 == NULL)
                     { // Exp DOT ID(结构体)
-                        if (strcmp(tempnode11->character, "Exp") == 0 &&
-                            strcmp(tempnode12->character, "DOT") == 0 &&
-                            strcmp(tempnode13->character, "ID") == 0)
+                        if (tempnode11->nodeType == N_EXP &&
+                            tempnode12->nodeType == N_DOT &&
+                            tempnode13->nodeType == N_ID )
                         {
                             ; //正确
                         }
@@ -583,10 +580,10 @@ int Exp_s(treeNode *exp)
                     }
                     else
                     { // EXP LB EXP RB (数组)
-                        if (strcmp(tempnode11->character, "Exp") == 0 &&
-                            strcmp(tempnode12->character, "LB") == 0 &&
-                            strcmp(tempnode13->character, "Exp") == 0 &&
-                            strcmp(tempnode14->character, "RB") == 0)
+                        if (tempnode11->nodeType == N_EXP &&
+                            tempnode12->nodeType == N_LB &&
+                            tempnode13->nodeType == N_EXP &&
+                            tempnode14->nodeType == N_RB)
                         {
                             ; //正确
                         }
@@ -606,40 +603,29 @@ int Exp_s(treeNode *exp)
         }
     }
 
-    /***************************************/
     if (tempnode2 == NULL)
     { // ID，INT，FLOAT
-        if (strcmp(tempnode1->character, "ID") == 0)
+        if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global)
-            if (/*****被定义*/ 1)
+            if (!ifExistVarStack(var_domain_ptr, tempnode1->character))
             {
-                ; //****当前层找到了用当前的;是普通变量,
-                result = tempnode1->nodeType;
-                return result;
+                error_msg(1, exp->line_no, tempnode1->character); //错误类型1，变量未定义
+                return NULL;
             }
             else
             {
-                ; //****查看全局层,如果没有或为struct则报错
-                if (/*****没找到*/ 1)
-                {
-                    ;                                                     //****没有找到全局定义,报错
-                    error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
-                    return NULL;
-                }
-                else
-                {
-                    result = result = tempnode1->nodeType; //在全局层找到了
-                    return result;
-                }
+                result = tempnode1->nodeType; //找到了
+                return result;
             }
+            
         }
-        else if (strcmp(tempnode1->character, "INT") == 0)
-        { //返回适合int的type
+        else if (tempnode1->nodeType == N_INT)
+        { //返回int
             result = D_INT;
             return result;
             ;
         }
-        else if (strcmp(tempnode1->character, "FLOAT") == 0)
+        else if (tempnode1->nodeType == N_FLOAT)
         { //处理float
             result = D_FLOAT;
             return result;
@@ -653,30 +639,28 @@ int Exp_s(treeNode *exp)
         {
             treeNode *tempnode4 = getchild(exp, 3);
             if (tempnode4 == NULL &&
-                strcmp(tempnode3->character, "Exp") == 0 &&
-                strcmp(tempnode2->character, "LB") != 0)
+                tempnode3->nodeType == N_EXP &&
+                tempnode2->nodeType != N_LB)
             { // 3元且第三项是Exp，如Exp AND Exp
                 treeNode *Expnode1 = tempnode1;
                 treeNode *Expnode2 = tempnode3;
-                if (strcmp(Expnode1->character, "Exp") != 0)
+                if (Expnode1->nodeType != N_EXP)
                 {
                     printf("It isn't Exp xx Exp.\n");
                 }
                 int exp1type = Exp_s(Expnode1);
                 int exp2type = Exp_s(Expnode2);
-                //	printf("hererer\n");
                 if (exp1type != NULL && exp2type != NULL)
                 {
-                    // int tempresult=check_type(exp1type,exp2type);	//检查类型是否匹配
-                    int tempresult = 1; //不想报错
-                    if (tempresult == 0 && 0 == strcmp(tempnode2->character, "ASSIGNOP"))
+                    //检查类型是否匹配
+                    if (exp1type == exp2type && tempnode2->nodeType == N_ASSIGNOP)
                     {                                   //赋值号
-                        error_s(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
+                        error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
                         return NULL;
                     }
-                    if (tempresult == 0)
+                    if (exp1type != exp2type)
                     {                                   //不是赋值号，为运算符
-                        error_s(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
+                        error_msg(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
                         return NULL;
                     }
                     else
@@ -694,12 +678,12 @@ int Exp_s(treeNode *exp)
             }
         }
         //第二部分;
-        if (strcmp(tempnode1->character, "LP") == 0 ||
-            strcmp(tempnode1->character, "MINUS") == 0 ||
-            strcmp(tempnode1->character, "NOT") == 0)
+        if (tempnode1->nodeType == N_LP ||
+            tempnode1->nodeType == N_MINUS ||
+            tempnode1->nodeType == N_NOT)
         { // LP Exp RP，MINUS Exp，NOT Exp
             treeNode *expnode = tempnode2;
-            if (strcmp(expnode->character, "Exp") != 0)
+            if (expnode->nodeType != N_EXP)
             { //第二个不是exp
                 printf("The second part should be Exp!\n");
             }
@@ -716,10 +700,83 @@ int Exp_s(treeNode *exp)
         | Exp DOT ID 结构体;
         */
         //函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
+		if(tempnode1->nodeType == N_ID)
+        {	//当前为函数，需要去检查该函数是否已定义
+			char*funcname=tempnode1->character;
+			int querytype;
+			int queryifdef=-1;
+			int queryresult=ifExistFunc(*fun_table, funcname);	//在全局里面搜索;
+            dataNodeFunc func_node = getNodeFunc(*fun_table, funcname);//搜素这个函数节点
+            int ret_type = func_node.returnType;//获取函数返回类型
+			if(queryresult)
+            {
+				//找到了,判断类型;
+				if(querytype != 6)
+                {		//当前ID不是函数名
+					error_msg(11,exp->line_no, funcname);//错误类型11，对普通变量调用函数，例如i()；
+					return NULL;
+				}
+			}
 
-        /*********************************************
-         *                 此处未完成                  *
-         * ********************************************/
+			if(!queryresult){//没找到或者不是定义;  
+				error_msg(2, exp->line_no, funcname);		//错误类型2，函数未定义
+				return NULL;
+			}
+
+			if(tempnode3->nodeType == N_ARGS)
+            {
+				if(func_node.args == NULL)
+                {	//函数本身没有形参，但此时有实参
+					error_msg(9, exp->line_no, NULL);	//错误类型9，函数实参形参不匹配
+					return NULL;
+				}else{
+					/*Args -> Exp COMMA Args
+					| Exp;
+					*/
+					//检查args的数量;
+					int cnt=0;
+					treeNode*cntnode=tempnode3;
+					while(1)
+                    {	//计算所有实参的数目
+						cnt += 1;
+						treeNode*tempcntnode=getchild(cntnode, 1);
+						if(tempcntnode==NULL)
+                        {
+							break;
+						}
+						//cnt+=1;
+						cntnode=getchild(cntnode, 2);
+					}
+					//printf("cnt:%d shouldbe:%d\n",cnt,querytype->u.function.paramnums);
+					if(cnt!=querytype->u.function.paramnums)
+                    {
+						error_msg(9,exp->line_no,NULL,NULL);	//错误类型9，函数实参形参个数不匹配
+						return NULL;
+					}
+					int argresult=Arg_s(tempnode3,querytype->u.function.params);
+					if(argresult==0)
+                    {
+						return result;
+					}else
+                    {
+						return NULL;
+					}
+				}
+			}else
+            {
+
+				if(func_node.args!=NULL)
+                {	//函数有形参，但此时没有实参
+					error_msg(9,exp->line_no,NULL);	//错误类型9，函数实参形参个数不匹配
+					return NULL;
+				}
+				else
+                {
+					return result;
+				}
+			}
+			
+		}
         else
         {
             treeNode *tempnode4 = getchild(exp, 3);
@@ -727,9 +784,9 @@ int Exp_s(treeNode *exp)
             if (tempnode4 == NULL)
             {
                 //结构体部分Exp DOT ID----结构体存在----域名存在----返回这个域名的type
-                if (strcmp(tempnode1->character, "Exp") == 0 &&
-                    strcmp(tempnode2->character, "DOT") == 0 &&
-                    strcmp(tempnode3->character, "ID") == 0)
+                if (tempnode1->nodeType == N_EXP &&
+                    tempnode2->nodeType == N_DOT &&
+                    tempnode3->nodeType == N_ID)
                 {
                     int exptype = Exp_s(tempnode1);
 
@@ -738,14 +795,14 @@ int Exp_s(treeNode *exp)
                     {
                         if (exptype != /****结构体*/ 1)
                         {                                          //当前Exp不是结构体    用datatype
-                            error_s(13, exp->line_no, NULL, NULL); //错误类型13，对非结构体变量使用“.”
+                            error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
                             return NULL;
                         }
                         else
                         {
                             ; //*******搜索域名;
 
-                            if (/*搜索到了*/ 1)
+                            if (ifExistStructDomain(struct_table, , ))
                             {
                                 //找到了!
                                 result = /*这个域名的type*/ 1;
@@ -755,7 +812,7 @@ int Exp_s(treeNode *exp)
                             {
                                 //域名不存在;
                                 //////*****content待补充
-                                error_s(14, exp->line_no, NULL); //错误类型14，该域没有在访问结构体中未定义
+                                error_msg(14, exp->line_no, NULL); //错误类型14，该域没有在访问结构体中未定义
                                 return NULL;
                             }
                         };
@@ -770,10 +827,10 @@ int Exp_s(treeNode *exp)
             else
             {
                 ;
-                //数组部分;| Exp LB Exp RB4 数组
-                if (strcmp(tempnode1->character, "Exp") == 0 &&
-                    strcmp(tempnode2->character, "LB") == 0 &&
-                    strcmp(tempnode3->character, "Exp") == 0)
+                //数组部分;| Exp LB Exp RB 数组
+                if (tempnode1->nodeType == N_EXP &&
+                    tempnode2->nodeType == N_LB &&
+                    tempnode3->nodeType==  N_EXP)
                 {
                     int type1 = Exp_s(tempnode1);
                     int type3 = Exp_s(tempnode3);
@@ -781,10 +838,9 @@ int Exp_s(treeNode *exp)
                     {
                         return NULL;
                     }
-                    int checkresult = /****type1和type3类型是否匹配*/ 1;
-                    if (/****Exp不是数组*/ 1) //****应该是用datatype那边
+                    if (type1 != 2) //type1不是数组
                     {
-                        error_s(10, exp->line_no, NULL); //错误类型10，对非数组变量进行数组访问
+                        error_msg(10, exp->line_no, NULL); //错误类型10，对非数组变量进行数组访问
                         return NULL;
                     }
                     else
@@ -795,19 +851,18 @@ int Exp_s(treeNode *exp)
                         }
                         else
                         {                                    // Exp不是整数
-                            error_s(12, exp->line_no, NULL); //错误类型12，数组访问符中出现非整数
+                            error_msg(12, exp->line_no, NULL); //错误类型12，数组访问符中出现非整数
                             return NULL;
                         }
                     }
-                    //返回结构体元素的类型result=type1->u.array_.elem;
+                    //*****返回结构体元素的类型result=type1->u.array_.elem;
+                    result = /***这是个什么的数组?*/;
                     return result;
                 }
             }
         };
     }
     return NULL; //防止漏网之鱼;
-
-    //未完……
 }
 
 void error_msg(int type, int line_no, char *content)
