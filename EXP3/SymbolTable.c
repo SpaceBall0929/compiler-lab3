@@ -271,3 +271,27 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
     else
         printf("Symbol table is full. Insert failed");
 }
+
+dataNodeVar getNodeVar(SymbolTableVar st, char* key){
+    int i = findPosVar(st, key);
+    if (st->sta[i] == Active && st.data[i].varName == key)
+        return st.data[i];
+    //报错，找不到变量
+    return NULL;
+}
+
+dataNodeVar getNodeFunc(SymbolTableFunc st, char* key){
+    int i = findPosFunc(st, key);
+    if (st->sta[i] == Active && st.data[i].funcName == key)
+        return st.data[i];
+    //报错，找不到函数
+    return NULL;
+}
+
+dataNodeVar getNodeStruct(SymbolTableStruct st, char* key){
+    int i = findPosStruct(st, key);
+    if (st->sta[i] == Active && st.data[i].structTypeName == key)
+        return st.data[i];
+    //报错，找不到结构体类型
+    return NULL;
+}
