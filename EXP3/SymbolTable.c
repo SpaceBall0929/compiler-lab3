@@ -17,6 +17,7 @@ struct datanode1{
     char* varName;  //变量名
     /*结构体类型名不能穷举，改成用字符串表示*/
     int varType; //变量数据类型
+    int arrayVarType; //数组存储的变量数据类型
     int numdim;     //若为数组，数组维度
     int* len_of_dims; //每个维度的长度
     struct datanode1* next;
@@ -120,14 +121,24 @@ dataNodeVar* newNodeVar(char* name, int type){
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
     newNode -> varName = name;
     newNode -> varType = type;
+    newNode -> arrayVarType = -1;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
-     if(newNode -> varType == D_ARRAY){
-        newNode ->numdim = -1;
-        return newNode;
-    }
+    // if(newNode -> varType == D_ARRAY){
+    //     newNode ->numdim = -1;
+    //     return newNode;
+    // }
     newNode -> numdim = 0;
     return newNode;
+}
+
+//执行数组相关的初始化
+//根据具体需求再调整
+void initArray(dataNodeVar* node, int atype, int nd, int* lod){
+    node->arrayVarType = atype;
+    node->numdim = nd;
+    node->len_of_dims = lod;
+    return;
 }
 
 dataNodeFunc* newNodeFunc(char* name, int type, int de, dataNodeVar* ar){
@@ -274,24 +285,15 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
 
 dataNodeVar getNodeVar(SymbolTableVar st, char* key){
     int i = findPosVar(st, key);
-    if (st->sta[i] == Active && st.data[i].varName == key)
-        return st.data[i];
-    //报错，找不到变量
-    return NULL;
+    return st.data[i];
 }
 
 dataNodeVar getNodeFunc(SymbolTableFunc st, char* key){
     int i = findPosFunc(st, key);
-    if (st->sta[i] == Active && st.data[i].funcName == key)
-        return st.data[i];
-    //报错，找不到函数
-    return NULL;
+    return st.data[i];
 }
 
 dataNodeVar getNodeStruct(SymbolTableStruct st, char* key){
     int i = findPosStruct(st, key);
-    if (st->sta[i] == Active && st.data[i].structTypeName == key)
-        return st.data[i];
-    //报错，找不到结构体类型
-    return NULL;
+    return st.data[i];
 }
