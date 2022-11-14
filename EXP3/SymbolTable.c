@@ -113,8 +113,13 @@ int charToInt(char* type, SymbolTableStruct st){
         return D_FLOAT;
     else if(strcmp(type,"array") == 0)
         return D_ARRAY;
-    else
-        return findPosStruct(st, type) + D_AMT;
+    else{
+        int j = findPosStruct(st, type);
+        if(st.sta[j] == Active && st.data[j].structTypeName == type)
+            return j + D_AMT;
+        else
+            return -1;
+    }
 }
 
 dataNodeVar* newNodeVar(char* name, int type){
