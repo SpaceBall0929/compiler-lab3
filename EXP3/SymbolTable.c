@@ -18,7 +18,7 @@ struct datanode1{
     char* varName;  //变量名
     /*结构体类型名不能穷举，改成用字符串表示*/
     int varType; //变量数据类型
-    int arrayVarType; //数组存储的变量数据类型
+    // int arrayVarType; //数组存储的变量数据类型
     int numdim;     //若为数组，数组维度
     int* len_of_dims; //每个维度的长度
     struct datanode1* next;
@@ -122,7 +122,7 @@ dataNodeVar* newNodeVar(char* name, int type){
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
     newNode -> varName = name;
     newNode -> varType = type;
-    newNode -> arrayVarType = -1;
+    newNode -> numdim = -1;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
     // if(newNode -> varType == D_ARRAY){
@@ -135,12 +135,12 @@ dataNodeVar* newNodeVar(char* name, int type){
 
 //执行数组相关的初始化
 //根据具体需求再调整
-void initArray(dataNodeVar* node, int atype, int nd, int* lod){
-    node->arrayVarType = atype;
-    node->numdim = nd;
-    node->len_of_dims = lod;
-    return;
-}
+// void initArray(dataNodeVar* node, int atype, int nd, int* lod){
+//     node->arrayVarType = atype;
+//     node->numdim = nd;
+//     node->len_of_dims = lod;
+//     return;
+// }
 
 dataNodeFunc* newNodeFunc(char* name, int type, int de, dataNodeVar* ar){
     dataNodeFunc* newNode = (dataNodeFunc*)malloc(sizeof(dataNodeFunc));

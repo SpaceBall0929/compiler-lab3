@@ -30,7 +30,8 @@ AND &&
 OR \|\|
 DOT \.
 NOT !
-TYPE int|float
+TYPE1 int
+TYPE2 float
 LP \(
 RP \)
 LB \[
@@ -168,13 +169,22 @@ ID [_a-zA-Z][_0-9a-zA-Z]*
     yylval = node;
     return NOT;
     }
-{TYPE} {
+{TYPE1} {
     treeNode* node = (treeNode*)malloc(sizeof(treeNode));
-    nodeInit(node, "TYPE", yylineno, NULL, NULL, N_TYPE);
+    nodeInit(node, "int", yylineno, NULL, NULL, N_TYPE);
     node->subtype.IDVal = strdup(yytext);
     yylval = node;
     return TYPE;
     }
+{TYPE2} {
+    treeNode* node = (treeNode*)malloc(sizeof(treeNode));
+    nodeInit(node, "float", yylineno, NULL, NULL, N_TYPE);
+    node->subtype.IDVal = strdup(yytext);
+    yylval = node;
+    return TYPE;
+    }
+
+
 {LP} {
     treeNode* node = (treeNode*)malloc(sizeof(treeNode));
     nodeInit(node, "LP", yylineno, NULL, NULL, N_LP);

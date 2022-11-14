@@ -1,50 +1,13 @@
 #include <stdio.h>
 #include "DomainStack.c"
 
-//亟待解决的问题：
-//改变所有的类型传入为int型
-//锁定错误位置，增添定义部分的报错
-
-
-
+// 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
 SymbolTableFunc *fun_table;
-
 SymbolTableStruct *struct_table;
 
-// test
-//  enum Datanode_type {Int, Float, Array, Struct, StructDomain};
-
-// //表明继续执行深度优先遍历
-// //最终形态可能并非这样一个函数，这里有待商讨
-// treeNode *deep_search();
-
-// //从def_node所有子节点中收集完整的变量信息，再交给作用域管理部分处理
-// var_dec node_to_info(treeNode *def_node);
-
-// //和上面那个函数类似，就是收集函数定义然后返回
-// fun_dec node_to_fun(treeNode *def_node);
-
-// //类似，返回一个结构体定义的信息
-// struct_dec node_to_struct(treeNode *def_node);
-
-// //...其实应该有很多很多种节点需要处理，这里列举的是最重要的判定函数，变量，结构体定义的部分，总之就是，一大堆函数咯
-
-// //开辟新的作用域，扫描到左大括号调用
-// int new_block();
-
-// //创建变量，函数和结构体定义，正常返回0，不正常就返回错误编号
-// int creat_var(var_dec info);
-// int creat_fun(fun_dec info);
-// int creat_struct(struct_dec info);
-
-// //查询此处用到的变量是否合法，根据程序获取的信息查询，正常就返回0，不正常就返回错误编号
-// int query_var_legal(var_dec myvar);
-// int query_fun_legal(fun_dec myfun);
-// int query_struct_legal(struct_dec mystruct);
-
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
-dataNodeVar *var_dec(treeNode *dec_node, char* var_type)
+dataNodeVar *var_dec(treeNode *dec_node, int var_type)
 {
     dataNodeVar *new_var;
     treeNode *origrn = dec_node;
@@ -61,6 +24,7 @@ dataNodeVar *var_dec(treeNode *dec_node, char* var_type)
     {
         return new_var;
     }
+    
     new_var->numdim = dimension;
     new_var->len_of_dims = (int *)malloc(sizeof(int) * dimension);
     for (int i = 0; i < dimension; i++)
@@ -77,7 +41,7 @@ dataNodeVar* param_dec(treeNode* para){
         return NULL;
     }
 
-    return var_dec(para -> child -> sibling, para -> child -> character);
+    return var_dec(para -> child -> sibling, type_def);
 }
 
 //处理参数表
@@ -137,7 +101,7 @@ int specifier(treeNode *speci)
     }
 }
 
-dataNodeVar *dec_list(treeNode *decs, char *var_type)
+dataNodeVar *dec_list(treeNode *decs, int var_type)
 {
     dataNodeVar *temp_var;
     dataNodeVar *return_vars;
@@ -195,17 +159,19 @@ dataNodeVar* def_list(treeNode* defs){
     // int temp_type;
     dataNodeVar* return_vars;
     dataNodeVar* temp_ptr;
+    int def_type;
     defs = defs -> child;
     if(defs == NULL){
         return NULL;
     }
-    return_vars = dec_list(defs -> child -> sibling, defs -> child -> child -> character);
+    def_type = specifier(defs -> child);
+    return_vars = dec_list(defs -> child -> sibling,  def_type);
     temp_ptr = return_vars;
     defs = defs -> sibling -> child;
     while (defs != NULL)
     {
         temp_ptr = temp_ptr -> next;
-        temp_ptr = dec_list(defs -> child -> sibling, defs -> child -> child -> character);
+        temp_ptr = dec_list(defs -> child -> sibling, def_type);
         defs = defs -> sibling -> child; 
     }
     temp_ptr = NULL;
@@ -255,123 +221,16 @@ int struct_specifier_def(treeNode* def_node){
 }
 
 int struct_specifier_dec(treeNode* dec_node){
-    
-}
+    dec_node = dec_node -> child -> sibling -> child;
 
-
-int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
-{
-
-    treeNode *type_node = ExtDef->child->child;
-    treeNode *core_node = ExtDef->child->sibling;
-    int def_type = specifier(type_node);
-
-    switch (def_type)
-    {
-    case D_STRUCT_DEC:
-        def_type = charToInt(type_node -> child -> sibling -> child -> subtype.IDVal, *struct_table);
-    case D_INT:
-    case D_FLOAT:
-        if (core_node->nodeType == N_EXT_DEC_L)
-        {
-            treeNode *temp_node;
-            do
-            {
-                temp_node = core_node->child;
-                core_node = temp_node->sibling->sibling;
-                InsertVar(&(domain->tVar), var_dec(temp_node, type_node -> child -> character));
-            } while (core_node != NULL);
-        }
-        else
-        {
-            dataNodeFunc* abc = fun_dec(core_node, type_node -> child -> character);
-            if(core_node -> sibling ->nodeType != N_SEMI){
-                abc -> defined = 1;
-                //返回类型不匹配在这里面报错
-                comp_stmt(core_node -> sibling, def_type);
-            }
-            
-            InsertFunc(fun_table, *abc);
-            free(abc);
-        }
-
-        break;
-    case D_STRUCT_DEF:
-        struct_specifier_def(type_node);
-        break;
-
-    
-        // struct_specifier_dec(type_node);
-        // break;
-
-    default:
-        break;
-    }
-
-    return 0;
-}
-
-int tree_analys(treeNode *mytree)
-{
-
-    //栈初始化部分
-    treeNode *temp;
-    seqStack myStack;
-    seqStack *stack_ptr;
-    stack_ptr = &myStack;
-    initStack(stack_ptr);
-    push(stack_ptr, mytree);
-
-    //表初始化部分
-    var_domain_ptr = createStackNode();
-    tableFuncInit(fun_table);
-    tableStructInit(struct_table);
-    //用于存储变量信息
-    int define_flag = 0;
-    int type_now;
-
-    do
-    {
-        reversed_insert(stack_ptr, pop(stack_ptr));
-        temp = top(stack_ptr);
-        //根据收到的不同符号调用不同的处理函数
-        switch (temp->nodeType)
-        {
-        //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
-        case N_EXT_DEF_L:
-            printf("ExtDefList detected\n");
-            // if(temp->child->sibling->sibling != NULL){
-            //     printf("ERROR: Unexpected 3rd child in childs of the NONTERMINAL ExtDefList.\n");
-            // }
-            break;
-        case N_EXT_DEF:
-            printf("ExtDef detected\n");
-            ext_def(temp, stack_ptr, var_domain_ptr);
-            break;
-        case N_SPECI:
-
-            break;
-
-        default:
-            // 这里给出一个列表：
-            // ExtDecList
-            // 这些非终结符，理论上应该在函数中被处理掉
-            // 但是既然走到了这一步，显然没有，所以这里肯定要报错
-            printf("ERROR: Unexpected node token with character %s\n", temp->character);
-
-            break;
-        }
-        //节点处理完了，下一个
-
-    } while (1);
-
-    //后续的程序等等...先不写了，我也不清楚
+    //这里应该有一个结构体未定义的报错，但是暂时没有处理
+    return charToInt(dec_node -> subtype.IDVal, *struct_table);    
 }
 
 /**************************
  *       以下施工完了        *
  ***************************/
-#include "tree.c" //不想看报错
+
 
 //返回对应类型的宏
 int find_type(treeNode *n){
@@ -869,7 +728,7 @@ int Exp_s(treeNode *exp)
                     }
                     //返回元素的类型
                     dataNodeVar var_node = getNodeVar(var_domain_ptr->tVar, tempnode3->subtype.IDVal);
-                    result = var_node.arrayVarType;
+                    result = var_node.varType;
                     return result;
                 }
             }
@@ -969,4 +828,159 @@ void error_msg(int type, int line_no, char *content)
         //
         break;
     }
+}
+
+int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
+{
+
+    treeNode *type_node = ExtDef->child->child;
+    treeNode *core_node = ExtDef->child->sibling;
+    int def_type = specifier(type_node);
+
+    switch (def_type)
+    {
+    case D_STRUCT_DEC:
+        def_type = charToInt(type_node -> child -> sibling -> child -> subtype.IDVal, *struct_table);
+    case D_INT:
+    case D_FLOAT:
+        if (core_node->nodeType == N_EXT_DEC_L)
+        {
+            treeNode *temp_node;
+            do
+            {
+                temp_node = core_node->child;
+                core_node = temp_node->sibling->sibling;
+                InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
+            } while (core_node != NULL);
+        }
+        else
+        {
+            dataNodeFunc* abc = fun_dec(core_node, type_node -> child -> character);
+            if(core_node -> sibling ->nodeType != N_SEMI){
+                abc -> defined = 1;
+                //返回类型不匹配在这里面报错
+                comp_stmt(core_node -> sibling, def_type);
+            }
+            
+            InsertFunc(fun_table, *abc);
+            free(abc);
+        }
+
+        break;
+    case D_STRUCT_DEF:
+        struct_specifier_def(type_node);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
+int tree_analys(treeNode *mytree)
+{
+    //栈初始化部分
+    treeNode *temp;
+    seqStack myStack;
+    seqStack *stack_ptr;
+    stack_ptr = &myStack;
+    initStack(stack_ptr);
+    push(stack_ptr, mytree);
+
+    //表初始化部分
+    var_domain_ptr = createStackNode();
+    tableFuncInit(fun_table);
+    tableStructInit(struct_table);
+
+    //用于存储变量信息
+    int if_unfold = 1;
+    int type_now = -1;
+
+    do
+    {
+        if(if_unfold){
+            reversed_insert(stack_ptr, pop(stack_ptr));
+        }        
+        temp = top(stack_ptr);
+        //根据收到的不同符号调用不同的处理函数
+        switch (temp->nodeType)
+        {
+        //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
+        case N_EXT_DEF_L:
+            printf("ExtDefList detected\n");
+            if_unfold = 1;
+            break;
+        case N_EXT_DEF:
+            printf("ExtDef detected\n");
+            if_unfold = 1;
+            break;
+        
+        //specifier处理部分
+        //specifier总是被期待返回一个类型值，所以在栈上统一解开（省点内存吧球球了）     
+        case N_SPECI:
+            printf("Specifier detected, now finding the type...\n");
+            if_unfold = 1;
+            break;
+        case N_TYPE:
+            printf("Normal type in the Specifier\n");
+            pop(stack_ptr);
+            if_unfold = 0;
+            if (temp->child->subtype.IDVal[0] == 'i')
+            {
+                type_now = D_INT;
+                break;
+            }
+            type_now = D_FLOAT;
+            break;
+        case N_STRUCT_SPECI:
+            printf("Structure type in the specifier\n");
+            pop(stack_ptr);
+            if_unfold = 0;
+            if (temp ->child->child->sibling->nodeType == N_TAG)
+            {
+                type_now = struct_specifier_dec(temp);
+                break;
+            }
+            type_now = struct_specifier_def(temp);
+            break;
+
+
+
+
+        case N_EXT_DEC_L:
+            printf("ExtDecList detected.\n");
+            break;
+        
+        case N_VAR_DEC:
+
+
+            break;
+        
+        
+        
+        case N_SEMI:
+        case N_COMMA:
+            pop(stack_ptr);
+            break;
+
+
+
+        case N_FUN_DEC:
+
+            break;
+    
+        default:
+            // 这里给出一个列表：
+            // ExtDecList
+            // 这些非终结符，理论上应该在函数中被处理掉
+            // 但是既然走到了这一步，显然没有，所以这里肯定要报错
+            printf("ERROR: Unexpected node token with character %s\n", temp->character);
+
+            break;
+        }
+        //节点处理完了，下一个
+
+    } while (1);
+
+    //后续的程序等等...先不写了，我也不清楚
 }
