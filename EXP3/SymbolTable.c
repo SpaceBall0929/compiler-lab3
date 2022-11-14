@@ -258,12 +258,12 @@ void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 
 }
 
-void InsertFunc(SymbolTableFunc* st, dataNodeFunc elem)
+void InsertFunc(SymbolTableFunc* st, dataNodeFunc* elem)
 {
-	int i = findPosFunc(*st, elem.funcName);
+	int i = findPosFunc(*st, elem->funcName);
 	if (st->sta[i] != Active)
 	{
-		st->data[i] = elem;
+		st->data[i] = *elem;
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
 	}
@@ -319,4 +319,21 @@ int getFieldNum(dataNodeStruct s){
         a = a->next;
     }
     return num;
+}
+
+//释放一个变量信息占据的空间
+int free_var(dataNodeVar* to_del){
+    dataNodeVar* origin = to_del;
+    do{
+        to_del = to_del->next;
+        free(origin);
+    }while(to_del != NULL);
+
+    return 0;
+}
+
+int free_func(dataNodeFunc* to_del){
+    free_var(to_del->args);
+    free(to_del);
+    return 0;
 }

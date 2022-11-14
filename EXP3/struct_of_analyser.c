@@ -24,7 +24,7 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     {
         return new_var;
     }
-    
+
     new_var->numdim = dimension;
     new_var->len_of_dims = (int *)malloc(sizeof(int) * dimension);
     for (int i = 0; i < dimension; i++)
@@ -34,30 +34,33 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     return new_var;
 }
 
-dataNodeVar* param_dec(treeNode* para){
-    int type_def = specifier(para -> child);
-    if(type_def == D_STRUCT_DEF){
+dataNodeVar *param_dec(treeNode *para)
+{
+    int type_def = specifier(para->child);
+    if (type_def == D_STRUCT_DEF)
+    {
         printf("ERROR: Unexpected treeNode: structure definition in the parameters of the function.\n");
         return NULL;
     }
 
-    return var_dec(para -> child -> sibling, type_def);
+    return var_dec(para->child->sibling, type_def);
 }
 
 //处理参数表
 dataNodeVar *var_list(treeNode *arg_list)
 {
     arg_list = arg_list->child;
-    dataNodeVar* temp_node = param_dec(arg_list);
-    dataNodeVar* ptr = temp_node;
-    arg_list = arg_list -> sibling;
-    while (arg_list != NULL){
-        arg_list = arg_list -> sibling -> child;
-        ptr -> next = param_dec(arg_list);
-        ptr = ptr -> next;
-        arg_list = arg_list -> sibling; 
+    dataNodeVar *temp_node = param_dec(arg_list);
+    dataNodeVar *ptr = temp_node;
+    arg_list = arg_list->sibling;
+    while (arg_list != NULL)
+    {
+        arg_list = arg_list->sibling->child;
+        ptr->next = param_dec(arg_list);
+        ptr = ptr->next;
+        arg_list = arg_list->sibling;
     }
-    ptr -> next = NULL;
+    ptr->next = NULL;
 
     return temp_node;
 }
@@ -128,7 +131,7 @@ dataNodeVar *dec_list(treeNode *decs, int var_type)
                 error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
             }
         }
-        decs = decs -> sibling;
+        decs = decs->sibling;
     }
 
     temp_var = NULL;
@@ -137,7 +140,7 @@ dataNodeVar *dec_list(treeNode *decs, int var_type)
 
 // int dec_list(treeNode* decs, char* var_type){
 //     dataNodeVar* temp_var;
-    
+
 //     do{
 //         decs = decs  -> child;
 //         InsertVar(&(var_domain_ptr -> tVar), var_dec(decs -> child, var_type));
@@ -155,64 +158,69 @@ dataNodeVar *dec_list(treeNode *decs, int var_type)
 //     return 0;
 // }
 
-dataNodeVar* def_list(treeNode* defs){
+dataNodeVar *def_list(treeNode *defs)
+{
     // int temp_type;
-    dataNodeVar* return_vars;
-    dataNodeVar* temp_ptr;
+    dataNodeVar *return_vars;
+    dataNodeVar *temp_ptr;
     int def_type;
-    defs = defs -> child;
-    if(defs == NULL){
+    defs = defs->child;
+    if (defs == NULL)
+    {
         return NULL;
     }
-    def_type = specifier(defs -> child);
-    return_vars = dec_list(defs -> child -> sibling,  def_type);
+    def_type = specifier(defs->child);
+    return_vars = dec_list(defs->child->sibling, def_type);
     temp_ptr = return_vars;
-    defs = defs -> sibling -> child;
+    defs = defs->sibling->child;
     while (defs != NULL)
     {
-        temp_ptr = temp_ptr -> next;
-        temp_ptr = dec_list(defs -> child -> sibling, def_type);
-        defs = defs -> sibling -> child; 
+        temp_ptr = temp_ptr->next;
+        temp_ptr = dec_list(defs->child->sibling, def_type);
+        defs = defs->sibling->child;
     }
     temp_ptr = NULL;
-    
+
     return return_vars;
 }
 
-
-int comp_stmt(treeNode* comp_stmt, int expected_type){
-    dataNodeVar* all_vars; 
-    dataNodeVar* temp_for_del;
+int comp_stmt(treeNode *comp_stmt, int expected_type)
+{
+    dataNodeVar *all_vars;
+    dataNodeVar *temp_for_del;
     domainPush(var_domain_ptr);
-    all_vars = def_list(comp_stmt -> child -> sibling);
+    all_vars = def_list(comp_stmt->child->sibling);
     while (all_vars != NULL)
     {
         temp_for_del = all_vars;
         InsertVar(&(var_domain_ptr->tVar), all_vars);
-        all_vars = all_vars -> next;
+        all_vars = all_vars->next;
         free(temp_for_del);
     }
-    
-    Stmt_s(comp_stmt -> child -> sibling -> sibling, expected_type);
+
+    Stmt_s(comp_stmt->child->sibling->sibling, expected_type);
     domainPop(var_domain_ptr);
 
     return 0;
 }
 
-int struct_specifier_def(treeNode* def_node){
-    char* name = NULL;
-    def_node = def_node -> child -> sibling;
-    if(def_node -> child != NULL){
-        name = def_node  -> sibling -> child -> subtype.IDVal;
+int struct_specifier_def(treeNode *def_node)
+{
+    char *name = NULL;
+    def_node = def_node->child->sibling;
+    if (def_node->child != NULL)
+    {
+        name = def_node->sibling->child->subtype.IDVal;
     }
-    dataNodeStruct* new_struc = newNodeStruct(name);
-    dataNodeVar* temp_for_del =new_struc ->structDomains;
-    dataNodeVar* temp2;
-    insertStructDomain(new_struc, def_list(def_node -> sibling ->sibling));
+    dataNodeStruct *new_struc = newNodeStruct(name);
+    dataNodeVar *temp_for_del = new_struc->structDomains;
+    dataNodeVar *temp2;
+    insertStructDomain(new_struc, def_list(def_node->sibling->sibling));
     InsertStruct(struct_table, *new_struc);
-    while(temp_for_del != NULL){
+    while (temp_for_del != NULL)
+    {
         temp2 = temp_for_del;
-        temp_for_del = temp_for_del -> next;
+        temp_for_del = temp_for_del->next;
         free(temp2);
     }
     free(new_struc);
@@ -220,26 +228,31 @@ int struct_specifier_def(treeNode* def_node){
     return 0;
 }
 
-int struct_specifier_dec(treeNode* dec_node){
-    dec_node = dec_node -> child -> sibling -> child;
-
+int struct_specifier_dec(treeNode *dec_node)
+{
+    dec_node = dec_node->child->sibling->child;
+    int temp = charToInt(dec_node->subtype.IDVal, *struct_table);
     //这里应该有一个结构体未定义的报错，但是暂时没有处理
-    return charToInt(dec_node -> subtype.IDVal, *struct_table);    
+    if (temp == -1)
+    {
+        error_msg(17, dec_node->line_no, dec_node->subtype.IDVal);
+    }
+    return temp;
 }
 
 /**************************
  *       以下施工完了        *
  ***************************/
 
-
 //返回对应类型的宏
-int find_type(treeNode *n){
+int find_type(treeNode *n)
+{
     char *name = n->subtype.IDVal;
-    if(ifExistStruct(*struct_table, name))
+    if (ifExistStruct(*struct_table, name))
     {
         return charToInt(name, *struct_table);
     }
-    else if(ifExistFunc(*fun_table, name))
+    else if (ifExistFunc(*fun_table, name))
     {
         return 5;
     }
@@ -251,133 +264,140 @@ int find_type(treeNode *n){
 void error_msg(int type, int line_no, char *content);
 int StmtList_s(treeNode *stmt, int d_type)
 {
-	/*
-	StmtList -> 
+    /*
+    StmtList ->
       Stmt StmtList
-	| 空
-	Stmt -> 
+    | 空
+    Stmt ->
       Exp SEMI
-	| CompSt
-	| RETURN Exp SEMI
-	| IF LP Exp RP Stmt
-	| IF LP Exp RP Stmt ELSE Stmt
-	| WHILE LP Exp RP Stmt
-	*/
-	treeNode*Stmtnode=getchild(stmt,0);
-	treeNode*tempnode=getchild(stmt,1);
-	Stmt_s(Stmtnode, d_type);
-	if(tempnode!=NULL)
+    | CompSt
+    | RETURN Exp SEMI
+    | IF LP Exp RP Stmt
+    | IF LP Exp RP Stmt ELSE Stmt
+    | WHILE LP Exp RP Stmt
+    */
+    treeNode *Stmtnode = getchild(stmt, 0);
+    treeNode *tempnode = getchild(stmt, 1);
+    Stmt_s(Stmtnode, d_type);
+    if (tempnode != NULL)
     {
-		StmtList_s(tempnode, d_type) ;
-	}
-
+        StmtList_s(tempnode, d_type);
+    }
 }
 int Stmt_s(treeNode *stmt, int d_type)
 {
-	/*
-	Stmt -> Exp SEMI
-	| CompSt
-	| RETURN Exp SEMI
-	| IF LP Exp RP Stmt
-	| IF LP Exp RP Stmt ELSE Stmt
-	| WHILE LP Exp RP Stmt
-	*/
-	
-	treeNode* tempnode1=getchild(stmt,0);
-	if(tempnode1->nodeType == N_COMPST)
-    {   
+    /*
+    Stmt -> Exp SEMI
+    | CompSt
+    | RETURN Exp SEMI
+    | IF LP Exp RP Stmt
+    | IF LP Exp RP Stmt ELSE Stmt
+    | WHILE LP Exp RP Stmt
+    */
+
+    treeNode *tempnode1 = getchild(stmt, 0);
+    if (tempnode1->nodeType == N_COMPST)
+    {
         //新开一个作用域,进入CompSt，然后溜
         domainStack ds;
         domainPush(ds);
         comp_stmt(tempnode1, d_type);
         domainPop(ds);
-	}else if(tempnode1->nodeType == N_EXP)
+    }
+    else if (tempnode1->nodeType == N_EXP)
     {
-		int uselesstype=Exp_s(tempnode1);//返回exp的返回type
-	}else if(tempnode1->nodeType == N_RETURN)
-    {	
-		treeNode* expnode=getchild(stmt,1);
-		if(expnode->nodeType != N_EXP)
-        {
-			printf("Stmt_s bug: should be Exp!\n");
-		}
-		int returntype = Exp_s(expnode);
-		if(returntype != -1)
-        {
-			//可能要改  int result=check_type(d_type, returntype);
-			if(d_type == returntype)
-            {
-				error_msg(8, stmt->line_no, NULL);	//错误类型8，函数返回类型不匹配
-				return -1;
-			}else
-            {
-				;//exp里面已经因为NULL报错
-			}
-		}		
-
-	}else if(tempnode1->nodeType == N_WHILE)
+        int uselesstype = Exp_s(tempnode1); //返回exp的返回type
+    }
+    else if (tempnode1->nodeType == N_RETURN)
     {
-		treeNode* expnode = getchild(stmt,2);
-		treeNode* stmtnode = getchild(stmt,4);
-		int type = Exp_s(expnode);
+        treeNode *expnode = getchild(stmt, 1);
+        if (expnode->nodeType != N_EXP)
+        {
+            printf("Stmt_s bug: should be Exp!\n");
+        }
+        int returntype = Exp_s(expnode);
+        if (returntype != -1)
+        {
+            //可能要改  int result=check_type(d_type, returntype);
+            if (d_type == returntype)
+            {
+                error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
+                return -1;
+            }
+            else
+            {
+                ; // exp里面已经因为NULL报错
+            }
+        }
+    }
+    else if (tempnode1->nodeType == N_WHILE)
+    {
+        treeNode *expnode = getchild(stmt, 2);
+        treeNode *stmtnode = getchild(stmt, 4);
+        int type = Exp_s(expnode);
         ///可能要改
-		if(type!=-1){
-			if(type == 0)
-            {
-				;
-			}else
-            {
-				error_msg(7,stmt->line_no,NULL);	//错误类型7，while条件操作数类型不匹配
-			}
-			
-		}else
+        if (type != -1)
         {
-			;//Exp里面已经报过了
-		}
-		Stmt_s(stmtnode, d_type);
-	}else if(tempnode1->nodeType == N_IF)
+            if (type == 0)
+            {
+                ;
+            }
+            else
+            {
+                error_msg(7, stmt->line_no, NULL); //错误类型7，while条件操作数类型不匹配
+            }
+        }
+        else
+        {
+            ; // Exp里面已经报过了
+        }
+        Stmt_s(stmtnode, d_type);
+    }
+    else if (tempnode1->nodeType == N_IF)
     {
-		/*	| IF LP Exp RP Stmt
-	| IF LP Exp RP Stmt ELSE Stmt
-	*/
-		treeNode*expnode=getchild(stmt,2);
-		if(expnode->nodeType != N_EXP)
+        /*	| IF LP Exp RP Stmt
+    | IF LP Exp RP Stmt ELSE Stmt
+    */
+        treeNode *expnode = getchild(stmt, 2);
+        if (expnode->nodeType != N_EXP)
         {
-			printf("Stmt_s bug: should be Exp!\n");
-			
-		}
-		treeNode* tempnode6=getchild(stmt,5);//ELSE
-		int iftype = Exp_s(expnode);
-		if(iftype!=-1){
-			if(iftype == 0)
+            printf("Stmt_s bug: should be Exp!\n");
+        }
+        treeNode *tempnode6 = getchild(stmt, 5); // ELSE
+        int iftype = Exp_s(expnode);
+        if (iftype != -1)
+        {
+            if (iftype == 0)
             {
-				;
-			}else
+                ;
+            }
+            else
             {
-				error_msg(7,stmt->line_no,NULL);	//错误类型7，if条件操作数类型不匹配
-				//return -1;
-			}
-		}
-		if(tempnode6==NULL)
+                error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
+                                                   // return -1;
+            }
+        }
+        if (tempnode6 == NULL)
         {
-			treeNode*stmtnode1=getchild(stmt,4);
+            treeNode *stmtnode1 = getchild(stmt, 4);
 
-			Stmt_s(stmtnode1, d_type);
-		}else
+            Stmt_s(stmtnode1, d_type);
+        }
+        else
         {
-			treeNode*stmtnode1=getchild(stmt,4);
-			treeNode*stmtnode2=getchild(stmt,6);
+            treeNode *stmtnode1 = getchild(stmt, 4);
+            treeNode *stmtnode2 = getchild(stmt, 6);
 
-			Stmt_s(stmtnode1, d_type);
+            Stmt_s(stmtnode1, d_type);
 
-			Stmt_s(stmtnode2, d_type);
-		}
-		;
-	}else
+            Stmt_s(stmtnode2, d_type);
+        };
+    }
+    else
     {
-		printf("Stmt_s error: Impossible to be here!\n");
-	}
-	return 0;
+        printf("Stmt_s error: Impossible to be here!\n");
+    }
+    return 0;
 }
 
 //处理Exp节点，返回对应类型，如果有错误或不存在返回-1
@@ -441,7 +461,7 @@ int Exp_s(treeNode *exp)
                     { // Exp DOT ID(结构体)
                         if (tempnode11->nodeType == N_EXP &&
                             tempnode12->nodeType == N_DOT &&
-                            tempnode13->nodeType == N_ID )
+                            tempnode13->nodeType == N_ID)
                         {
                             ; //正确
                         }
@@ -478,24 +498,22 @@ int Exp_s(treeNode *exp)
 
     // ID，INT，FLOAT
     if (tempnode2 == NULL)
-    { 
+    {
         if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
-            if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal)&&
-                !ifExistFunc(*fun_table, tempnode1->subtype.IDVal)&&
-                !ifExistStruct(*struct_table, tempnode1->subtype.IDVal)
-                )
+            if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
+                !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) &&
+                !ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
             {
                 error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
                 return -1;
             }
             else
-            {   
-                result = find_type(tempnode1);//找到了,返回这个ID代表的类型
-                //result = charToInt(tempnode1->character, *struct_table);
+            {
+                result = find_type(tempnode1); //找到了,返回这个ID代表的类型
+                // result = charToInt(tempnode1->character, *struct_table);
                 return result;
             }
-            
         }
         else if (tempnode1->nodeType == N_INT)
         { //返回int
@@ -532,12 +550,12 @@ int Exp_s(treeNode *exp)
                 {
                     //检查类型是否匹配
                     if (exp1type != exp2type && tempnode2->nodeType == N_ASSIGNOP)
-                    {                                   //赋值号
+                    {                                     //赋值号
                         error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
                         return -1;
                     }
                     if (exp1type != exp2type)
-                    {                                   //不是赋值号，为运算符
+                    {                                     //不是赋值号，为运算符
                         error_msg(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
                         return -1;
                     }
@@ -550,7 +568,7 @@ int Exp_s(treeNode *exp)
                 }
                 else
                 {
-                    ;            //如果是返回-1的话exp里面肯定报错了,就不重复报错了;
+                    ;          //如果是返回-1的话exp里面肯定报错了,就不重复报错了;
                     return -1; //把-1往前传,因为有错;
                 }
             }
@@ -578,80 +596,85 @@ int Exp_s(treeNode *exp)
         | Exp DOT ID 结构体;
         */
         //函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
-		if(tempnode1->nodeType == N_ID)
-        {	//当前为函数，需要去检查该函数是否已定义
-			char*funcname=tempnode1->subtype.IDVal;
-			int queryresult=ifExistFunc(*fun_table, funcname);	//在全局里面搜索;
-            dataNodeFunc func_node = getNodeFunc(*fun_table, funcname);//搜素这个函数节点
-            int ret_type = func_node.returnType;//获取函数返回类型
+        if (tempnode1->nodeType == N_ID)
+        { //当前为函数，需要去检查该函数是否已定义
+            char *funcname = tempnode1->subtype.IDVal;
+            int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
+            dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
+            int ret_type = func_node.returnType;                        //获取函数返回类型
 
-			if(!queryresult){//没找到或者不是定义;  或者不是函数
-                if(ifExistStruct(*struct_table, funcname)||
-                   ifExistVarStack(var_domain_ptr, funcname))
-                   {
-                       //当前ID不是函数名
-					    error_msg(11, exp->line_no, funcname);//错误类型11，对普通变量调用函数，例如i()；
-					    return -1;
-                   }
-                   else{
-                        error_msg(2, exp->line_no, funcname);		//错误类型2，函数未定义
-				        return -1;
-                   }
-			}
-
-			if(tempnode3->nodeType == N_ARGS)
-            {
-				if(func_node.args == NULL)
-                {	//函数本身没有形参，但此时有实参
-					error_msg(9, exp->line_no, NULL);	//错误类型9，函数实参形参不匹配
-					return -1;
-				}else{
-					/*Args -> Exp COMMA Args
-					| Exp;
-					*/
-					//检查args的数量;
-					int cnt=0;
-					treeNode*cntnode=tempnode3;
-					while(1)
-                    {	//计算所有实参的数目
-						cnt += 1;
-						treeNode*tempcntnode=getchild(cntnode, 1);
-						if(tempcntnode==NULL)
-                        {
-							break;
-						}
-						//cnt+=1;
-						cntnode=getchild(cntnode, 2);
-					}
-					if(cnt != getArgNum(*fun_table, funcname))
-                    {
-						error_msg(9,exp->line_no,NULL);	//错误类型9，函数实参形参个数不匹配
-						return -1;
-					}
-					int argresult=Arg_s(tempnode3,func_node.args);
-					if(argresult==0)
-                    {
-						return result;
-					}else
-                    {
-						return -1;
-					}
-				}
-			}else
-            {
-
-				if(func_node.args!=NULL)
-                {	//函数有形参，但此时没有实参
-					error_msg(9, exp->line_no, NULL);	//错误类型9，函数实参形参个数不匹配
-					return -1;
-				}
-				else
+            if (!queryresult)
+            { //没找到或者不是定义;  或者不是函数
+                if (ifExistStruct(*struct_table, funcname) ||
+                    ifExistVarStack(var_domain_ptr, funcname))
                 {
-					return result;
-				}
-			}
-			
-		}
+                    //当前ID不是函数名
+                    error_msg(11, exp->line_no, funcname); //错误类型11，对普通变量调用函数，例如i()；
+                    return -1;
+                }
+                else
+                {
+                    error_msg(2, exp->line_no, funcname); //错误类型2，函数未定义
+                    return -1;
+                }
+            }
+
+            if (tempnode3->nodeType == N_ARGS)
+            {
+                if (func_node.args == NULL)
+                {                                     //函数本身没有形参，但此时有实参
+                    error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参不匹配
+                    return -1;
+                }
+                else
+                {
+                    /*Args -> Exp COMMA Args
+                    | Exp;
+                    */
+                    //检查args的数量;
+                    int cnt = 0;
+                    treeNode *cntnode = tempnode3;
+                    while (1)
+                    { //计算所有实参的数目
+                        cnt += 1;
+                        treeNode *tempcntnode = getchild(cntnode, 1);
+                        if (tempcntnode == NULL)
+                        {
+                            break;
+                        }
+                        // cnt+=1;
+                        cntnode = getchild(cntnode, 2);
+                    }
+                    if (cnt != getArgNum(*fun_table, funcname))
+                    {
+                        error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
+                        return -1;
+                    }
+                    int argresult = Arg_s(tempnode3, func_node.args);
+                    if (argresult == 0)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return -1;
+                    }
+                }
+            }
+            else
+            {
+
+                if (func_node.args != NULL)
+                {                                     //函数有形参，但此时没有实参
+                    error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
+                    return -1;
+                }
+                else
+                {
+                    return result;
+                }
+            }
+        }
         else
         {
             treeNode *tempnode4 = getchild(exp, 3);
@@ -666,16 +689,16 @@ int Exp_s(treeNode *exp)
                     int exptype = Exp_s(tempnode1);
 
                     if (exptype != NULL && ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
-                    {   
+                    {
                         dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->subtype.IDVal);
                         if (exptype < 6)
-                        {                                          //当前Exp不是结构体    用datatype
+                        {                                      //当前Exp不是结构体    用datatype
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
                             return -1;
                         }
                         else
                         {
-                             //搜索域名;
+                            //搜索域名;
                             if (ifExistStructDomain(*struct_table, tempnode3->nodeType, tempnode3->subtype.IDVal))
                             {
                                 //找到了!
@@ -701,7 +724,7 @@ int Exp_s(treeNode *exp)
                 //数组部分;| Exp LB Exp RB 数组
                 if (tempnode1->nodeType == N_EXP &&
                     tempnode2->nodeType == N_LB &&
-                    tempnode3->nodeType==  N_EXP)
+                    tempnode3->nodeType == N_EXP)
                 {
                     int type1 = Exp_s(tempnode1);
                     int type3 = Exp_s(tempnode3);
@@ -709,7 +732,7 @@ int Exp_s(treeNode *exp)
                     {
                         return -1;
                     }
-                    if (type1 != 2) //type1不是数组
+                    if (type1 != 2) // type1不是数组
                     {
                         error_msg(10, exp->line_no, NULL); //错误类型10，对非数组变量进行数组访问
                         return -1;
@@ -721,7 +744,7 @@ int Exp_s(treeNode *exp)
                             ;
                         }
                         else
-                        {                                    // Exp不是整数
+                        {                                      // Exp不是整数
                             error_msg(12, exp->line_no, NULL); //错误类型12，数组访问符中出现非整数
                             return -1;
                         }
@@ -734,31 +757,32 @@ int Exp_s(treeNode *exp)
             }
         };
     }
-    return -1; 
+    return -1;
 }
 
 //处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
-int Arg_s(treeNode*args,dataNodeVar* params)
+int Arg_s(treeNode *args, dataNodeVar *params)
 {
-	/*Args -> 
+    /*Args ->
       Exp COMMA Args
-	| Exp;
-	*/
-	treeNode*expnode=getchild(args, 0);
-	treeNode*tempnode=getchild(args, 1);		//判断实参是否还有参数
+    | Exp;
+    */
+    treeNode *expnode = getchild(args, 0);
+    treeNode *tempnode = getchild(args, 1); //判断实参是否还有参数
 
-	int temptype=Exp_s(expnode);		//检查函数形参和实参类型是否匹配
-	if(temptype == params->varType){
-		error_msg(9,args->line_no,NULL);	//错误类型9，函数实参形参类型不匹配
-		return -1;
-		}
+    int temptype = Exp_s(expnode); //检查函数形参和实参类型是否匹配
+    if (temptype == params->varType)
+    {
+        error_msg(9, args->line_no, NULL); //错误类型9，函数实参形参类型不匹配
+        return -1;
+    }
 
-	if(tempnode!=NULL)
-    {			//实参还有参数，继续检查下一个实参和形参是否匹配
-		treeNode* argsnode=getchild(args,2);
-		return Arg_s(argsnode,params->next);
-	}
-	return 0;
+    if (tempnode != NULL)
+    { //实参还有参数，继续检查下一个实参和形参是否匹配
+        treeNode *argsnode = getchild(args, 2);
+        return Arg_s(argsnode, params->next);
+    }
+    return 0;
 }
 
 void error_msg(int type, int line_no, char *content)
@@ -840,7 +864,7 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
     switch (def_type)
     {
     case D_STRUCT_DEC:
-        def_type = charToInt(type_node -> child -> sibling -> child -> subtype.IDVal, *struct_table);
+        def_type = charToInt(type_node->child->sibling->child->subtype.IDVal, *struct_table);
     case D_INT:
     case D_FLOAT:
         if (core_node->nodeType == N_EXT_DEC_L)
@@ -855,14 +879,15 @@ int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
         }
         else
         {
-            dataNodeFunc* abc = fun_dec(core_node, type_node -> child -> character);
-            if(core_node -> sibling ->nodeType != N_SEMI){
-                abc -> defined = 1;
+            dataNodeFunc *abc = fun_dec(core_node, type_node->child->character);
+            if (core_node->sibling->nodeType != N_SEMI)
+            {
+                abc->defined = 1;
                 //返回类型不匹配在这里面报错
-                comp_stmt(core_node -> sibling, def_type);
+                comp_stmt(core_node->sibling, def_type);
             }
-            
-            InsertFunc(fun_table, *abc);
+
+            InsertFunc(fun_table, abc);
             free(abc);
         }
 
@@ -895,12 +920,16 @@ int tree_analys(treeNode *mytree)
     //用于存储变量信息
     int if_unfold = 1;
     int type_now = -1;
+    int in_local = 0;
+    dataNodeVar *var_ptr = NULL;
+    dataNodeFunc *func_ptr = NULL;
 
     do
     {
-        if(if_unfold){
+        if (if_unfold)
+        {
             reversed_insert(stack_ptr, pop(stack_ptr));
-        }        
+        }
         temp = top(stack_ptr);
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
@@ -914,9 +943,9 @@ int tree_analys(treeNode *mytree)
             printf("ExtDef detected\n");
             if_unfold = 1;
             break;
-        
-        //specifier处理部分
-        //specifier总是被期待返回一个类型值，所以在栈上统一解开（省点内存吧球球了）     
+
+        // specifier处理部分
+        // specifier总是被期待返回一个类型值，所以在栈上统一解开（省点内存吧球球了）
         case N_SPECI:
             printf("Specifier detected, now finding the type...\n");
             if_unfold = 1;
@@ -936,7 +965,7 @@ int tree_analys(treeNode *mytree)
             printf("Structure type in the specifier\n");
             pop(stack_ptr);
             if_unfold = 0;
-            if (temp ->child->child->sibling->nodeType == N_TAG)
+            if (temp->child->child->sibling->nodeType == N_TAG)
             {
                 type_now = struct_specifier_dec(temp);
                 break;
@@ -944,31 +973,84 @@ int tree_analys(treeNode *mytree)
             type_now = struct_specifier_def(temp);
             break;
 
-
-
-
         case N_EXT_DEC_L:
             printf("ExtDecList detected.\n");
+            if_unfold = 1;
             break;
-        
+
         case N_VAR_DEC:
+            if (in_local)
+            {
 
-
+                break;
+            }
+            var_ptr = var_dec(temp, type_now);
+            InsertVar(&(var_domain_ptr->tVar), var_ptr);
+            free_var(var_ptr);
+            var_ptr = NULL;
+            pop(stack_ptr);
+            if_unfold = 0;
             break;
-        
-        
-        
+
         case N_SEMI:
         case N_COMMA:
+            if (func_ptr != NULL)
+            {
+                InsertFunc(fun_table, func_ptr);
+                free_func(func_ptr);
+                func_ptr = NULL;
+            }
+            if(var_dec != NULL){
+
+            }
+            pop(stack_ptr);
+            if_unfold = 0;
+            break;
+
+        case N_FUN_DEC:
+            //注意！这里还不知道函数有没有定义，只知道有这样一个声明
+            //这个声明暂存后，并没有提交到表中
+            printf("Function declareration detected\n");
+            func_ptr = fun_dec(temp, type_now);
+            pop(stack_ptr);
+            if_unfold = 0;
+            break;
+
+        case N_COMPST:
+            printf("Compst detected");
+            if_unfold = 1;
+            break;
+
+        case N_LC:
+            printf("Create new domain\n");
+            domainPush(var_domain_ptr);
+            in_local++;
+            if_unfold = 0;
             pop(stack_ptr);
             break;
 
-
-
-        case N_FUN_DEC:
+        case N_DEF_L:
+            printf("DefList detected\n");
+            if_unfold = 1;
+            break;
+        case N_DEF:
 
             break;
-    
+
+        case N_STMT_L:
+            printf("StmtList detected\n ");
+            StmtList_s(temp, type_now);
+            pop(stack_ptr);
+            if_unfold = 0;
+            break;
+        case N_RC:
+            printf("Close the domian\n");
+            domainPop(var_domain_ptr);
+            in_local--;
+            if_unfold = 0;
+            pop(stack_ptr);
+            break;
+
         default:
             // 这里给出一个列表：
             // ExtDecList
