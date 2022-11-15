@@ -373,7 +373,7 @@ int Stmt_s(treeNode *stmt, int d_type)
             else
             {
                 error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
-                                                   // return -1;
+                                                    return -1;
             }
         }
         if (tempnode6 == NULL)
@@ -399,7 +399,7 @@ int Stmt_s(treeNode *stmt, int d_type)
     return 0;
 }
 
-//处理Exp节点，返回对应类型，如果有错误或不存在返回-1
+//处理Exp节点，返回对应类型，如果有错误返回-1，其余情况返回-2
 int Exp_s(treeNode *exp)
 { //处理Exp
     /*Exp ->
@@ -430,7 +430,7 @@ int Exp_s(treeNode *exp)
     {
         return -1;
     };
-    int result = -1;
+    int result = -2;
 
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
