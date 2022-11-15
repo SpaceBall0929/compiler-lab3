@@ -42,10 +42,12 @@ Grammar
    24 StmtList: Stmt StmtList
    25         | ε
 
-   26 Stmt: Exp SEMI
-   27     | CompSt
-   28     | RETURN Exp SEMI
-   29     | IF LP Exp RP Stmt
+   26 Stmt:(考虑到EXP那边-1, -2都被占了, 这里用-3, -4)
+   27     | CompSt  返回-4
+   28     | RETURN Exp SEMI 返回Exp的类型值
+        以下的都返回-3
+          | Exp SEMI 
+          | IF LP Exp RP Stmt
    30     | IF LP Exp RP Stmt ELSE Stmt
    31     | WHILE LP Exp RP Stmt
    32     | Exp error

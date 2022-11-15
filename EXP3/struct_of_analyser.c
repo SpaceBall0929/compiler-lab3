@@ -332,7 +332,34 @@ int find_type(treeNode *n)
     }
 }
 
-//处理Exp节点，返回对应类型，如果有错误返回-1，其余情况返回-2
+int Exp_s(treeNode *exp);
+
+//处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
+int Arg_s(treeNode *args, dataNodeVar *params)
+{
+    /*Args ->
+      Exp COMMA Args
+    | Exp;
+    */
+    treeNode *expnode = getchild(args, 0);
+    treeNode *tempnode = getchild(args, 1); //判断实参是否还有参数
+
+    int temptype = Exp_s(expnode); //检查函数形参和实参类型是否匹配
+    if (temptype == params->varType)
+    {
+        error_msg(9, args->line_no, NULL); //错误类型9，函数实参形参类型不匹配
+        return -1;
+    }
+
+    if (tempnode != NULL)
+    { //实参还有参数，继续检查下一个实参和形参是否匹配
+        treeNode *argsnode = getchild(args, 2);
+        return Arg_s(argsnode, params->next);
+    }
+    return 0;
+}
+
+//处理Exp节点，返回对应类型，如果有错误返回-1，表达式无返回值返回-2，有返回值返回返回值
 int Exp_s(treeNode *exp)
 { //处理Exp
     /*Exp ->
@@ -692,30 +719,7 @@ int Exp_s(treeNode *exp)
     return -1;
 }
 
-//处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
-int Arg_s(treeNode *args, dataNodeVar *params)
-{
-    /*Args ->
-      Exp COMMA Args
-    | Exp;
-    */
-    treeNode *expnode = getchild(args, 0);
-    treeNode *tempnode = getchild(args, 1); //判断实参是否还有参数
 
-    int temptype = Exp_s(expnode); //检查函数形参和实参类型是否匹配
-    if (temptype == params->varType)
-    {
-        error_msg(9, args->line_no, NULL); //错误类型9，函数实参形参类型不匹配
-        return -1;
-    }
-
-    if (tempnode != NULL)
-    { //实参还有参数，继续检查下一个实参和形参是否匹配
-        treeNode *argsnode = getchild(args, 2);
-        return Arg_s(argsnode, params->next);
-    }
-    return 0;
-}
 
 
 /*int StmtList_s(treeNode *stmt, int d_type)
@@ -929,7 +933,7 @@ int tree_analys(treeNode *mytree)
     int type_now = -1;
     // int in_local = 0;
     // int in_struct_def = 0;
-    int exp_output = 0;
+    int exp_stmt_out = 0;
     char* temp_ID = NULL;
     dataNodeVar *var_ptr = NULL;
     dataNodeFunc *func_ptr = NULL;
@@ -1082,8 +1086,8 @@ int tree_analys(treeNode *mytree)
             break;
         
         case N_EXP:
-            exp_output = Exp_s(temp);
-            if(type_now != exp_output && exp_output != -1){
+            exp_stmt_out = Exp_s(temp);
+            if(type_now != exp_stmt_out && exp_stmt_out != -1){
                 error_msg(5,temp->line_no, temp->subtype.IDVal);
             }
             if_unfold = 0;
@@ -1092,9 +1096,39 @@ int tree_analys(treeNode *mytree)
 
         case N_STMT_L:
             printf("StmtList detected\n ");
-            StmtList_s(temp, type_now);
-            pop(stack_ptr);
-            if_unfold = 0;
+            if_unfold = 1;
+            break;
+
+        case N_STMT:
+            exp_stmt_out = Stmt_s(temp, type_now);
+            switch (exp_stmt_out)
+            {
+            case -4:
+                if_unfold = 1;
+                break;
+            case -3:
+                pop(stack_ptr);
+                if_unfold = 0;
+                break;
+            case -2:
+                error_msg(8, temp->line_no, NULL);
+                pop(stack_ptr);
+                if_unfold = 0;
+                break;
+            case -1:
+                printf("ERROR in the return exp.\n");
+                pop(stack_ptr);
+                if_unfold = 0;
+                break;
+            
+            default:
+                if(type_now != exp_stmt_out){
+                    error_msg(8, temp->line_no, NULL);
+                }
+                pop(stack_ptr);
+                if_unfold = 0;
+                break;
+            }
             break;
         case N_RC:
             if(struct_ptr != NULL){
