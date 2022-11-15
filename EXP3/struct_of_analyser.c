@@ -314,10 +314,6 @@ int struct_specifier_dec(treeNode *dec_node)
 /**************************
  *       以下施工完了        *
  ***************************/
-
-
-
-
 //返回对应类型的宏
 int find_type(treeNode *n)
 {
@@ -336,6 +332,7 @@ int find_type(treeNode *n)
     }
 }
 
+//处理Exp节点，返回对应类型，如果有错误返回-1，其余情况返回-2
 int Exp_s(treeNode *exp)
 { //处理Exp
     /*Exp ->
@@ -721,9 +718,9 @@ int Arg_s(treeNode *args, dataNodeVar *params)
 }
 
 
-int StmtList_s(treeNode *stmt, int d_type)
+/*int StmtList_s(treeNode *stmt, int d_type)
 {
-    /*
+    
     StmtList ->
       Stmt StmtList
     | 空
@@ -734,7 +731,7 @@ int StmtList_s(treeNode *stmt, int d_type)
     | IF LP Exp RP Stmt
     | IF LP Exp RP Stmt ELSE Stmt
     | WHILE LP Exp RP Stmt
-    */
+    
     treeNode *Stmtnode = getchild(stmt, 0);
     treeNode *tempnode = getchild(stmt, 1);
     Stmt_s(Stmtnode, d_type);
@@ -742,7 +739,9 @@ int StmtList_s(treeNode *stmt, int d_type)
     {
         StmtList_s(tempnode, d_type);
     }
-}
+}*/
+
+//处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
 int Stmt_s(treeNode *stmt, int d_type)
 {
     /*
@@ -757,18 +756,19 @@ int Stmt_s(treeNode *stmt, int d_type)
     treeNode *tempnode1 = getchild(stmt, 0);
     if (tempnode1->nodeType == N_COMPST)
     {
-        //新开一个作用域,进入CompSt，然后溜
+        /*//新开一个作用域,进入CompSt，然后溜
         domainStack ds;
         domainPush(ds);
         comp_stmt(tempnode1, d_type);
-        domainPop(ds);
+        domainPop(ds);*/
+        return -4;
     }
     else if (tempnode1->nodeType == N_EXP)
-    {
-        int uselesstype = Exp_s(tempnode1); //返回exp的返回type
+    {//Exp SEMI
+        int uselesstype = Exp_s(tempnode1);
     }
     else if (tempnode1->nodeType == N_RETURN)
-    {
+    {//RETURN Exp SEMI 返回Exp类型值
         treeNode *expnode = getchild(stmt, 1);
         if (expnode->nodeType != N_EXP)
         {
@@ -777,24 +777,22 @@ int Stmt_s(treeNode *stmt, int d_type)
         int returntype = Exp_s(expnode);
         if (returntype != -1)
         {
-            //可能要改  int result=check_type(d_type, returntype);
-            if (d_type == returntype)
+            if (d_type != returntype)
             {
                 error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
-                return -1;
             }
             else
             {
                 ; // exp里面已经因为NULL报错
             }
         }
+        return returntype;
     }
     else if (tempnode1->nodeType == N_WHILE)
-    {
+    {//WHILE LP Exp RP Stmt 返回-3
         treeNode *expnode = getchild(stmt, 2);
         treeNode *stmtnode = getchild(stmt, 4);
         int type = Exp_s(expnode);
-        ///可能要改
         if (type != -1)
         {
             if (type == 0)
@@ -815,7 +813,7 @@ int Stmt_s(treeNode *stmt, int d_type)
     else if (tempnode1->nodeType == N_IF)
     {
         /*	| IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
+    | IF LP Exp RP Stmt ELSE Stmt  返回-3
     */
         treeNode *expnode = getchild(stmt, 2);
         if (expnode->nodeType != N_EXP)
@@ -856,10 +854,10 @@ int Stmt_s(treeNode *stmt, int d_type)
     {
         printf("Stmt_s error: Impossible to be here!\n");
     }
-    return 0;
+    return -3;
 }
 
-//处理Exp节点，返回对应类型，如果有错误返回-1，其余情况返回-2
+
 
 
 
