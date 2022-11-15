@@ -332,6 +332,11 @@ int find_type(treeNode *n)
     }
 }
 
+//返回是不是这个type
+int check_type(treeNode *n, int type){
+    return n->nodeType == type;
+}
+
 int Exp_s(treeNode *exp);
 
 //处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
@@ -359,7 +364,16 @@ int Arg_s(treeNode *args, dataNodeVar *params)
     return 0;
 }
 
-//处理Exp节点，返回对应类型，如果有错误返回-1，表达式无返回值返回-2，有返回值返回返回值
+
+//返回是否报错，若只有一个参数，第二个参数写1
+int check_error(int a, int b){
+    if(a == -1 || b == -1){
+        return 1;
+    }
+    return 0;
+}
+
+//处理Exp节点，返回对应类型，如果有错误返回-1
 int Exp_s(treeNode *exp)
 { //处理Exp
     /*Exp ->
@@ -390,7 +404,7 @@ int Exp_s(treeNode *exp)
     {
         return -1;
     };
-    int result = -2;
+    int result = -1;
 
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
@@ -505,30 +519,39 @@ int Exp_s(treeNode *exp)
                 }
                 int exp1type = Exp_s(Expnode1);
                 int exp2type = Exp_s(Expnode2);
-                if (exp1type != -1 && exp2type != -1)
+                if (!check_error(exp1type, exp2type))
                 {
                     //检查类型是否匹配
+                    //赋值号
                     if (exp1type != exp2type && tempnode2->nodeType == N_ASSIGNOP)
-                    {                                     //赋值号
+                    {                                     
                         error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
                         return -1;
                     }
+
+                    if(check_type(tempnode2, N_AND) ||
+                       check_type(tempnode2, N_OR) ||
+                       check_type(tempnode2, N_RELOP))
+                    {//关系运算,返回INT
+                        return D_INT;
+                    }
+
+                    //不是赋值号，为运算符
                     if (exp1type != exp2type)
-                    {                                     //不是赋值号，为运算符
+                    {                                     
                         error_msg(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
                         return -1;
                     }
                     else
-                    {
-                        //左值错误,左值只能够是变量
+                    {//返回操作数(随便哪个exp)的类型
                         result = exp1type;
                         return result;
                     }
                 }
                 else
                 {
-                    ;          //如果是返回-1的话exp里面肯定报错了,就不重复报错了;
-                    return -1; //把-1往前传,因为有错;
+                    //返回-1,子exp里面有错,把-1往前传
+                    return -1;
                 }
             }
         }
@@ -543,6 +566,10 @@ int Exp_s(treeNode *exp)
                 printf("The second part should be Exp!\n");
             }
             int exp1type = Exp_s(expnode);
+            if(check_type(expnode, N_NOT) && !check_error(exp1type, 1))
+            {//NOT结果返回int
+                return D_INT;
+            }
             result = exp1type;
             return result;
         }
@@ -610,13 +637,13 @@ int Exp_s(treeNode *exp)
                         return -1;
                     }
                     int argresult = Arg_s(tempnode3, func_node.args);
-                    if (argresult == 0)
+                    if (argresult != 0)
                     {
                         return result;
                     }
                     else
                     {
-                        return -1;
+                        return ret_type;
                     }
                 }
             }
@@ -630,7 +657,7 @@ int Exp_s(treeNode *exp)
                 }
                 else
                 {
-                    return result;
+                    return ret_type;
                 }
             }
         }
@@ -647,11 +674,11 @@ int Exp_s(treeNode *exp)
                 {
                     int exptype = Exp_s(tempnode1);
 
-                    if (exptype != NULL && ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
+                    if (!check_error(exptype, 1))//已保证结构体存在
                     {
                         dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->subtype.IDVal);
                         if (exptype < 6)
-                        {                                      //当前Exp不是结构体    用datatype
+                        {   //当前Exp不是结构体
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
                             return -1;
                         }
@@ -662,6 +689,7 @@ int Exp_s(treeNode *exp)
                             {
                                 //找到了!
                                 result = find_type(tempnode3);
+                                return result;
                             }
                             else
                             {
@@ -673,7 +701,7 @@ int Exp_s(treeNode *exp)
                     }
                     else
                     {
-                        return -1;
+                        return -1;//把错误往上传（已经报过错）
                     }
                 }
             }
@@ -687,7 +715,7 @@ int Exp_s(treeNode *exp)
                 {
                     int type1 = Exp_s(tempnode1);
                     int type3 = Exp_s(tempnode3);
-                    if (type1 == -1 || type3 == -1)
+                    if (check_error(type1, type3))
                     {
                         return -1;
                     }
@@ -716,7 +744,7 @@ int Exp_s(treeNode *exp)
             }
         };
     }
-    return -1;
+    return result;
 }
 
 
@@ -779,7 +807,7 @@ int Stmt_s(treeNode *stmt, int d_type)
             printf("Stmt_s bug: should be Exp!\n");
         }
         int returntype = Exp_s(expnode);
-        if (returntype != -1)
+        if (!check_error(returntype, 1))
         {
             if (d_type != returntype)
             {
@@ -797,7 +825,7 @@ int Stmt_s(treeNode *stmt, int d_type)
         treeNode *expnode = getchild(stmt, 2);
         treeNode *stmtnode = getchild(stmt, 4);
         int type = Exp_s(expnode);
-        if (type != -1)
+        if (!check_error(type, 1))
         {
             if (type == 0)
             {
@@ -826,7 +854,7 @@ int Stmt_s(treeNode *stmt, int d_type)
         }
         treeNode *tempnode6 = getchild(stmt, 5); // ELSE
         int iftype = Exp_s(expnode);
-        if (iftype != -1)
+        if (!check_error(iftype, 1))
         {
             if (iftype == 0)
             {
