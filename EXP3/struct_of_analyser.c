@@ -979,11 +979,6 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_VAR_DEC:
-            if (in_local)
-            {
-
-                break;
-            }
             var_ptr = var_dec(temp, type_now);
             InsertVar(&(var_domain_ptr->tVar), var_ptr);
             free_var(var_ptr);
@@ -1024,7 +1019,7 @@ int tree_analys(treeNode *mytree)
         case N_LC:
             printf("Create new domain\n");
             domainPush(var_domain_ptr);
-            in_local++;
+            // in_local++;
             if_unfold = 0;
             pop(stack_ptr);
             break;
@@ -1034,7 +1029,25 @@ int tree_analys(treeNode *mytree)
             if_unfold = 1;
             break;
         case N_DEF:
-
+            printf("Def detected\n");
+            if_unfold = 1;
+            break;
+        case N_DEC_L:
+            printf("DecList detected\n");
+            if_unfold = 1;
+            break;
+        case N_DEC:
+            if_unfold = 1;
+            break;
+        case N_ASSIGNOP:
+            if_unfold = 0;
+            break;
+        
+        case N_EXP:
+            if(type_now != Exp_s(temp)){
+                error_msg(5,temp->line_no, temp->subtype.IDVal);
+            }
+            if_unfold = 0;
             break;
 
         case N_STMT_L:
@@ -1046,7 +1059,7 @@ int tree_analys(treeNode *mytree)
         case N_RC:
             printf("Close the domian\n");
             domainPop(var_domain_ptr);
-            in_local--;
+            // in_local--;
             if_unfold = 0;
             pop(stack_ptr);
             break;
