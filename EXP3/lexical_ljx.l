@@ -30,7 +30,7 @@ AND &&
 OR \|\|
 DOT \.
 NOT !
-TYPE1 int|float
+TYPE int|float
 LP \(
 RP \)
 LB \[

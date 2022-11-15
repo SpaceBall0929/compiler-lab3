@@ -192,7 +192,7 @@ treeNode* pop(seqStack *s) // pop
     }
     else
         printf("ERROR: pop when stack NULL");
-    return;
+    return NULL;
 }
 
 treeNode *top(seqStack *s) //查看栈顶
@@ -246,21 +246,21 @@ void reversed_insert(seqStack *s, treeNode *t)
     s->top += count; //重新指向栈顶
 }
 
-void Pre_order(treeNode *t) //用栈实现遍历tree
-{
-    seqStack *s;
-    initStack(&s);
+// void Pre_order(treeNode *t) //用栈实现遍历tree
+// {
+//     seqStack *s;
+//     initStack(s);
 
-    push(s, t); //根节点入栈
+//     push(s, t); //根节点入栈
 
-    while (!isEmpty(s))
-    {
-        treeNode* n = pop(s); //节点出栈
+//     while (!isEmpty(s))
+//     {
+//         treeNode* n = pop(s); //节点出栈
 
-        //处理该节点
-        if (!n->child)
-        {
-            reversed_insert(s, n); // n的孩子逆序入栈
-        }
-    }
-}
+//         //处理该节点
+//         if (!n->child)
+//         {
+//             reversed_insert(s, n); // n的孩子逆序入栈
+//         }
+//     }
+// }
