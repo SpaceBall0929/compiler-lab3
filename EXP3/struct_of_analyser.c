@@ -104,39 +104,39 @@ int specifier(treeNode *speci)
     }
 }
 
-dataNodeVar *dec_list(treeNode *decs, int var_type)
-{
-    dataNodeVar *temp_var;
-    dataNodeVar *return_vars;
-    decs = decs->child;
-    temp_var = var_dec(decs->child, var_type);
-    return_vars = temp_var;
-    if (decs->child->sibling != NULL)
-    {
-        if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
-        {
-            error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
-        }
-    }
-    decs = decs->sibling;
-    while (decs != NULL)
-    {
-        decs = decs->sibling->child;
-        temp_var->next = var_dec(decs->child, var_type);
-        temp_var = temp_var->next;
-        if (decs->child->sibling != NULL)
-        {
-            if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
-            {
-                error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
-            }
-        }
-        decs = decs->sibling;
-    }
+// dataNodeVar *dec_list(treeNode *decs, int var_type)
+// {
+//     dataNodeVar *temp_var;
+//     dataNodeVar *return_vars;
+//     decs = decs->child;
+//     temp_var = var_dec(decs->child, var_type);
+//     return_vars = temp_var;
+//     if (decs->child->sibling != NULL)
+//     {
+//         if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
+//         {
+//             error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
+//         }
+//     }
+//     decs = decs->sibling;
+//     while (decs != NULL)
+//     {
+//         decs = decs->sibling->child;
+//         temp_var->next = var_dec(decs->child, var_type);
+//         temp_var = temp_var->next;
+//         if (decs->child->sibling != NULL)
+//         {
+//             if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
+//             {
+//                 error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
+//             }
+//         }
+//         decs = decs->sibling;
+//     }
 
-    temp_var = NULL;
-    return return_vars;
-}
+//     temp_var = NULL;
+//     return return_vars;
+// }
 
 // int dec_list(treeNode* decs, char* var_type){
 //     dataNodeVar* temp_var;
@@ -158,81 +158,80 @@ dataNodeVar *dec_list(treeNode *decs, int var_type)
 //     return 0;
 // }
 
-dataNodeVar *def_list(treeNode *defs)
-{
-    // int temp_type;
-    dataNodeVar *return_vars;
-    dataNodeVar *temp_ptr;
-    int def_type;
-    defs = defs->child;
-    if (defs == NULL)
-    {
-        return NULL;
-    }
-    def_type = specifier(defs->child);
-    return_vars = dec_list(defs->child->sibling, def_type);
-    temp_ptr = return_vars;
-    defs = defs->sibling->child;
-    while (defs != NULL)
-    {
-        temp_ptr = temp_ptr->next;
-        temp_ptr = dec_list(defs->child->sibling, def_type);
-        defs = defs->sibling->child;
-    }
-    temp_ptr = NULL;
+// dataNodeVar *def_list(treeNode *defs)
+// {
+//     // int temp_type;
+//     dataNodeVar *return_vars;
+//     dataNodeVar *temp_ptr;
+//     int def_type;
+//     defs = defs->child;
+//     if (defs == NULL)
+//     {
+//         return NULL;
+//     }
+//     def_type = specifier(defs->child);
+//     return_vars = dec_list(defs->child->sibling, def_type);
+//     temp_ptr = return_vars;
+//     defs = defs->sibling->child;
+//     while (defs != NULL)
+//     {
+//         temp_ptr = temp_ptr->next;
+//         temp_ptr = dec_list(defs->child->sibling, def_type);
+//         defs = defs->sibling->child;
+//     }
+//     temp_ptr = NULL;
 
-    return return_vars;
-}
+//     return return_vars;
+// }
 
-int comp_stmt(treeNode *comp_stmt, int expected_type)
-{
-    dataNodeVar *all_vars;
-    dataNodeVar *temp_for_del;
-    domainPush(var_domain_ptr);
-    all_vars = def_list(comp_stmt->child->sibling);
-    while (all_vars != NULL)
-    {
-        temp_for_del = all_vars;
-        InsertVar(&(var_domain_ptr->tVar), all_vars);
-        all_vars = all_vars->next;
-        free(temp_for_del);
-    }
+// int comp_stmt(treeNode *comp_stmt, int expected_type)
+// {
+//     dataNodeVar *all_vars;
+//     dataNodeVar *temp_for_del;
+//     domainPush(var_domain_ptr);
+//     all_vars = def_list(comp_stmt->child->sibling);
+//     while (all_vars != NULL)
+//     {
+//         temp_for_del = all_vars;
+//         InsertVar(&(var_domain_ptr->tVar), all_vars);
+//         all_vars = all_vars->next;
+//         free(temp_for_del);
+//     }
 
-    Stmt_s(comp_stmt->child->sibling->sibling, expected_type);
-    domainPop(var_domain_ptr);
+//     Stmt_s(comp_stmt->child->sibling->sibling, expected_type);
+//     domainPop(var_domain_ptr);
 
-    return 0;
-}
+//     return 0;
+// }
 
-int struct_specifier_def(treeNode *def_node)
-{
-    char *name = NULL;
-    def_node = def_node->child->sibling;
-    if (def_node->child != NULL)
-    {
-        name = def_node->sibling->child->subtype.IDVal;
-    }
-    dataNodeStruct *new_struc = newNodeStruct(name);
-    dataNodeVar *temp_for_del = new_struc->structDomains;
-    dataNodeVar *temp2;
-    insertStructDomain(new_struc, def_list(def_node->sibling->sibling));
-    InsertStruct(struct_table, *new_struc);
-    while (temp_for_del != NULL)
-    {
-        temp2 = temp_for_del;
-        temp_for_del = temp_for_del->next;
-        free(temp2);
-    }
-    free(new_struc);
+// int struct_specifier_def(treeNode *def_node)
+// {
+//     char *name = NULL;
+//     def_node = def_node->child->sibling;
+//     if (def_node->child != NULL)
+//     {
+//         name = def_node->sibling->child->subtype.IDVal;
+//     }
+//     dataNodeStruct *new_struc = newNodeStruct(name);
+//     dataNodeVar *temp_for_del = new_struc->structDomains;
+//     dataNodeVar *temp2;
+//     insertStructDomain(new_struc, def_list(def_node->sibling->sibling));
+//     InsertStruct(struct_table, *new_struc);
+//     while (temp_for_del != NULL)
+//     {
+//         temp2 = temp_for_del;
+//         temp_for_del = temp_for_del->next;
+//         free(temp2);
+//     }
+//     free(new_struc);
 
-    return 0;
-}
+//     return 0;
+// }
 
 int struct_specifier_dec(treeNode *dec_node)
 {
     dec_node = dec_node->child->sibling->child;
     int temp = charToInt(dec_node->subtype.IDVal, *struct_table);
-    //这里应该有一个结构体未定义的报错，但是暂时没有处理
     if (temp == -1)
     {
         error_msg(17, dec_node->line_no, dec_node->subtype.IDVal);
@@ -854,53 +853,53 @@ void error_msg(int type, int line_no, char *content)
     }
 }
 
-int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
-{
+// int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
+// {
 
-    treeNode *type_node = ExtDef->child->child;
-    treeNode *core_node = ExtDef->child->sibling;
-    int def_type = specifier(type_node);
+//     treeNode *type_node = ExtDef->child->child;
+//     treeNode *core_node = ExtDef->child->sibling;
+//     int def_type = specifier(type_node);
 
-    switch (def_type)
-    {
-    case D_STRUCT_DEC:
-        def_type = charToInt(type_node->child->sibling->child->subtype.IDVal, *struct_table);
-    case D_INT:
-    case D_FLOAT:
-        if (core_node->nodeType == N_EXT_DEC_L)
-        {
-            treeNode *temp_node;
-            do
-            {
-                temp_node = core_node->child;
-                core_node = temp_node->sibling->sibling;
-                InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
-            } while (core_node != NULL);
-        }
-        else
-        {
-            dataNodeFunc *abc = fun_dec(core_node, type_node->child->character);
-            if (core_node->sibling->nodeType != N_SEMI)
-            {
-                abc->defined = 1;
-                //返回类型不匹配在这里面报错
-                comp_stmt(core_node->sibling, def_type);
-            }
+//     switch (def_type)
+//     {
+//     case D_STRUCT_DEC:
+//         def_type = charToInt(type_node->child->sibling->child->subtype.IDVal, *struct_table);
+//     case D_INT:
+//     case D_FLOAT:
+//         if (core_node->nodeType == N_EXT_DEC_L)
+//         {
+//             treeNode *temp_node;
+//             do
+//             {
+//                 temp_node = core_node->child;
+//                 core_node = temp_node->sibling->sibling;
+//                 InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
+//             } while (core_node != NULL);
+//         }
+//         else
+//         {
+//             dataNodeFunc *abc = fun_dec(core_node, type_node->child->character);
+//             if (core_node->sibling->nodeType != N_SEMI)
+//             {
+//                 abc->defined = 1;
+//                 //返回类型不匹配在这里面报错
+//                 comp_stmt(core_node->sibling, def_type);
+//             }
 
-            InsertFunc(fun_table, abc);
-            free(abc);
-        }
+//             InsertFunc(fun_table, abc);
+//             free(abc);
+//         }
 
-        break;
-    case D_STRUCT_DEF:
-        struct_specifier_def(type_node);
-        break;
-    default:
-        break;
-    }
+//         break;
+//     case D_STRUCT_DEF:
+//         struct_specifier_def(type_node);
+//         break;
+//     default:
+//         break;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
 int tree_analys(treeNode *mytree)
 {
@@ -920,9 +919,13 @@ int tree_analys(treeNode *mytree)
     //用于存储变量信息
     int if_unfold = 1;
     int type_now = -1;
-    int in_local = 0;
+    // int in_local = 0;
+    // int in_struct_def = 0;
+    int exp_output = 0;
+    char* temp_ID = NULL;
     dataNodeVar *var_ptr = NULL;
     dataNodeFunc *func_ptr = NULL;
+    dataNodeStruct *struct_ptr = NULL;
 
     do
     {
@@ -963,15 +966,29 @@ int tree_analys(treeNode *mytree)
             break;
         case N_STRUCT_SPECI:
             printf("Structure type in the specifier\n");
-            pop(stack_ptr);
-            if_unfold = 0;
             if (temp->child->child->sibling->nodeType == N_TAG)
             {
                 type_now = struct_specifier_dec(temp);
+                pop(stack_ptr);
+                if_unfold = 0;
                 break;
             }
-            type_now = struct_specifier_def(temp);
+            // type_now = struct_specifier_def(temp);
+            if_unfold = 1;
             break;
+
+        case N_STRUCT:
+            printf("Struct definition detected\n");
+            if_unfold = 0;
+            pop(stack_ptr);
+            break;
+
+        case N_OPT_TAG:
+            if_unfold = 0;
+            pop(stack_ptr);
+            struct_ptr = newNodeStruct(temp -> child -> subtype.IDVal);
+            break;
+
 
         case N_EXT_DEC_L:
             printf("ExtDecList detected.\n");
@@ -980,8 +997,12 @@ int tree_analys(treeNode *mytree)
 
         case N_VAR_DEC:
             var_ptr = var_dec(temp, type_now);
-            InsertVar(&(var_domain_ptr->tVar), var_ptr);
-            free_var(var_ptr);
+            if(struct_ptr != NULL){
+                insertStructDomain(struct_ptr, var_ptr);
+            }else{
+                InsertVar(&(var_domain_ptr->tVar), var_ptr);
+                free_var(var_ptr);
+            }
             var_ptr = NULL;
             pop(stack_ptr);
             if_unfold = 0;
@@ -995,9 +1016,9 @@ int tree_analys(treeNode *mytree)
                 free_func(func_ptr);
                 func_ptr = NULL;
             }
-            if(var_dec != NULL){
+            // if(var_dec != NULL){
 
-            }
+            // }
             pop(stack_ptr);
             if_unfold = 0;
             break;
@@ -1017,6 +1038,9 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_LC:
+            if(struct_ptr != NULL){
+                break;
+            }
             printf("Create new domain\n");
             domainPush(var_domain_ptr);
             // in_local++;
@@ -1041,13 +1065,16 @@ int tree_analys(treeNode *mytree)
             break;
         case N_ASSIGNOP:
             if_unfold = 0;
+            pop(stack_ptr);
             break;
         
         case N_EXP:
-            if(type_now != Exp_s(temp)){
+            exp_output = Exp_s(temp);
+            if(type_now != exp_output && exp_output != -1){
                 error_msg(5,temp->line_no, temp->subtype.IDVal);
             }
             if_unfold = 0;
+            pop(stack_ptr);
             break;
 
         case N_STMT_L:
@@ -1057,6 +1084,14 @@ int tree_analys(treeNode *mytree)
             if_unfold = 0;
             break;
         case N_RC:
+            if(struct_ptr != NULL){
+                InsertStruct(struct_table, struct_ptr);
+                free_struct(struct_ptr);
+                struct_ptr == NULL;
+                if_unfold = 0;
+                pop(stack_ptr);
+                break;
+            }
             printf("Close the domian\n");
             domainPop(var_domain_ptr);
             // in_local--;
@@ -1075,7 +1110,7 @@ int tree_analys(treeNode *mytree)
         }
         //节点处理完了，下一个
 
-    } while (1);
+    } while (!isEmpty(stack_ptr));
 
-    //后续的程序等等...先不写了，我也不清楚
+    return 0;
 }

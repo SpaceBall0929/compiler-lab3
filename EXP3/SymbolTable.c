@@ -276,12 +276,12 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc* elem)
         printf("Symbol table is full. Insert failed");
 }
 
-void InsertStruct(SymbolTableStruct* st, dataNodeStruct elem)
+void InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem)
 {
-	int i = findPosStruct(*st, elem.structTypeName);
+	int i = findPosStruct(*st, elem->structTypeName);
 	if (st->sta[i] != Active)
 	{
-		st->data[i] = elem;
+		st->data[i] = *elem;
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
 	}
@@ -339,6 +339,12 @@ int free_var(dataNodeVar* to_del){
 
 int free_func(dataNodeFunc* to_del){
     free_var(to_del->args);
+    free(to_del);
+    return 0;
+}
+
+int free_struct(dataNodeStruct* to_del){
+    free_var(to_del->structDomains);
     free(to_del);
     return 0;
 }
