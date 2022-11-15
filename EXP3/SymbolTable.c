@@ -177,8 +177,9 @@ void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain){
     return;
 }
 
-void tableVarInit(SymbolTableVar* st){
+SymbolTableVar* tableVarInit(){
     //st.divitor = d;
+    SymbolTableVar* st = (SymbolTableVar*)malloc(sizeof(SymbolTableVar));
     st->curSize = 0;
     st->curSize = TABLESIZE;
     st->divitor = GetClosestPrime(TABLESIZE);
@@ -186,10 +187,11 @@ void tableVarInit(SymbolTableVar* st){
     st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
     for(int i = 0; i < st->tableSize; i++)
         st->sta[i] = (enum Status)Empty;
-    return;
+    return st;
 }
 
-void tableFuncInit(SymbolTableFunc* st){
+SymbolTableFunc* tableFuncInit(){
+    SymbolTableFunc* st = (SymbolTableFunc*)malloc(sizeof(SymbolTableFunc));
     st->curSize = 0;
     st->tableSize = TABLESIZE;
     st->divitor = GetClosestPrime(TABLESIZE);
@@ -197,10 +199,11 @@ void tableFuncInit(SymbolTableFunc* st){
     st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
     for(int i = 0; i < st->tableSize; i++)
         st->sta[i] = (enum Status)Empty;
-    return;
+    return st;
 }
 
-void tableStructInit(SymbolTableStruct* st){
+SymbolTableStruct* tableStructInit(){
+    SymbolTableStruct* st = (SymbolTableStruct*)malloc(sizeof(SymbolTableStruct));
     st->curSize = 0;
     st->tableSize = TABLESIZE;
     st->divitor = GetClosestPrime(TABLESIZE);
@@ -208,7 +211,7 @@ void tableStructInit(SymbolTableStruct* st){
     st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
     for(int i = 0; i < st->tableSize; i++)
         st->sta[i] = (enum Status)Empty;
-    return;
+    return st;
 }
 
 int ifExistVar(SymbolTableVar st, char* key){
