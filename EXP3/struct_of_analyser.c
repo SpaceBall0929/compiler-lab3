@@ -1105,7 +1105,8 @@ int tree_analys(treeNode *mytree)
             // 这些非终结符，理论上应该在函数中被处理掉
             // 但是既然走到了这一步，显然没有，所以这里肯定要报错
             printf("ERROR: Unexpected node token with character %s\n", temp->character);
-
+            pop(stack_ptr);
+            if_unfold = 0;
             break;
         }
         //节点处理完了，下一个
