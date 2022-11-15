@@ -950,12 +950,12 @@ int tree_analys(treeNode *mytree)
     stack_ptr = &myStack;
     initStack(stack_ptr);
     push(stack_ptr, mytree);
-
+    printf("Initializing stack successfully\n");
     //表初始化部分
     var_domain_ptr = createStackNode();
     tableFuncInit(fun_table);
     tableStructInit(struct_table);
-
+    printf("Initializing tables successfully\n");
     //用于存储变量信息
     int if_unfold = 1;
     int type_now = -1;
@@ -966,6 +966,7 @@ int tree_analys(treeNode *mytree)
     dataNodeVar *var_ptr = NULL;
     dataNodeFunc *func_ptr = NULL;
     dataNodeStruct *struct_ptr = NULL;
+    printf("Initializing varibles successfully\n");
 
     do
     {

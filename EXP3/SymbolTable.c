@@ -1,6 +1,7 @@
 # include "tree.c"
 # include "AssistantFuncs.c"
 # include <math.h>
+# include <stdlib.h>
 # include <string.h>
 # define TABLESIZE 128
 # define D_INT 0

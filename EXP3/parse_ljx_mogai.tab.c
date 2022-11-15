@@ -2256,6 +2256,7 @@ int main(int argc, char** argv)
     /*yylineno=1??*/
 	yyrestart(f);
 	yyparse();
+    printf("Built the tree successfully\n");
     
     if(error_count == 0){
         tree_analys(myTree);
