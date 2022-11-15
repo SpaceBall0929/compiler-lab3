@@ -7,6 +7,103 @@ SymbolTableFunc *fun_table;
 SymbolTableStruct *struct_table;
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
+//判定specifier的指向：整形/浮点/结构体定义/结构体使用
+void error_msg(int type, int line_no, char *content)
+{ //报错
+    printf("Error type %d at Line %d: ", type, line_no);
+    switch (type)
+    {
+    case 1:
+        printf("Undefined var \"%s\".\n", content);
+        break;
+    case 2:
+        printf("Undefined function \"%s\".\n", content);
+        break;
+    case 3:
+        printf("Redefined var \"%s\".\n", content);
+        break;
+    case 4:
+        printf("Redefined function \"%s\".\n", content);
+        break;
+    case 5:
+        printf("Type mismatched for assigment.\n");
+        break;
+    case 6:
+        printf("The left-hand side of an assignment must be a var.\n");
+        break;
+    case 7:
+        printf("Type mismatched for operands.\n");
+        break;
+    case 8:
+        printf("Type mismatched for return.\n");
+        break;
+    case 9:
+        printf("Function is not applicable for arguments.\n");
+        break;
+    case 10:
+        printf("This is not an array.\n");
+        break;
+    case 11:
+        printf("\"%s\" is not a function.\n", content);
+        break;
+    case 12:
+        printf("This is not an integer.\n");
+        break;
+    case 13:
+        printf("Illegal use of \".\".\n");
+        break;
+    case 14:
+        printf("Non-existent field \"%s\".\n", content);
+        break;
+    case 15:
+        printf("Redefined field \"%s\".\n", content);
+        break;
+    case 16:
+        printf("Duplicated character \"%s\".\n", content);
+        break;
+    case 17:
+        printf("Undefined structure \"%s\".\n", content);
+        break;
+    case 18:
+        printf("Undefined function \"%s\".\n", content);
+        break;
+    case 19:
+        printf("Inconsistent declaration of function \"%s\".\n", content);
+        break;
+    default:
+        printf("Wrong semantic type:%s\n", content);
+        //
+        break;
+    }
+}
+
+
+int specifier(treeNode *speci)
+{
+    switch (speci->child->nodeType)
+    {
+    case N_TYPE:
+        if (speci->child->subtype.IDVal[0] == 'i')
+        {
+            return D_INT;
+        }
+        return D_FLOAT;
+
+        break;
+
+    case N_STRUCT_SPECI:
+        if (speci->child->child->sibling->nodeType == N_TAG)
+        {
+            return D_STRUCT_DEC;
+        }
+        return D_STRUCT_DEF;
+    default:
+        printf("ERROR: Unexpected nodeType in the child of Specifier\n");
+        return 0;
+        break;
+    }
+}
+
 dataNodeVar *var_dec(treeNode *dec_node, int var_type)
 {
     dataNodeVar *new_var;
@@ -77,32 +174,7 @@ dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
     return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
 }
 
-//判定specifier的指向：整形/浮点/结构体定义/结构体使用
-int specifier(treeNode *speci)
-{
-    switch (speci->child->nodeType)
-    {
-    case N_TYPE:
-        if (speci->child->subtype.IDVal[0] == 'i')
-        {
-            return D_INT;
-        }
-        return D_FLOAT;
 
-        break;
-
-    case N_STRUCT_SPECI:
-        if (speci->child->child->sibling->nodeType == N_TAG)
-        {
-            return D_STRUCT_DEC;
-        }
-        return D_STRUCT_DEF;
-    default:
-        printf("ERROR: Unexpected nodeType in the child of Specifier\n");
-        return 0;
-        break;
-    }
-}
 
 // dataNodeVar *dec_list(treeNode *decs, int var_type)
 // {
@@ -243,6 +315,9 @@ int struct_specifier_dec(treeNode *dec_node)
  *       以下施工完了        *
  ***************************/
 
+
+
+
 //返回对应类型的宏
 int find_type(treeNode *n)
 {
@@ -260,146 +335,7 @@ int find_type(treeNode *n)
         return getNodeVar(var_domain_ptr->tVar, name).varType;
     }
 }
-void error_msg(int type, int line_no, char *content);
-int StmtList_s(treeNode *stmt, int d_type)
-{
-    /*
-    StmtList ->
-      Stmt StmtList
-    | 空
-    Stmt ->
-      Exp SEMI
-    | CompSt
-    | RETURN Exp SEMI
-    | IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
-    | WHILE LP Exp RP Stmt
-    */
-    treeNode *Stmtnode = getchild(stmt, 0);
-    treeNode *tempnode = getchild(stmt, 1);
-    Stmt_s(Stmtnode, d_type);
-    if (tempnode != NULL)
-    {
-        StmtList_s(tempnode, d_type);
-    }
-}
-int Stmt_s(treeNode *stmt, int d_type)
-{
-    /*
-    Stmt -> Exp SEMI
-    | CompSt
-    | RETURN Exp SEMI
-    | IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
-    | WHILE LP Exp RP Stmt
-    */
 
-    treeNode *tempnode1 = getchild(stmt, 0);
-    if (tempnode1->nodeType == N_COMPST)
-    {
-        //新开一个作用域,进入CompSt，然后溜
-        domainStack ds;
-        domainPush(ds);
-        comp_stmt(tempnode1, d_type);
-        domainPop(ds);
-    }
-    else if (tempnode1->nodeType == N_EXP)
-    {
-        int uselesstype = Exp_s(tempnode1); //返回exp的返回type
-    }
-    else if (tempnode1->nodeType == N_RETURN)
-    {
-        treeNode *expnode = getchild(stmt, 1);
-        if (expnode->nodeType != N_EXP)
-        {
-            printf("Stmt_s bug: should be Exp!\n");
-        }
-        int returntype = Exp_s(expnode);
-        if (returntype != -1)
-        {
-            //可能要改  int result=check_type(d_type, returntype);
-            if (d_type == returntype)
-            {
-                error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
-                return -1;
-            }
-            else
-            {
-                ; // exp里面已经因为NULL报错
-            }
-        }
-    }
-    else if (tempnode1->nodeType == N_WHILE)
-    {
-        treeNode *expnode = getchild(stmt, 2);
-        treeNode *stmtnode = getchild(stmt, 4);
-        int type = Exp_s(expnode);
-        ///可能要改
-        if (type != -1)
-        {
-            if (type == 0)
-            {
-                ;
-            }
-            else
-            {
-                error_msg(7, stmt->line_no, NULL); //错误类型7，while条件操作数类型不匹配
-            }
-        }
-        else
-        {
-            ; // Exp里面已经报过了
-        }
-        Stmt_s(stmtnode, d_type);
-    }
-    else if (tempnode1->nodeType == N_IF)
-    {
-        /*	| IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
-    */
-        treeNode *expnode = getchild(stmt, 2);
-        if (expnode->nodeType != N_EXP)
-        {
-            printf("Stmt_s bug: should be Exp!\n");
-        }
-        treeNode *tempnode6 = getchild(stmt, 5); // ELSE
-        int iftype = Exp_s(expnode);
-        if (iftype != -1)
-        {
-            if (iftype == 0)
-            {
-                ;
-            }
-            else
-            {
-                error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
-                                                    return -1;
-            }
-        }
-        if (tempnode6 == NULL)
-        {
-            treeNode *stmtnode1 = getchild(stmt, 4);
-
-            Stmt_s(stmtnode1, d_type);
-        }
-        else
-        {
-            treeNode *stmtnode1 = getchild(stmt, 4);
-            treeNode *stmtnode2 = getchild(stmt, 6);
-
-            Stmt_s(stmtnode1, d_type);
-
-            Stmt_s(stmtnode2, d_type);
-        };
-    }
-    else
-    {
-        printf("Stmt_s error: Impossible to be here!\n");
-    }
-    return 0;
-}
-
-//处理Exp节点，返回对应类型，如果有错误返回-1，其余情况返回-2
 int Exp_s(treeNode *exp)
 { //处理Exp
     /*Exp ->
@@ -784,74 +720,148 @@ int Arg_s(treeNode *args, dataNodeVar *params)
     return 0;
 }
 
-void error_msg(int type, int line_no, char *content)
-{ //报错
-    printf("Error type %d at Line %d: ", type, line_no);
-    switch (type)
+
+int StmtList_s(treeNode *stmt, int d_type)
+{
+    /*
+    StmtList ->
+      Stmt StmtList
+    | 空
+    Stmt ->
+      Exp SEMI
+    | CompSt
+    | RETURN Exp SEMI
+    | IF LP Exp RP Stmt
+    | IF LP Exp RP Stmt ELSE Stmt
+    | WHILE LP Exp RP Stmt
+    */
+    treeNode *Stmtnode = getchild(stmt, 0);
+    treeNode *tempnode = getchild(stmt, 1);
+    Stmt_s(Stmtnode, d_type);
+    if (tempnode != NULL)
     {
-    case 1:
-        printf("Undefined var \"%s\".\n", content);
-        break;
-    case 2:
-        printf("Undefined function \"%s\".\n", content);
-        break;
-    case 3:
-        printf("Redefined var \"%s\".\n", content);
-        break;
-    case 4:
-        printf("Redefined function \"%s\".\n", content);
-        break;
-    case 5:
-        printf("Type mismatched for assigment.\n");
-        break;
-    case 6:
-        printf("The left-hand side of an assignment must be a var.\n");
-        break;
-    case 7:
-        printf("Type mismatched for operands.\n");
-        break;
-    case 8:
-        printf("Type mismatched for return.\n");
-        break;
-    case 9:
-        printf("Function is not applicable for arguments.\n");
-        break;
-    case 10:
-        printf("This is not an array.\n");
-        break;
-    case 11:
-        printf("\"%s\" is not a function.\n", content);
-        break;
-    case 12:
-        printf("This is not an integer.\n");
-        break;
-    case 13:
-        printf("Illegal use of \".\".\n");
-        break;
-    case 14:
-        printf("Non-existent field \"%s\".\n", content);
-        break;
-    case 15:
-        printf("Redefined field \"%s\".\n", content);
-        break;
-    case 16:
-        printf("Duplicated character \"%s\".\n", content);
-        break;
-    case 17:
-        printf("Undefined structure \"%s\".\n", content);
-        break;
-    case 18:
-        printf("Undefined function \"%s\".\n", content);
-        break;
-    case 19:
-        printf("Inconsistent declaration of function \"%s\".\n", content);
-        break;
-    default:
-        printf("Wrong semantic type:%s\n", content);
-        //
-        break;
+        StmtList_s(tempnode, d_type);
     }
 }
+int Stmt_s(treeNode *stmt, int d_type)
+{
+    /*
+    Stmt -> Exp SEMI
+    | CompSt
+    | RETURN Exp SEMI
+    | IF LP Exp RP Stmt
+    | IF LP Exp RP Stmt ELSE Stmt
+    | WHILE LP Exp RP Stmt
+    */
+
+    treeNode *tempnode1 = getchild(stmt, 0);
+    if (tempnode1->nodeType == N_COMPST)
+    {
+        //新开一个作用域,进入CompSt，然后溜
+        domainStack ds;
+        domainPush(ds);
+        comp_stmt(tempnode1, d_type);
+        domainPop(ds);
+    }
+    else if (tempnode1->nodeType == N_EXP)
+    {
+        int uselesstype = Exp_s(tempnode1); //返回exp的返回type
+    }
+    else if (tempnode1->nodeType == N_RETURN)
+    {
+        treeNode *expnode = getchild(stmt, 1);
+        if (expnode->nodeType != N_EXP)
+        {
+            printf("Stmt_s bug: should be Exp!\n");
+        }
+        int returntype = Exp_s(expnode);
+        if (returntype != -1)
+        {
+            //可能要改  int result=check_type(d_type, returntype);
+            if (d_type == returntype)
+            {
+                error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
+                return -1;
+            }
+            else
+            {
+                ; // exp里面已经因为NULL报错
+            }
+        }
+    }
+    else if (tempnode1->nodeType == N_WHILE)
+    {
+        treeNode *expnode = getchild(stmt, 2);
+        treeNode *stmtnode = getchild(stmt, 4);
+        int type = Exp_s(expnode);
+        ///可能要改
+        if (type != -1)
+        {
+            if (type == 0)
+            {
+                ;
+            }
+            else
+            {
+                error_msg(7, stmt->line_no, NULL); //错误类型7，while条件操作数类型不匹配
+            }
+        }
+        else
+        {
+            ; // Exp里面已经报过了
+        }
+        Stmt_s(stmtnode, d_type);
+    }
+    else if (tempnode1->nodeType == N_IF)
+    {
+        /*	| IF LP Exp RP Stmt
+    | IF LP Exp RP Stmt ELSE Stmt
+    */
+        treeNode *expnode = getchild(stmt, 2);
+        if (expnode->nodeType != N_EXP)
+        {
+            printf("Stmt_s bug: should be Exp!\n");
+        }
+        treeNode *tempnode6 = getchild(stmt, 5); // ELSE
+        int iftype = Exp_s(expnode);
+        if (iftype != -1)
+        {
+            if (iftype == 0)
+            {
+                ;
+            }
+            else
+            {
+                error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
+                                                    return -1;
+            }
+        }
+        if (tempnode6 == NULL)
+        {
+            treeNode *stmtnode1 = getchild(stmt, 4);
+
+            Stmt_s(stmtnode1, d_type);
+        }
+        else
+        {
+            treeNode *stmtnode1 = getchild(stmt, 4);
+            treeNode *stmtnode2 = getchild(stmt, 6);
+
+            Stmt_s(stmtnode1, d_type);
+
+            Stmt_s(stmtnode2, d_type);
+        };
+    }
+    else
+    {
+        printf("Stmt_s error: Impossible to be here!\n");
+    }
+    return 0;
+}
+
+//处理Exp节点，返回对应类型，如果有错误返回-1，其余情况返回-2
+
+
 
 // int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
 // {
@@ -938,6 +948,11 @@ int tree_analys(treeNode *mytree)
         switch (temp->nodeType)
         {
         //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
+        case N_PROGRAM:
+            printf("Program detected\n");
+            if_unfold = 1;
+            break;
+        
         case N_EXT_DEF_L:
             printf("ExtDefList detected\n");
             if_unfold = 1;
@@ -1092,7 +1107,7 @@ int tree_analys(treeNode *mytree)
                 pop(stack_ptr);
                 break;
             }
-            printf("Close the domian\n");
+            printf("Close the domain\n");
             domainPop(var_domain_ptr);
             // in_local--;
             if_unfold = 0;
@@ -1105,8 +1120,8 @@ int tree_analys(treeNode *mytree)
             // 这些非终结符，理论上应该在函数中被处理掉
             // 但是既然走到了这一步，显然没有，所以这里肯定要报错
             printf("ERROR: Unexpected node token with character %s\n", temp->character);
-            pop(stack_ptr);
-            if_unfold = 0;
+            // pop(stack_ptr);
+            if_unfold = 1;
             break;
         }
         //节点处理完了，下一个
