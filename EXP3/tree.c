@@ -215,21 +215,26 @@ int isEmpty(seqStack *s) //检查是否栈空
 
 int count_child(treeNode *t)
 { //计算t的儿子数量
-    if(t == NULL){
+    if(t == NULL)
+    {
         return 0;
     }
-    else{
+    else
+    {
         treeNode *p = t->child;
-        if(p == NULL){
+        if(p == NULL)
+        {
             return 0;
         }
-        int count = 1;
-        while (!p->sibling)
-        {
-            p = p->sibling;
-            count += 1;
+        else{
+            int count = 1;
+            while (p->sibling)
+            {
+                p = p->sibling;
+                count += 1;
+            }
+            return count;
         }
-        return count;
     }
 }
 
