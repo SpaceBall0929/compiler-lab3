@@ -16,7 +16,7 @@ stackNode* createStackNode(){
     stackNode* newNode = (stackNode*)malloc(sizeof(stackNode));
     newNode->last = NULL;
     newNode->next = NULL;
-    tableVarInit(&newNode->tVar);
+    newNode->tVar = *tableVarInit();
     //tableFuncInit(&newNode->tFunc);
     //tableStructInit(&newNode->tStruct);
     return newNode;

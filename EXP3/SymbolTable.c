@@ -76,6 +76,9 @@ typedef struct table3 SymbolTableStruct;
 
 int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[1] + key[2]) % st.divitor;
+    //printf("%d\n",abs(key[1] + key[2]));
+    //printf("%d\n",i);
+    //printf("%d\n",st.divitor);
     int j = i;
     do {
 		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].varName))
@@ -181,7 +184,7 @@ SymbolTableVar* tableVarInit(){
     //st.divitor = d;
     SymbolTableVar* st = (SymbolTableVar*)malloc(sizeof(SymbolTableVar));
     st->curSize = 0;
-    st->curSize = TABLESIZE;
+    st->tableSize = TABLESIZE;
     st->divitor = GetClosestPrime(TABLESIZE);
     st->data = (dataNodeVar*)calloc(TABLESIZE, sizeof(dataNodeVar));
     st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
@@ -263,7 +266,7 @@ void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 	}
     else
         printf("Symbol table is full. Insert failed");
-    free(elem);
+    //free(elem);
 
 }
 
