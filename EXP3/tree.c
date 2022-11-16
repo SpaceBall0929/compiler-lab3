@@ -121,11 +121,11 @@ void printNode(treeNode *node)
 }
 
 //树的先根次序遍历
-/*
-void preOrderTraverse(Tree t, int depth){
+
+void preOrderTraverse(Tree* t, int depth){
     if(t == NULL)
         return;
-    treeNode current = t;
+    treeNode* current = t;
     for(int i = 0;i < depth; i++)
         printf("\t");
     printNode(current);
@@ -136,7 +136,7 @@ void preOrderTraverse(Tree t, int depth){
         current = current->sibling;
     }
     return;
-}*/
+}
 
 /***************************************
  *           以下为实验三新增           *

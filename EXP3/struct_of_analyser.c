@@ -975,7 +975,7 @@ int tree_analys(treeNode *mytree)
         if (if_unfold)
         {
             reversed_insert(stack_ptr, pop(stack_ptr));
-            printf("Unfold\n");
+            // printf("Unfold\n");
         }
         temp = top(stack_ptr);
         // printf("Find the new top\n");
@@ -1152,7 +1152,9 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_STMT:
+            printf("stmt detected\n");
             exp_stmt_out = Stmt_s(temp, nearest_var_type);
+            printf("Stmt_s analys successfully, with output %d\n", exp_stmt_out);
             switch (exp_stmt_out)
             {
             case -4:
@@ -1198,6 +1200,7 @@ int tree_analys(treeNode *mytree)
                 free_func(func_ptr);
                 in_func_domain = 0;
                 func_ptr = NULL;
+                printf("----------------------a function ended-----------------------------\n");
             }
             // in_local--;
             if_unfold = 0;
