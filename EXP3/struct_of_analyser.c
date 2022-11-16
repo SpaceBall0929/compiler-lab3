@@ -958,6 +958,7 @@ int tree_analys(treeNode *mytree)
     printf("Initializing tables successfully\n");
     //用于存储变量信息
     int if_unfold = 1;
+    int in_func_domain = 0;
     int nearest_var_type = -1;
     int nearest_func_type = -1;
     // int in_local = 0;
@@ -1063,16 +1064,23 @@ int tree_analys(treeNode *mytree)
             var_ptr = NULL;
             pop(stack_ptr);
             if_unfold = 0;
+            printf("VarDec processed successfully\n");
             break;
 
         case N_SEMI:
-        case N_COMMA:
-            if (func_ptr != NULL)
+            printf("SEMI detected\n");
+            //SEMI在这个层次被扫描有两重功能，一个是结束变量。结束结构体
+            //一个是结束函数的声明
+            if (!in_func_domain && func_ptr !=NULL)
             {
                 InsertFunc(fun_table, func_ptr);
                 free_func(func_ptr);
                 func_ptr = NULL;
             }
+            pop(stack_ptr);
+            if_unfold = 0;
+            break;
+        case N_COMMA:
             pop(stack_ptr);
             if_unfold = 0;
             break;
@@ -1093,6 +1101,11 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_LC:
+            if(func_ptr != NULL){
+                in_func_domain = 1;
+                func_ptr->defined = 1;
+            }
+            
             if(struct_ptr != NULL){
                 break;
             }
@@ -1183,6 +1196,7 @@ int tree_analys(treeNode *mytree)
             if(func_ptr != NULL){
                 InsertFunc(fun_table, func_ptr);
                 free_func(func_ptr);
+                in_func_domain = 0;
                 func_ptr = NULL;
             }
             // in_local--;
