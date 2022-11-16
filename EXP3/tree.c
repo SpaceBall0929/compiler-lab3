@@ -215,17 +215,22 @@ int isEmpty(seqStack *s) //检查是否栈空
 
 int count_child(treeNode *t)
 { //计算t的儿子数量
-    treeNode *p = t->child;
-    if(p == NULL){
+    if(t == NULL){
         return 0;
     }
-    int count_child = 1;
-    while (!p->sibling)
-    {
-        p = p->sibling;
-        count_child += 1;
+    else{
+        treeNode *p = t->child;
+        if(p == NULL){
+            return 0;
+        }
+        int count = 1;
+        while (!p->sibling)
+        {
+            p = p->sibling;
+            count += 1;
+        }
+        return count;
     }
-    return count_child;
 }
 
 void reversed_insert(seqStack *s, treeNode *t)
