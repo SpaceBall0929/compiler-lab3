@@ -1148,7 +1148,6 @@ int tree_analys(treeNode *mytree)
                 error_msg(5, temp->line_no, temp->subtype.IDVal);
             }
             if_unfold = 0;
-
             break;
 
         case N_STMT_L:
@@ -1166,7 +1165,6 @@ int tree_analys(treeNode *mytree)
                 if_unfold = 1;
                 break;
             case -3:
-
                 if_unfold = 0;
                 break;
             case -2:
