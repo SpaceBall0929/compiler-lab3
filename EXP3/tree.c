@@ -248,7 +248,7 @@ void reversed_insert(seqStack *s, treeNode *t)
     s->top += count;
     treeNode *p = t->child;
     rev_push(s, p);
-    while (!p->sibling)
+    while (p->sibling)
     {
         p = p->sibling;
         rev_push(s, p);

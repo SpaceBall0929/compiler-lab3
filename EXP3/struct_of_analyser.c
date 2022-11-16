@@ -974,10 +974,10 @@ int tree_analys(treeNode *mytree)
         if (if_unfold)
         {
             reversed_insert(stack_ptr, pop(stack_ptr));
-            printf("Unfold the top\n");
+            printf("Unfold\n");
         }
         temp = top(stack_ptr);
-        printf("Find the new top\n");
+        // printf("Find the new top\n");
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
@@ -1006,11 +1006,14 @@ int tree_analys(treeNode *mytree)
             printf("Normal type in the Specifier\n");
             pop(stack_ptr);
             if_unfold = 0;
-            if (temp->child->subtype.IDVal[0] == 'i')
+            printf("test point #1\n");
+            if (temp->subtype.IDVal[0] == 'i')
             {
                 nearest_var_type = D_INT;
+                printf("test point #2\n");
                 break;
             }
+            printf("test point #3\n");
             nearest_var_type = D_FLOAT;
             break;
         case N_STRUCT_SPECI:
@@ -1045,12 +1048,17 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_VAR_DEC:
+            printf("VarDec detected, processing with the outer functions...\n");
             var_ptr = var_dec(temp, nearest_var_type);
+            printf("create info node successfully\n");
             if(struct_ptr != NULL){
                 insertStructDomain(struct_ptr, var_ptr);
+                printf("Insert new struct type successfully\n");
             }else{
                 InsertVar(&(var_domain_ptr->tVar), var_ptr);
+                printf("Insert new var successfully\n");
                 free_var(var_ptr);
+                printf("clean the var info\n");
             }
             var_ptr = NULL;
             pop(stack_ptr);
@@ -1108,6 +1116,7 @@ int tree_analys(treeNode *mytree)
             if_unfold = 1;
             break;
         case N_DEC:
+            printf("Dec detected\n");
             if_unfold = 1;
             break;
         case N_ASSIGNOP:
