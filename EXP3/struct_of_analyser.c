@@ -375,7 +375,8 @@ int check_error(int a, int b){
 
 //处理Exp节点，返回对应类型，如果有错误返回-1
 int Exp_s(treeNode *exp)
-{ //处理Exp
+{  printf("Exp detected");
+    //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
     | Exp AND Exp
@@ -588,7 +589,7 @@ int Exp_s(treeNode *exp)
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
             int ret_type = func_node.returnType;                        //获取函数返回类型
-
+            
             if (!queryresult)
             { //没找到或者不是定义;  或者不是函数
                 if (ifExistStruct(*struct_table, funcname) ||
@@ -615,8 +616,8 @@ int Exp_s(treeNode *exp)
                 else
                 {
                     /*Args -> Exp COMMA Args
-                    | Exp;
-                    */
+                    | Exp;*/
+                    
                     //检查args的数量;
                     int cnt = 0;
                     treeNode *cntnode = tempnode3;
@@ -775,7 +776,7 @@ int Exp_s(treeNode *exp)
 
 //处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
 int Stmt_s(treeNode *stmt, int d_type)
-{
+{printf("Stmt_s is here!");
     /*
     Stmt -> Exp SEMI
     | CompSt
@@ -797,6 +798,7 @@ int Stmt_s(treeNode *stmt, int d_type)
     }
     else if (tempnode1->nodeType == N_EXP)
     {//Exp SEMI
+        printf("here!");
         int uselesstype = Exp_s(tempnode1);
     }
     else if (tempnode1->nodeType == N_RETURN)
@@ -953,11 +955,12 @@ int tree_analys(treeNode *mytree)
     printf("Initializing stack successfully\n");
     //表初始化部分
     var_domain_ptr = createStackNode();
-    tableFuncInit(fun_table);
-    tableStructInit(struct_table);
+    fun_table = tableFuncInit();
+    struct_table = tableStructInit();
     printf("Initializing tables successfully\n");
     //用于存储变量信息
     int if_unfold = 1;
+    int in_func_domain = 0;
     int nearest_var_type = -1;
     int nearest_func_type = -1;
     // int in_local = 0;
@@ -974,10 +977,10 @@ int tree_analys(treeNode *mytree)
         if (if_unfold)
         {
             reversed_insert(stack_ptr, pop(stack_ptr));
-            printf("Unfold the top\n");
+            // printf("Unfold\n");
         }
         temp = top(stack_ptr);
-        printf("Find the new top\n");
+        // printf("Find the new top\n");
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
@@ -1006,11 +1009,14 @@ int tree_analys(treeNode *mytree)
             printf("Normal type in the Specifier\n");
             pop(stack_ptr);
             if_unfold = 0;
-            if (temp->child->subtype.IDVal[0] == 'i')
+            printf("test point #1\n");
+            if (temp->subtype.IDVal[0] == 'i')
             {
                 nearest_var_type = D_INT;
+                printf("test point #2\n");
                 break;
             }
+            printf("test point #3\n");
             nearest_var_type = D_FLOAT;
             break;
         case N_STRUCT_SPECI:
@@ -1045,26 +1051,38 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_VAR_DEC:
+            printf("VarDec detected, processing with the outer functions...\n");
             var_ptr = var_dec(temp, nearest_var_type);
+            printf("create info node successfully\n");
             if(struct_ptr != NULL){
                 insertStructDomain(struct_ptr, var_ptr);
+                printf("Insert new struct type successfully\n");
             }else{
                 InsertVar(&(var_domain_ptr->tVar), var_ptr);
+                printf("Insert new var successfully\n");
                 free_var(var_ptr);
+                printf("clean the var info\n");
             }
             var_ptr = NULL;
             pop(stack_ptr);
             if_unfold = 0;
+            printf("VarDec processed successfully\n");
             break;
 
         case N_SEMI:
-        case N_COMMA:
-            if (func_ptr != NULL)
+            printf("SEMI detected\n");
+            //SEMI在这个层次被扫描有两重功能，一个是结束变量。结束结构体
+            //一个是结束函数的声明
+            if (!in_func_domain && func_ptr !=NULL)
             {
                 InsertFunc(fun_table, func_ptr);
                 free_func(func_ptr);
                 func_ptr = NULL;
             }
+            pop(stack_ptr);
+            if_unfold = 0;
+            break;
+        case N_COMMA:
             pop(stack_ptr);
             if_unfold = 0;
             break;
@@ -1085,6 +1103,11 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_LC:
+            if(func_ptr != NULL){
+                in_func_domain = 1;
+                func_ptr->defined = 1;
+            }
+            
             if(struct_ptr != NULL){
                 break;
             }
@@ -1108,6 +1131,7 @@ int tree_analys(treeNode *mytree)
             if_unfold = 1;
             break;
         case N_DEC:
+            printf("Dec detected\n");
             if_unfold = 1;
             break;
         case N_ASSIGNOP:
@@ -1130,7 +1154,9 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_STMT:
+            printf("stmt detected\n");
             exp_stmt_out = Stmt_s(temp, nearest_var_type);
+            printf("Stmt_s analys successfully, with output %d\n", exp_stmt_out);
             switch (exp_stmt_out)
             {
             case -4:
@@ -1174,7 +1200,9 @@ int tree_analys(treeNode *mytree)
             if(func_ptr != NULL){
                 InsertFunc(fun_table, func_ptr);
                 free_func(func_ptr);
+                in_func_domain = 0;
                 func_ptr = NULL;
+                printf("----------------------a function ended-----------------------------\n");
             }
             // in_local--;
             if_unfold = 0;
