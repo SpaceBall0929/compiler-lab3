@@ -348,13 +348,17 @@ int free_var(dataNodeVar* to_del){
 }
 
 int free_func(dataNodeFunc* to_del){
-    free_var(to_del->args);
-    free(to_del);
+    if(to_del->args != NULL)
+    	free_var(to_del->args);
+    if(to_del != NULL)
+    	free(to_del);
     return 0;
 }
 
 int free_struct(dataNodeStruct* to_del){
-    free_var(to_del->structDomains);
-    free(to_del);
+    if(to_del->structDomains != NULL)
+    	free_var(to_del->structDomains);
+    if(to_del != NULL)
+    	free(to_del);
     return 0;
 }
