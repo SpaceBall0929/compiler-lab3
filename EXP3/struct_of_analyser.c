@@ -311,7 +311,7 @@ int check_error(int a, int b)
 //处理Exp节点，返回对应类型，如果有错误返回-1
 int Exp_s(treeNode *exp)
 {
-    printf("进入Exp！");
+    printf("in Exp\n");
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -346,6 +346,9 @@ int Exp_s(treeNode *exp)
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
 
+    /*if(exp->child->sibling == NULL){
+        printf("Node2 is NULL!\n");
+    }*/
     // ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
     if (tempnode1->nodeType == N_EXP)
     {
@@ -521,15 +524,19 @@ int Exp_s(treeNode *exp)
         //函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
         if (tempnode1->nodeType == N_ID)
         { //当前为函数，需要去检查该函数是否已定义
+            printf("It's a function\n");
             char *funcname = tempnode1->subtype.IDVal;
-            printf("准备搜索！");
+            printf("%s\n", funcname);
+            printf("searching function name...\n");
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
-            printf("搜索没有问题！");
+            printf("search end.\n");
             int ret_type = func_node.returnType; //获取函数返回类型
-
+            //printf("place check\n");
+            printf("result = %d\n", queryresult);
             if (!queryresult)
             { //没找到或者不是定义;  或者不是函数
+                printf("Didn't find the function.\n");
                 if (ifExistStruct(*struct_table, funcname) ||
                     ifExistVarStack(var_domain_ptr, funcname))
                 {
@@ -538,14 +545,15 @@ int Exp_s(treeNode *exp)
                     return -1;
                 }
                 else
-                {
+                {   
+                    //printf("test flag error2");
                     error_msg(2, exp->line_no, funcname); //错误类型2，函数未定义
                     return -1;
                 }
             }
 
             if (tempnode3->nodeType == N_ARGS)
-            {
+            {   printf("Check the args.\n");
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参不匹配
@@ -553,16 +561,16 @@ int Exp_s(treeNode *exp)
                 }
                 else
                 {
-                    /*Args -> Exp COMMA Args
-                    | Exp;
-                    */
+                    //Args -> Exp COMMA Args
+                    //| Exp;
                     //检查args的数量;
+                    
                     int cnt = 0;
                     treeNode *cntnode = tempnode3;
                     while (1)
                     { //计算所有实参的数目
                         cnt += 1;
-                        treeNode *tempcntnode = getchild(cntnode, 1);
+                        treeNode *tempcntnode = getchild(cntnode, 2);
                         if (tempcntnode == NULL)
                         {
                             break;
@@ -588,7 +596,7 @@ int Exp_s(treeNode *exp)
             }
             else
             {
-
+                printf("No-arg function.\n");
                 if (func_node.args != NULL)
                 {                                     //函数有形参，但此时没有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
