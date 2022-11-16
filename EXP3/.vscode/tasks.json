@@ -1,22 +1,28 @@
 {
-    "version": "2.0.0",
     "tasks": [
         {
-            "type": "shell",
-            "label": "gcc build active file",
-            "command": "/usr/bin/gcc",
-            "args": [//这是给gcc传入的一系列参数，在终端怎样用gcc，这里就要怎样写
+            "type": "cppbuild",
+            "label": "C/C++: gcc-9 生成活动文件",
+            "command": "/usr/bin/gcc-9",
+            "args": [
                 "-fdiagnostics-color=always",
+                "-g",
                 "${file}",
-                "-lfl",
-                "-ly",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}",
-                "-lm"
+                "${fileDirname}/${fileBasenameNoExtension}.c"
             ],
             "options": {
-                "cwd": "/usr/bin"
-            }
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务。"
         }
-    ]
+    ],
+    "version": "2.0.0"
 }

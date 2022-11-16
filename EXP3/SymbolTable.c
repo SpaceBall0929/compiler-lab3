@@ -76,6 +76,9 @@ typedef struct table3 SymbolTableStruct;
 
 int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[1] + key[2]) % st.divitor;
+    //printf("%d\n",abs(key[1] + key[2]));
+    //printf("%d\n",i);
+    //printf("%d\n",st.divitor);
     int j = i;
     do {
 		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].varName))
@@ -181,7 +184,7 @@ SymbolTableVar* tableVarInit(){
     //st.divitor = d;
     SymbolTableVar* st = (SymbolTableVar*)malloc(sizeof(SymbolTableVar));
     st->curSize = 0;
-    st->curSize = TABLESIZE;
+    st->tableSize = TABLESIZE;
     st->divitor = GetClosestPrime(TABLESIZE);
     st->data = (dataNodeVar*)calloc(TABLESIZE, sizeof(dataNodeVar));
     st->sta = (enum Status*)calloc(TABLESIZE, sizeof(enum Status));
@@ -263,7 +266,7 @@ void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
 	}
     else
         printf("Symbol table is full. Insert failed");
-    free(elem);
+    //free(elem);
 
 }
 
@@ -332,9 +335,12 @@ int getFieldNum(dataNodeStruct s){
 
 //释放一个变量信息占据的空间
 int free_var(dataNodeVar* to_del){
-    dataNodeVar* origin = to_del;
+    dataNodeVar* origin;
+    int i = 0;
     do{
+        origin = to_del;
         to_del = to_del->next;
+        printf("free success for %d\n", i++);
         free(origin);
     }while(to_del != NULL);
 
@@ -342,13 +348,17 @@ int free_var(dataNodeVar* to_del){
 }
 
 int free_func(dataNodeFunc* to_del){
-    free_var(to_del->args);
-    free(to_del);
+    if(to_del->args != NULL)
+    	free_var(to_del->args);
+    if(to_del != NULL)
+    	free(to_del);
     return 0;
 }
 
 int free_struct(dataNodeStruct* to_del){
-    free_var(to_del->structDomains);
-    free(to_del);
+    if(to_del->structDomains != NULL)
+    	free_var(to_del->structDomains);
+    if(to_del != NULL)
+    	free(to_del);
     return 0;
 }
