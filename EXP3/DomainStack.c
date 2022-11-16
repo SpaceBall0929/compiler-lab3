@@ -40,8 +40,10 @@ domainStack domainPush(domainStack ds){
 domainStack domainPop(domainStack ds){
     stackNode* p = ds;
     ds = ds->last;
-    ds->next = NULL;
-    free(p);
+    if(ds != NULL)
+    	ds->next = NULL;
+    if(p != NULL)
+    	free(p);
     return ds;
 }
 
