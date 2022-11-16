@@ -374,11 +374,7 @@ int check_error(int a, int b)
 
 //处理Exp节点，返回对应类型，如果有错误返回-1
 int Exp_s(treeNode *exp)
-<<<<<<< HEAD
 {   printf("进入Exp！");
-=======
-{ printf("进入Exp！");
->>>>>>> cb0c838d45793e734691d0a1ebf71e579fe728b2
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -778,13 +774,8 @@ int Exp_s(treeNode *exp)
 
 //处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
 int Stmt_s(treeNode *stmt, int d_type)
-<<<<<<< HEAD
 {   
     printf("进入Stmt!\n");
-=======
-{
-    printf("1111111\n");
->>>>>>> cb0c838d45793e734691d0a1ebf71e579fe728b2
     /*
     Stmt -> Exp SEMI
     | CompSt
@@ -793,7 +784,7 @@ int Stmt_s(treeNode *stmt, int d_type)
     | IF LP Exp RP Stmt ELSE Stmt
     | WHILE LP Exp RP Stmt
     */
-   printf("test");
+    printf("test");
     if(stmt == NULL)return -3;
     printf("Stmt非空！");
     treeNode *tempnode1 = getchild(stmt, 0);
@@ -809,15 +800,9 @@ int Stmt_s(treeNode *stmt, int d_type)
     }
     else if (tempnode1->nodeType == N_EXP)
     { // Exp SEMI
-<<<<<<< HEAD
         printf("Exp SEMI\n");
         Exp_s(tempnode1);
-=======
         printf("561faeflj\n");
-        //int uselesstype = Exp_s(tempnode1);
-        int uselesstype = 1;
-
->>>>>>> cb0c838d45793e734691d0a1ebf71e579fe728b2
     }
     else if (tempnode1->nodeType == N_RETURN)
     { // RETURN Exp SEMI 返回Exp类型值
