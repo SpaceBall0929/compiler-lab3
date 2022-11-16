@@ -311,7 +311,7 @@ int check_error(int a, int b)
 //处理Exp节点，返回对应类型，如果有错误返回-1
 int Exp_s(treeNode *exp)
 {
-    printf("进入Exp！");
+    printf("Here we in the expression analyser\n");
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -1087,26 +1087,31 @@ int tree_analys(treeNode *mytree)
             case EXP_DO_NOTHING:
                 printf("EXP_DO_NOTHING\n");
                 Exp_s(temp);
+                printf("EXP_DONE\n");
                 break;
 
             case EXP_BRANCH_AND_LOOP:
                 printf("EXP_BRANCH_AND_LOOP\n");
                 if (Exp_s(temp) != D_INT)
                 {
+                    printf("EXP_DONE\n");
                     error_msg(7, temp->line_no, NULL);
                 }
                 break;
 
             case EXP_INIT_VAR:
-                
+                printf("EXP_INIT_VAR\n");
                 if (Exp_s(temp) != nearest_var_type)
                 {
+                    printf("EXP_DONE\n");
                     error_msg(5, temp->line_no, NULL);
                 }
                 break;
             case EXP_RETURN:
+                printf("EXP_RETURN\n");
                 if (Exp_s(temp) != nearest_func_type)
                 {
+                    printf("EXP_DONE\n");
                     error_msg(8, temp->line_no, NULL);
                 }
                 break;

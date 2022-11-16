@@ -2259,7 +2259,7 @@ int main(int argc, char** argv)
     printf("Built the tree successfully\n");
     
     if(error_count == 0){
-        preOrderTraverse(myTree, 0);
+        // preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
         
