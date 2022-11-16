@@ -3,11 +3,13 @@
 
 int main(){
     stackNode *var_domain_ptr;
+    SymbolTableVar *testt;
     SymbolTableFunc *fun_table;
     SymbolTableStruct *struct_table;
     var_domain_ptr = createStackNode();
-    tableFuncInit(fun_table);
-    tableStructInit(struct_table);
+    tableVarInit(testt);
+    // tableFuncInit(fun_table);
+    // tableStructInit(struct_table);
 
     return 0;
 }

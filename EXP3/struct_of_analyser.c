@@ -958,7 +958,8 @@ int tree_analys(treeNode *mytree)
     printf("Initializing tables successfully\n");
     //用于存储变量信息
     int if_unfold = 1;
-    int type_now = -1;
+    int nearest_var_type = -1;
+    int nearest_func_type = -1;
     // int in_local = 0;
     // int in_struct_def = 0;
     int exp_stmt_out = 0;
@@ -973,8 +974,10 @@ int tree_analys(treeNode *mytree)
         if (if_unfold)
         {
             reversed_insert(stack_ptr, pop(stack_ptr));
+            printf("Unfold the top\n");
         }
         temp = top(stack_ptr);
+        printf("Find the new top\n");
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
@@ -1005,21 +1008,21 @@ int tree_analys(treeNode *mytree)
             if_unfold = 0;
             if (temp->child->subtype.IDVal[0] == 'i')
             {
-                type_now = D_INT;
+                nearest_var_type = D_INT;
                 break;
             }
-            type_now = D_FLOAT;
+            nearest_var_type = D_FLOAT;
             break;
         case N_STRUCT_SPECI:
             printf("Structure type in the specifier\n");
             if (temp->child->child->sibling->nodeType == N_TAG)
             {
-                type_now = struct_specifier_dec(temp);
+                nearest_var_type = struct_specifier_dec(temp);
                 pop(stack_ptr);
                 if_unfold = 0;
                 break;
             }
-            // type_now = struct_specifier_def(temp);
+            // nearest_var_type = struct_specifier_def(temp);
             if_unfold = 1;
             break;
 
@@ -1042,7 +1045,7 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_VAR_DEC:
-            var_ptr = var_dec(temp, type_now);
+            var_ptr = var_dec(temp, nearest_var_type);
             if(struct_ptr != NULL){
                 insertStructDomain(struct_ptr, var_ptr);
             }else{
@@ -1062,9 +1065,6 @@ int tree_analys(treeNode *mytree)
                 free_func(func_ptr);
                 func_ptr = NULL;
             }
-            // if(var_dec != NULL){
-
-            // }
             pop(stack_ptr);
             if_unfold = 0;
             break;
@@ -1073,7 +1073,8 @@ int tree_analys(treeNode *mytree)
             //注意！这里还不知道函数有没有定义，只知道有这样一个声明
             //这个声明暂存后，并没有提交到表中
             printf("Function declareration detected\n");
-            func_ptr = fun_dec(temp, type_now);
+            func_ptr = fun_dec(temp, nearest_var_type);
+            nearest_func_type = nearest_var_type;
             pop(stack_ptr);
             if_unfold = 0;
             break;
@@ -1116,7 +1117,7 @@ int tree_analys(treeNode *mytree)
         
         case N_EXP:
             exp_stmt_out = Exp_s(temp);
-            if(type_now != exp_stmt_out && exp_stmt_out != -1){
+            if(nearest_var_type != exp_stmt_out && exp_stmt_out != -1){
                 error_msg(5,temp->line_no, temp->subtype.IDVal);
             }
             if_unfold = 0;
@@ -1129,7 +1130,7 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_STMT:
-            exp_stmt_out = Stmt_s(temp, type_now);
+            exp_stmt_out = Stmt_s(temp, nearest_var_type);
             switch (exp_stmt_out)
             {
             case -4:
@@ -1151,7 +1152,7 @@ int tree_analys(treeNode *mytree)
                 break;
             
             default:
-                if(type_now != exp_stmt_out){
+                if(nearest_func_type != exp_stmt_out){
                     error_msg(8, temp->line_no, NULL);
                 }
                 pop(stack_ptr);
@@ -1170,6 +1171,11 @@ int tree_analys(treeNode *mytree)
             }
             printf("Close the domain\n");
             domainPop(var_domain_ptr);
+            if(func_ptr != NULL){
+                InsertFunc(fun_table, func_ptr);
+                free_func(func_ptr);
+                func_ptr = NULL;
+            }
             // in_local--;
             if_unfold = 0;
             pop(stack_ptr);
