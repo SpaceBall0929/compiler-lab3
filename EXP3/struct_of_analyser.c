@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include "DomainStack.c"
+#define EXP_DO_NOTHING 114514
+#define EXP_RETURN 114515
+#define EXP_BRANCH_AND_LOOP 114516
+#define EXP_INIT_VAR 114517
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -8,74 +12,6 @@ SymbolTableStruct *struct_table;
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
 //判定specifier的指向：整形/浮点/结构体定义/结构体使用
-void error_msg(int type, int line_no, char *content)
-{ //报错
-    printf("Error type %d at Line %d: ", type, line_no);
-    switch (type)
-    {
-    case 1:
-        printf("Undefined var \"%s\".\n", content);
-        break;
-    case 2:
-        printf("Undefined function \"%s\".\n", content);
-        break;
-    case 3:
-        printf("Redefined var \"%s\".\n", content);
-        break;
-    case 4:
-        printf("Redefined function \"%s\".\n", content);
-        break;
-    case 5:
-        printf("Type mismatched for assigment.\n");
-        break;
-    case 6:
-        printf("The left-hand side of an assignment must be a var.\n");
-        break;
-    case 7:
-        printf("Type mismatched for operands.\n");
-        break;
-    case 8:
-        printf("Type mismatched for return.\n");
-        break;
-    case 9:
-        printf("Function is not applicable for arguments.\n");
-        break;
-    case 10:
-        printf("This is not an array.\n");
-        break;
-    case 11:
-        printf("\"%s\" is not a function.\n", content);
-        break;
-    case 12:
-        printf("This is not an integer.\n");
-        break;
-    case 13:
-        printf("Illegal use of \".\".\n");
-        break;
-    case 14:
-        printf("Non-existent field \"%s\".\n", content);
-        break;
-    case 15:
-        printf("Redefined field \"%s\".\n", content);
-        break;
-    case 16:
-        printf("Duplicated character \"%s\".\n", content);
-        break;
-    case 17:
-        printf("Undefined structure \"%s\".\n", content);
-        break;
-    case 18:
-        printf("Undefined function \"%s\".\n", content);
-        break;
-    case 19:
-        printf("Inconsistent declaration of function \"%s\".\n", content);
-        break;
-    default:
-        printf("Wrong semantic type:%s\n", content);
-        //
-        break;
-    }
-}
 
 int specifier(treeNode *speci)
 {
@@ -374,7 +310,8 @@ int check_error(int a, int b)
 
 //处理Exp节点，返回对应类型，如果有错误返回-1
 int Exp_s(treeNode *exp)
-{   printf("进入Exp！");
+{
+    printf("进入Exp！");
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -589,7 +526,7 @@ int Exp_s(treeNode *exp)
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
             printf("搜索没有问题！");
-            int ret_type = func_node.returnType;                        //获取函数返回类型
+            int ret_type = func_node.returnType; //获取函数返回类型
 
             if (!queryresult)
             { //没找到或者不是定义;  或者不是函数
@@ -774,7 +711,7 @@ int Exp_s(treeNode *exp)
 
 //处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
 int Stmt_s(treeNode *stmt, int d_type)
-{   
+{
     printf("进入Stmt!\n");
     /*
     Stmt -> Exp SEMI
@@ -785,7 +722,8 @@ int Stmt_s(treeNode *stmt, int d_type)
     | WHILE LP Exp RP Stmt
     */
     printf("test");
-    if(stmt == NULL)return -3;
+    if (stmt == NULL)
+        return -3;
     printf("Stmt非空！");
     treeNode *tempnode1 = getchild(stmt, 0);
 
@@ -957,9 +895,11 @@ int tree_analys(treeNode *mytree)
     fun_table = tableFuncInit();
     struct_table = tableStructInit();
     printf("Initializing tables successfully\n");
-    //用于存储变量信息
+    //用于存储变量信息以及一些flag
     int if_unfold = 1;
     int in_func_domain = 0;
+
+    int exp_flag = EXP_DO_NOTHING;
     int nearest_var_type = -1;
     int nearest_func_type = -1;
     // int in_local = 0;
@@ -1024,7 +964,6 @@ int tree_analys(treeNode *mytree)
             if (temp->child->child->sibling->nodeType == N_TAG)
             {
                 nearest_var_type = struct_specifier_dec(temp);
-
                 if_unfold = 0;
                 break;
             }
@@ -1035,12 +974,10 @@ int tree_analys(treeNode *mytree)
         case N_STRUCT:
             printf("Struct definition detected\n");
             if_unfold = 0;
-
             break;
 
         case N_OPT_TAG:
             if_unfold = 0;
-
             struct_ptr = newNodeStruct(temp->child->subtype.IDVal);
             break;
 
@@ -1139,16 +1076,47 @@ int tree_analys(treeNode *mytree)
             if_unfold = 1;
             break;
         case N_ASSIGNOP:
+            exp_flag = EXP_INIT_VAR;
             if_unfold = 0;
-
             break;
 
         case N_EXP:
-            exp_stmt_out = Exp_s(temp);
-            if (nearest_var_type != exp_stmt_out && exp_stmt_out != -1)
+            printf("EXP detected, finding the usage of expression...\n");
+            switch (exp_flag)
             {
-                error_msg(5, temp->line_no, temp->subtype.IDVal);
+            case EXP_DO_NOTHING:
+                printf("EXP_DO_NOTHING\n");
+                Exp_s(temp);
+                break;
+
+            case EXP_BRANCH_AND_LOOP:
+                printf("EXP_BRANCH_AND_LOOP\n");
+                if (Exp_s(temp) != D_INT)
+                {
+                    error_msg(7, temp->line_no, NULL);
+                }
+                break;
+
+            case EXP_INIT_VAR:
+                
+                if (Exp_s(temp) != nearest_var_type)
+                {
+                    error_msg(5, temp->line_no, NULL);
+                }
+                break;
+            case EXP_RETURN:
+                if (Exp_s(temp) != nearest_func_type)
+                {
+                    error_msg(8, temp->line_no, NULL);
+                }
+                break;
+
+            default:
+                printf("BAD ERROR:the totally unexpected type of the exp_flag!!!!\n");
+                break;
             }
+
+            exp_flag = EXP_DO_NOTHING;
             if_unfold = 0;
             break;
 
@@ -1159,37 +1127,58 @@ int tree_analys(treeNode *mytree)
 
         case N_STMT:
             printf("stmt detected\n");
-            exp_stmt_out = Stmt_s(temp, nearest_var_type);
-            printf("Stmt_s analys successfully, with output %d\n", exp_stmt_out);
-            switch (exp_stmt_out)
-            {
-            case -4:
-                if_unfold = 1;
-                break;
-            case -3:
-                if_unfold = 0;
-                break;
-            case -2:
-                error_msg(8, temp->line_no, NULL);
+            if_unfold = 1;
 
-                if_unfold = 0;
-                break;
-            case -1:
-                printf("ERROR in the return exp.\n");
+            // exp_stmt_out = Stmt_s(temp, nearest_var_type);
+            // printf("Stmt_s analys successfully, with output %d\n", exp_stmt_out);
+            // switch (exp_stmt_out)
+            // {
+            // case -4:
+            //     if_unfold = 1;
+            //     break;
+            // case -3:
+            //     if_unfold = 0;
+            //     break;
+            // case -2:
+            //     error_msg(8, temp->line_no, NULL);
 
-                if_unfold = 0;
-                break;
+            //     if_unfold = 0;
+            //     break;
+            // case -1:
+            //     printf("ERROR in the return exp.\n");
 
-            default:
-                if (nearest_func_type != exp_stmt_out)
-                {
-                    error_msg(8, temp->line_no, NULL);
-                }
+            //     if_unfold = 0;
+            //     break;
 
-                if_unfold = 0;
-                break;
-            }
+            // default:
+            //     if (nearest_func_type != exp_stmt_out)
+            //     {
+            //         error_msg(8, temp->line_no, NULL);
+            //     }
+
+            //     if_unfold = 0;
+            //     break;
+            // }
             break;
+
+        case N_RETURN:
+            printf("RETURN detected\n");
+            exp_flag = EXP_RETURN;
+            if_unfold = 0;
+            break;
+        case N_IF:
+        case N_WHILE:
+            printf("IF or WHILE detected\n");
+            exp_flag = EXP_BRANCH_AND_LOOP;
+            if_unfold = 0;
+            break;
+
+        case N_LP:
+        case N_RP:
+        case N_ELSE:
+            if_unfold = 0;
+            break;
+
         case N_RC:
             if (struct_ptr != NULL)
             {

@@ -274,3 +274,72 @@ void reversed_insert(seqStack *s, treeNode *t)
 //         }
 //     }
 // }
+
+void error_msg(int type, int line_no, char *content)
+{ //报错
+    printf("Error type %d at Line %d: ", type, line_no);
+    switch (type)
+    {
+    case 1:
+        printf("Undefined var \"%s\".\n", content);
+        break;
+    case 2:
+        printf("Undefined function \"%s\".\n", content);
+        break;
+    case 3:
+        printf("Redefined var \"%s\".\n", content);
+        break;
+    case 4:
+        printf("Redefined function \"%s\".\n", content);
+        break;
+    case 5:
+        printf("Type mismatched for assigment.\n");
+        break;
+    case 6:
+        printf("The left-hand side of an assignment must be a var.\n");
+        break;
+    case 7:
+        printf("Type mismatched for operands.\n");
+        break;
+    case 8:
+        printf("Type mismatched for return.\n");
+        break;
+    case 9:
+        printf("Function is not applicable for arguments.\n");
+        break;
+    case 10:
+        printf("This is not an array.\n");
+        break;
+    case 11:
+        printf("\"%s\" is not a function.\n", content);
+        break;
+    case 12:
+        printf("This is not an integer.\n");
+        break;
+    case 13:
+        printf("Illegal use of \".\".\n");
+        break;
+    case 14:
+        printf("Non-existent field \"%s\".\n", content);
+        break;
+    case 15:
+        printf("Redefined field \"%s\".\n", content);
+        break;
+    case 16:
+        printf("Duplicated character \"%s\".\n", content);
+        break;
+    case 17:
+        printf("Undefined structure \"%s\".\n", content);
+        break;
+    case 18:
+        printf("Undefined function \"%s\".\n", content);
+        break;
+    case 19:
+        printf("Inconsistent declaration of function \"%s\".\n", content);
+        break;
+    default:
+        printf("Wrong semantic type:%s\n", content);
+        //
+        break;
+    }
+}
