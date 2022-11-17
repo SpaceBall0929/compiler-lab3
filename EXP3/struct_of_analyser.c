@@ -312,7 +312,7 @@ int check_error(int a, int b)
 int Exp_s(treeNode *exp)
 {
 
-    printf("in Exp\n");
+    printf("In Exp\n");
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -346,6 +346,11 @@ int Exp_s(treeNode *exp)
 
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
+    if(tempnode2 != NULL && tempnode1 != NULL)
+    printf("%s %s ", tempnode1->character, tempnode2->character);
+    if(getchild(exp, 2) != NULL)
+    printf("%s \n", getchild(exp,2)->character);
+
 
     /*if(exp->child->sibling == NULL){
         printf("Node2 is NULL!\n");
@@ -407,14 +412,16 @@ int Exp_s(treeNode *exp)
                     return -1;
                 }
             }
+            printf("左值判断完成\n");
         }
     }
 
     // ID，INT，FLOAT
     if (tempnode2 == NULL)
-    {
+    {   printf("ID is here\n");
         if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
+            printf("%s\n",var_domain_ptr->tVar.data->varName);
             if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
                 !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) &&
                 !ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
@@ -422,12 +429,13 @@ int Exp_s(treeNode *exp)
                 error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
                 return -1;
             }
-            else
-            {
+            printf("end search\n");
+            //else
+            //{
                 result = find_type(tempnode1); //找到了,返回这个ID代表的类型
                 // result = charToInt(tempnode1->character, *struct_table);
                 return result;
-            }
+            //}
         }
         else if (tempnode1->nodeType == N_INT)
         { //返回int
@@ -446,7 +454,8 @@ int Exp_s(treeNode *exp)
         treeNode *tempnode3 = getchild(exp, 2);
         //第一部分;
         if (tempnode3 != NULL)
-        {
+        {   printf("It's Exp <> Exp\n");
+
             treeNode *tempnode4 = getchild(exp, 3);
             if (tempnode4 == NULL &&
                 tempnode3->nodeType == N_EXP &&
@@ -458,7 +467,12 @@ int Exp_s(treeNode *exp)
                 {
                     printf("It isn't Exp xx Exp.\n");
                 }
+
+                //printf("%s\n", Expnode1->child->character);
                 int exp1type = Exp_s(Expnode1);
+
+                printf("test point\n");
+
                 int exp2type = Exp_s(Expnode2);
                 if (!check_error(exp1type, exp2type))
                 {
@@ -526,12 +540,17 @@ int Exp_s(treeNode *exp)
         if (tempnode1->nodeType == N_ID)
         { //当前为函数，需要去检查该函数是否已定义
             printf("It's a function\n");
+            fflush(stdout);
+
             char *funcname = tempnode1->subtype.IDVal;
+
             printf("%s\n", funcname);
             printf("searching function name...\n");
+
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
             printf("search end.\n");
+            fflush(stdout);
             int ret_type = func_node.returnType; //获取函数返回类型
             //printf("place check\n");
             printf("result = %d\n", queryresult);
