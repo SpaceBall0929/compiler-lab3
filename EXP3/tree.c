@@ -151,7 +151,8 @@ treeNode* getchild(treeNode *t, int n){//n表示第几个孩子，从0开始算
         int i = 0;
         while(i < n){
             node = node->sibling;
-            if(!node) return NULL;
+            if(node == NULL) return NULL;
+            i += 1;
         }
         return node;
     }

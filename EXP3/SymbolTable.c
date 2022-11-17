@@ -255,8 +255,12 @@ int ifExistStructDomain(SymbolTableStruct st, int type, char* domainName){
     return 0;
 }
 
-void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
+void InsertVar(SymbolTableVar* st, dataNodeVar* elem, int line_no)
 {
+	if(ifExistVar(*st, elem->varName)){
+		error_msg(3, line_no, elem->varName);
+		return;
+	}
 	int i = findPosVar(*st, elem -> varName);
 	if (st->sta[i] != Active)
 	{
