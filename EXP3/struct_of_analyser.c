@@ -549,13 +549,14 @@ int Exp_s(treeNode *exp)
 
             printf("%s\n", funcname);
             printf("searching function name...\n");
+            printf("%s", fun_table->data->funcName);
+            printf("\n");
 
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
             printf("search end.\n");
             fflush(stdout);
             int ret_type = func_node.returnType; //获取函数返回类型
-            //printf("place check\n");
             printf("result = %d\n", queryresult);
             if (!queryresult)
             { //没找到或者不是定义;  或者不是函数
