@@ -347,10 +347,11 @@ int Exp_s(treeNode *exp)
 
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
-    if (tempnode2 != NULL && tempnode1 != NULL)
-        printf("%s %s ", tempnode1->character, tempnode2->character);
-    if (getchild(exp, 2) != NULL)
-        printf("%s \n", getchild(exp, 2)->character);
+    if(tempnode2 != NULL && tempnode1 != NULL)
+    printf("%s %s ", tempnode1->character, tempnode2->character);
+    if(getchild(exp, 2) != NULL)
+    printf("%s \n", getchild(exp,2)->character);
+
 
     /*if(exp->child->sibling == NULL){
         printf("Node2 is NULL!\n");
@@ -418,11 +419,10 @@ int Exp_s(treeNode *exp)
 
     // ID，INT，FLOAT
     if (tempnode2 == NULL)
-    {
-        printf("ID is here\n");
+    {   printf("ID is here\n");
         if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
-            printf("%s\n", var_domain_ptr->tVar.data->varName);
+            printf("%s\n",var_domain_ptr->tVar.data->varName);
             if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
                 !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) &&
                 !ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
@@ -431,11 +431,11 @@ int Exp_s(treeNode *exp)
                 return -1;
             }
             printf("end search\n");
-            // else
+            //else
             //{
-            result = find_type(tempnode1); //找到了,返回这个ID代表的类型
-            // result = charToInt(tempnode1->character, *struct_table);
-            return result;
+                result = find_type(tempnode1); //找到了,返回这个ID代表的类型
+                // result = charToInt(tempnode1->character, *struct_table);
+                return result;
             //}
         }
         else if (tempnode1->nodeType == N_INT)
@@ -455,8 +455,7 @@ int Exp_s(treeNode *exp)
         treeNode *tempnode3 = getchild(exp, 2);
         //第一部分;
         if (tempnode3 != NULL)
-        {
-            printf("It's Exp <> Exp\n");
+        {   printf("It's Exp <> Exp\n");
 
             treeNode *tempnode4 = getchild(exp, 3);
             if (tempnode4 == NULL &&
@@ -469,6 +468,8 @@ int Exp_s(treeNode *exp)
                 {
                     printf("It isn't Exp xx Exp.\n");
                 }
+
+                //printf("%s\n", Expnode1->child->character);
 
                 // printf("%s\n", Expnode1->child->character);
                 int exp1type = Exp_s(Expnode1);
@@ -554,7 +555,7 @@ int Exp_s(treeNode *exp)
             printf("search end.\n");
             fflush(stdout);
             int ret_type = func_node.returnType; //获取函数返回类型
-            // printf("place check\n");
+            //printf("place check\n");
             printf("result = %d\n", queryresult);
             if (!queryresult)
             { //没找到或者不是定义;  或者不是函数
@@ -567,15 +568,15 @@ int Exp_s(treeNode *exp)
                     return -1;
                 }
                 else
-                {
-                    // printf("test flag error2");
+                {   
+                    //printf("test flag error2");
                     error_msg(2, exp->line_no, funcname); //错误类型2，函数未定义
                     return -1;
                 }
             }
 
             if (tempnode3->nodeType == N_ARGS)
-            {
+            {   printf("Check the args.\n");
                 printf("Check the args.\n");
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
@@ -584,10 +585,10 @@ int Exp_s(treeNode *exp)
                 }
                 else
                 {
-                    // Args -> Exp COMMA Args
+                    //Args -> Exp COMMA Args
                     //| Exp;
                     //检查args的数量;
-
+                    
                     int cnt = 0;
                     treeNode *cntnode = tempnode3;
                     while (1)
@@ -843,13 +844,16 @@ int Exp_s(treeNode *exp)
 //         if (tempnode6 == NULL)
 //         {
 //             treeNode *stmtnode1 = getchild(stmt, 4);
+
 //             Stmt_s(stmtnode1, d_type);
 //         }
 //         else
 //         {
 //             treeNode *stmtnode1 = getchild(stmt, 4);
 //             treeNode *stmtnode2 = getchild(stmt, 6);
+
 //             Stmt_s(stmtnode1, d_type);
+
 //             Stmt_s(stmtnode2, d_type);
 //         };
 //     }
@@ -935,6 +939,7 @@ int tree_analys(treeNode *mytree)
     dataNodeStruct *struct_ptr = NULL;
     printf("Initializing varibles successfully\n");
 
+    while (!isEmpty(stack_ptr))
     while (!isEmpty(stack_ptr))
     {
         //根据收到的不同符号调用不同的处理函数
