@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 0
+#define IF_DEBUG_PRINT 1
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -1189,8 +1189,9 @@ int tree_analys(treeNode *mytree)
                 } while (var_ptr != NULL);
                 free_var(var_head);
                 var_head = NULL;
-                InsertStruct(struct_table, struct_ptr);
-                now_processing = IN_GLOBAL;
+                var_ptr = NULL;
+                // InsertStruct(struct_table, struct_ptr);
+                // now_processing = IN_GLOBAL;
                 break;
 
             default:
@@ -1398,6 +1399,13 @@ int tree_analys(treeNode *mytree)
                     printf("Close the domain\n");
                 }
                 var_domain_ptr = domainPop(var_domain_ptr);
+            }
+            if(now_processing == IN_STRUCT_DEC_L){
+                now_processing = IN_GLOBAL;
+                nearest_speci_type = InsertStruct(struct_table, struct_ptr);
+                now_processing = IN_VAR_DEC;
+                free_struct(struct_ptr);
+                struct_ptr = NULL;
             }
             if_unfold = 0;
             break;
