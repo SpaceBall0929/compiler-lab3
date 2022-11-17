@@ -59,8 +59,8 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     int dimensionlen[10];
     while (dec_node->nodeType != N_ID)
     {
-        dec_node = dec_node->child;
         dimensionlen[dimension++] = dec_node->sibling->sibling->subtype.intVal;
+        dec_node = dec_node->child;
     }
     new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
     if (dimension == 0)
