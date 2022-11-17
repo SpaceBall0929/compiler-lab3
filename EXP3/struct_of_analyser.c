@@ -639,10 +639,6 @@ int Exp_s(treeNode *exp)
                 {
                     printf("Check the args.\n");
                 }
-                if (IF_DEBUG_PRINT)
-                {
-                    printf("Check the args.\n");
-                }
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参不匹配

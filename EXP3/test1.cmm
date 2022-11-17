@@ -1,7 +1,7 @@
 int fun(){
 	int i;
 }
-
+/*test*/
 int main(){
 	float f = 0.;
 	f = f + 0.1;

@@ -64,7 +64,7 @@ typedef struct node
     int line_no; //行号
     struct node *child;
     struct node *sibling;
-    node_type nodeType;
+    int nodeType;
     // int flag;//遍历标记
     union
     {
@@ -77,7 +77,7 @@ typedef struct node
 typedef treeNode Tree;
 
 
-void nodeInit(treeNode *node, char *character, int line_no, treeNode *child, treeNode *sibling, node_type mytype)
+void nodeInit(treeNode *node, const char *character, int line_no, treeNode *child, treeNode *sibling, int mytype)
 {
     // strncpy(node->character, character, 500);
 
@@ -89,7 +89,7 @@ void nodeInit(treeNode *node, char *character, int line_no, treeNode *child, tre
     return;
 }
 
-treeNode *upConstruct(treeNode *node, char *character, int line_no, node_type mytype)
+treeNode *upConstruct(treeNode *node, const char *character, int line_no, node_type mytype)
 {
     treeNode *parent = (treeNode*)malloc(sizeof(treeNode));
     nodeInit(parent, character, line_no, node, NULL, mytype);

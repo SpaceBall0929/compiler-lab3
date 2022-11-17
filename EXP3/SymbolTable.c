@@ -75,13 +75,10 @@ struct table3{
 typedef struct table3 SymbolTableStruct;
 
 int findPosVar(SymbolTableVar st, char* key){
-    int i = abs(key[1] + key[2]) % st.divitor;
-    //printf("%d\n",abs(key[1] + key[2]));
-    //printf("%d\n",i);
-    //printf("%d\n",st.divitor);
+    int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].varName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].varName)))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -89,10 +86,10 @@ int findPosVar(SymbolTableVar st, char* key){
 }
 
 int findPosFunc(SymbolTableFunc st, char* key){
-    int i = abs(key[1] + key[2]) % st.divitor;
+    int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].funcName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].funcName)))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -100,10 +97,10 @@ int findPosFunc(SymbolTableFunc st, char* key){
 }
 
 int findPosStruct(SymbolTableStruct st, char* key){
-    int i = abs(key[1] + key[2]) % st.divitor;
+    int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].structTypeName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].structTypeName)))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -134,10 +131,6 @@ dataNodeVar* newNodeVar(char* name, int type){
     newNode -> numdim = -1;
     newNode -> len_of_dims = NULL;
     newNode -> next = NULL;
-    // if(newNode -> varType == D_ARRAY){
-    //     newNode ->numdim = -1;
-    //     return newNode;
-    // }
     newNode -> numdim = 0;
     return newNode;
 }
@@ -222,21 +215,21 @@ SymbolTableStruct* tableStructInit(){
 
 int ifExistVar(SymbolTableVar st, char* key){
     int i = findPosVar(st, key);
-    if(st.sta[i] == Active && st.data[i].varName == key)
+    if(st.sta[i] == Active && strcmp(st.data[i].varName, key) == 0)
         return 1;
     return 0;
 }
 
 int ifExistFunc(SymbolTableFunc st, char* key){
     int i = findPosFunc(st, key);
-    if(st.sta[i] == Active && st.data[i].funcName == key)
+    if(st.sta[i] == Active && strcmp(st.data[i].funcName, key) == 0)
         return 1;
     return 0;
 }
 
 int ifExistStruct(SymbolTableStruct st, char* key){
     int i = findPosStruct(st, key);
-    if(st.sta[i] == Active && st.data[i].structTypeName == key)
+    if(st.sta[i] == Active && strcmp(st.data[i].structTypeName, key) == 0)
         return 1;
     return 0;
 }
@@ -249,13 +242,57 @@ int ifExistStructDomain(SymbolTableStruct st, int type, char* domainName){
     dataNodeVar* p = st.data[type-D_AMT].structDomains;
     while (p != NULL)
     {
-        if(p->varName == domainName)
+        if(strcmp(p->varName, domainName) == 0)
             //结构体域存在
             return 1;
         p = p->next;
     }
     //结构体域不存在
     return 0;
+}
+
+void deepcopyVar(dataNodeVar* varnode1, dataNodeVar* varnode2){
+    if(varnode1 == NULL || varnode2 == NULL)
+        return;
+    varnode1->varType = varnode2->varType;
+    varnode1->numdim = varnode2->numdim;
+    varnode1->varName = (char*)malloc(sizeof(char) * strlen(varnode2->varName));
+    strcpy(varnode1->varName, varnode2->varName);
+    varnode1->len_of_dims = (int*)malloc(sizeof(int) * varnode2->numdim);
+    for(int i = 0;i < varnode2->numdim;i++)
+        varnode1->len_of_dims[i] = varnode2->len_of_dims[i];
+}
+
+void deepcopyVarComplete(dataNodeVar* varnode1, dataNodeVar* varnode2){
+    dataNodeVar* p1 = varnode1;
+    dataNodeVar* p2 = varnode2;
+    while(p1 != NULL && p2 != NULL){
+        deepcopyVar(p1, p2);
+        if(p2->next != NULL)
+            p1->next = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+        else
+            p1->next = NULL;
+        p1 = p1->next;
+        p2 = p2->next;
+    }
+}
+
+void deepcopyFunc(dataNodeFunc* funcnode1, dataNodeFunc* funcnode2){
+    funcnode1->returnType = funcnode2->returnType;
+    funcnode1->defined = funcnode2->defined;
+    funcnode1->funcName = (char*)malloc(sizeof(char) * strlen(funcnode2->funcName));
+    strcpy(funcnode1->funcName, funcnode2->funcName);
+    funcnode1->args = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+    deepcopyVarComplete(funcnode1->args, funcnode2->args);
+    return;
+}
+
+void deepcopyStruct(dataNodeStruct* structnode1, dataNodeStruct* structnode2){
+    structnode1->structTypeName = (char*)malloc(sizeof(char) * strlen(structnode2->structTypeName));
+    strcpy(structnode1->structTypeName, structnode2->structTypeName);
+    structnode1->structDomains = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+    deepcopyVarComplete(structnode1->structDomains, structnode2->structDomains);
+    return;
 }
 
 //注意：传参时传入行号和函数表
@@ -272,7 +309,7 @@ void InsertVar(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeVar* elem, int
 	int i = findPosVar(*st1, elem -> varName);
 	if (st1->sta[i] != Active)
 	{
-		st1->data[i] = *elem;
+		deepcopyVarComplete(&st1->data[i], elem);
 		st1->sta[i] = (enum Status)Active;
 		st1->curSize++;
 	}
@@ -287,7 +324,7 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc* elem)
 	int i = findPosFunc(*st, elem->funcName);
 	if (st->sta[i] != Active)
 	{
-		st->data[i] = *elem;
+		deepcopyFunc(&st->data[i], elem);
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
 	}
@@ -300,7 +337,7 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem)
 	int i = findPosStruct(*st, elem->structTypeName);
 	if (st->sta[i] != Active)
 	{
-		st->data[i] = *elem;
+		deepcopyStruct(&st->data[i], elem);
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
 	}
