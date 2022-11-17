@@ -10,6 +10,9 @@
 #define IN_STRUCT_DEC_L 1919813
 #define IN_VAR_DEC 1919814
 
+//改成任意不为0的数字开启debug输出
+#define IF_DEBUG_PRINT 0
+
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
 SymbolTableFunc *fun_table;
@@ -38,7 +41,10 @@ int specifier(treeNode *speci)
         }
         return D_STRUCT_DEF;
     default:
-        printf("ERROR: Unexpected nodeType in the child of Specifier\n");
+        if (IF_DEBUG_PRINT)
+        {
+            printf("ERROR: Unexpected nodeType in the child of Specifier\n");
+        }
         return 0;
         break;
     }
@@ -76,7 +82,10 @@ dataNodeVar *param_dec(treeNode *para)
     int type_def = specifier(para->child);
     if (type_def == D_STRUCT_DEF)
     {
-        printf("ERROR: Unexpected treeNode: structure definition in the parameters of the function.\n");
+        if (IF_DEBUG_PRINT)
+        {
+            printf("ERROR: Unexpected treeNode: structure definition in the parameters of the function.\n");
+        }
         return NULL;
     }
 
@@ -313,7 +322,10 @@ int check_error(int a, int b)
 int Exp_s(treeNode *exp)
 {
 
-    printf("In Exp\n");
+    if (IF_DEBUG_PRINT)
+    {
+        printf("In Exp\n");
+    }
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -347,14 +359,19 @@ int Exp_s(treeNode *exp)
 
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
-    if(tempnode2 != NULL && tempnode1 != NULL)
-    printf("%s %s ", tempnode1->character, tempnode2->character);
-    if(getchild(exp, 2) != NULL)
-    printf("%s \n", getchild(exp,2)->character);
-
+    if (tempnode2 != NULL && tempnode1 != NULL)
+        if (IF_DEBUG_PRINT)
+        {
+            printf("%s %s ", tempnode1->character, tempnode2->character);
+        }
+    if (getchild(exp, 2) != NULL)
+        if (IF_DEBUG_PRINT)
+        {
+            printf("%s \n", getchild(exp, 2)->character);
+        }
 
     /*if(exp->child->sibling == NULL){
-        printf("Node2 is NULL!\n");
+        if(IF_DEBUG_PRINT){printf("Node2 is NULL!\n");}
     }*/
     // ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
     if (tempnode1->nodeType == N_EXP)
@@ -413,16 +430,23 @@ int Exp_s(treeNode *exp)
                     return -1;
                 }
             }
-            printf("左值判断完成\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("左值判断完成\n");
+            }
         }
     }
 
     // ID，INT，FLOAT
     if (tempnode2 == NULL)
-    {   printf("ID is here\n");
+    {
+        if (IF_DEBUG_PRINT)
+        {
+            printf("ID is here\n");
+        }
         if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
-            // printf("%s\n",var_domain_ptr->tVar.data->varName);
+            // if(IF_DEBUG_PRINT){printf("%s\n",var_domain_ptr->tVar.data->varName);
             if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
                 !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) &&
                 !ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
@@ -430,12 +454,15 @@ int Exp_s(treeNode *exp)
                 error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
                 return -1;
             }
-            printf("end search\n");
-            //else
+            if (IF_DEBUG_PRINT)
+            {
+                printf("end search\n");
+            }
+            // else
             //{
-                result = find_type(tempnode1); //找到了,返回这个ID代表的类型
-                // result = charToInt(tempnode1->character, *struct_table);
-                return result;
+            result = find_type(tempnode1); //找到了,返回这个ID代表的类型
+            // result = charToInt(tempnode1->character, *struct_table);
+            return result;
             //}
         }
         else if (tempnode1->nodeType == N_INT)
@@ -455,7 +482,11 @@ int Exp_s(treeNode *exp)
         treeNode *tempnode3 = getchild(exp, 2);
         //第一部分;
         if (tempnode3 != NULL)
-        {   printf("It's Exp <> Exp\n");
+        {
+            if (IF_DEBUG_PRINT)
+            {
+                printf("It's Exp <> Exp\n");
+            }
 
             treeNode *tempnode4 = getchild(exp, 3);
             if (tempnode4 == NULL &&
@@ -466,15 +497,21 @@ int Exp_s(treeNode *exp)
                 treeNode *Expnode2 = tempnode3;
                 if (Expnode1->nodeType != N_EXP)
                 {
-                    printf("It isn't Exp xx Exp.\n");
+                    if (IF_DEBUG_PRINT)
+                    {
+                        printf("It isn't Exp xx Exp.\n");
+                    }
                 }
 
-                //printf("%s\n", Expnode1->child->character);
+                // if(IF_DEBUG_PRINT){printf("%s\n", Expnode1->child->character);
 
-                // printf("%s\n", Expnode1->child->character);
+                // if(IF_DEBUG_PRINT){printf("%s\n", Expnode1->child->character);
                 int exp1type = Exp_s(Expnode1);
 
-                printf("test point\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("test point\n");
+                }
 
                 int exp2type = Exp_s(Expnode2);
                 if (!check_error(exp1type, exp2type))
@@ -521,7 +558,10 @@ int Exp_s(treeNode *exp)
             treeNode *expnode = tempnode2;
             if (expnode->nodeType != N_EXP)
             { //第二个不是exp
-                printf("The second part should be Exp!\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("The second part should be Exp!\n");
+                }
             }
             int exp1type = Exp_s(expnode);
             if (check_type(expnode, N_NOT) && !check_error(exp1type, 1))
@@ -542,24 +582,42 @@ int Exp_s(treeNode *exp)
         //函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
         if (tempnode1->nodeType == N_ID)
         { //当前为函数，需要去检查该函数是否已定义
-            printf("It's a function\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("It's a function\n");
+            }
             fflush(stdout);
 
             char *funcname = tempnode1->subtype.IDVal;
 
-            printf("%s\n", funcname);
-            printf("searching function name...\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("%s\n", funcname);
+            }
+            if (IF_DEBUG_PRINT)
+            {
+                printf("searching function name...\n");
+            }
 
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
-            printf("search end.\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("search end.\n");
+            }
             fflush(stdout);
             int ret_type = func_node.returnType; //获取函数返回类型
-            //printf("place check\n");
-            printf("result = %d\n", queryresult);
+            // if(IF_DEBUG_PRINT){printf("place check\n");}
+            if (IF_DEBUG_PRINT)
+            {
+                printf("result = %d\n", queryresult);
+            }
             if (!queryresult)
             { //没找到或者不是定义;  或者不是函数
-                printf("Didn't find the function.\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("Didn't find the function.\n");
+                }
                 if (ifExistStruct(*struct_table, funcname) ||
                     ifExistVarStack(var_domain_ptr, funcname))
                 {
@@ -568,16 +626,23 @@ int Exp_s(treeNode *exp)
                     return -1;
                 }
                 else
-                {   
-                    //printf("test flag error2");
+                {
+                    // if(IF_DEBUG_PRINT){printf("test flag error2");
                     error_msg(2, exp->line_no, funcname); //错误类型2，函数未定义
                     return -1;
                 }
             }
 
             if (tempnode3->nodeType == N_ARGS)
-            {   printf("Check the args.\n");
-                printf("Check the args.\n");
+            {
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("Check the args.\n");
+                }
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("Check the args.\n");
+                }
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参不匹配
@@ -585,10 +650,10 @@ int Exp_s(treeNode *exp)
                 }
                 else
                 {
-                    //Args -> Exp COMMA Args
+                    // Args -> Exp COMMA Args
                     //| Exp;
                     //检查args的数量;
-                    
+
                     int cnt = 0;
                     treeNode *cntnode = tempnode3;
                     while (1)
@@ -620,7 +685,10 @@ int Exp_s(treeNode *exp)
             }
             else
             {
-                printf("No-arg function.\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("No-arg function.\n");
+                }
                 if (func_node.args != NULL)
                 {                                     //函数有形参，但此时没有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
@@ -744,7 +812,7 @@ int Exp_s(treeNode *exp)
 //处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
 // int Stmt_s(treeNode *stmt, int d_type)
 // {
-//     printf("进入Stmt!\n");
+//     if(IF_DEBUG_PRINT){printf("进入Stmt!\n");}
 //     /*
 //     Stmt -> Exp SEMI
 //     | CompSt
@@ -753,10 +821,10 @@ int Exp_s(treeNode *exp)
 //     | IF LP Exp RP Stmt ELSE Stmt
 //     | WHILE LP Exp RP Stmt
 //     */
-//     printf("test");
+//     if(IF_DEBUG_PRINT){printf("test");
 //     if (stmt == NULL)
 //         return -3;
-//     printf("Stmt非空！");
+//     if(IF_DEBUG_PRINT){printf("Stmt非空！");
 //     treeNode *tempnode1 = getchild(stmt, 0);
 
 //     if (tempnode1->nodeType == N_COMPST)
@@ -770,16 +838,16 @@ int Exp_s(treeNode *exp)
 //     }
 //     else if (tempnode1->nodeType == N_EXP)
 //     { // Exp SEMI
-//         printf("Exp SEMI\n");
+//         if(IF_DEBUG_PRINT){printf("Exp SEMI\n");}
 //         Exp_s(tempnode1);
-//         printf("561faeflj\n");
+//         if(IF_DEBUG_PRINT){printf("561faeflj\n");}
 //     }
 //     else if (tempnode1->nodeType == N_RETURN)
 //     { // RETURN Exp SEMI 返回Exp类型值
 //         treeNode *expnode = getchild(stmt, 1);
 //         if (expnode->nodeType != N_EXP)
 //         {
-//             printf("Stmt_s bug: should be Exp!\n");
+//             if(IF_DEBUG_PRINT){printf("Stmt_s bug: should be Exp!\n");}
 //         }
 //         int returntype = Exp_s(expnode);
 //         if (!check_error(returntype, 1))
@@ -825,7 +893,7 @@ int Exp_s(treeNode *exp)
 //         treeNode *expnode = getchild(stmt, 2);
 //         if (expnode->nodeType != N_EXP)
 //         {
-//             printf("Stmt_s bug: should be Exp!\n");
+//             if(IF_DEBUG_PRINT){printf("Stmt_s bug: should be Exp!\n");}
 //         }
 //         treeNode *tempnode6 = getchild(stmt, 5); // ELSE
 //         int iftype = Exp_s(expnode);
@@ -859,7 +927,7 @@ int Exp_s(treeNode *exp)
 //     }
 //     else
 //     {
-//         printf("Stmt_s error: Impossible to be here!\n");
+//         if(IF_DEBUG_PRINT){printf("Stmt_s error: Impossible to be here!\n");}
 //     }
 //     return -3;
 // }
@@ -916,12 +984,18 @@ int tree_analys(treeNode *mytree)
     stack_ptr = &myStack;
     initStack(stack_ptr);
     push(stack_ptr, mytree);
-    printf("Initializing stack successfully\n");
+    if (IF_DEBUG_PRINT)
+    {
+        printf("Initializing stack successfully\n");
+    }
     //表初始化部分
     var_domain_ptr = domainPush(var_domain_ptr);
     fun_table = tableFuncInit();
     struct_table = tableStructInit();
-    printf("Initializing tables successfully\n");
+    if (IF_DEBUG_PRINT)
+    {
+        printf("Initializing tables successfully\n");
+    }
     //用于存储变量信息以及一些flag
     int if_unfold = 1;
     // int in_func_domain = 0;
@@ -937,9 +1011,11 @@ int tree_analys(treeNode *mytree)
     dataNodeVar *var_ptr = NULL;
     dataNodeFunc *func_ptr = NULL;
     dataNodeStruct *struct_ptr = NULL;
-    printf("Initializing varibles successfully\n");
+    if (IF_DEBUG_PRINT)
+    {
+        printf("Initializing varibles successfully\n");
+    }
 
-    while (!isEmpty(stack_ptr))
     while (!isEmpty(stack_ptr))
     {
         //根据收到的不同符号调用不同的处理函数
@@ -947,22 +1023,47 @@ int tree_analys(treeNode *mytree)
         {
         //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
         case N_PROGRAM:
-            printf("Program detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Program detected\n");
+            }
             if_unfold = 1;
             break;
 
         case N_EXT_DEF_L:
-            printf("ExtDefList detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("ExtDefList detected\n");
+            }
+            if (temp->child == NULL)
+            {
+                now_processing = IN_GLOBAL;
+                if (func_ptr != NULL)
+                {
+                    free_func(func_ptr);
+                    func_ptr = NULL;
+                    if (IF_DEBUG_PRINT)
+                    {
+                        printf("----------------------a function ended-----------------------------\n");
+                    }
+                }
+            }
             if_unfold = 1;
             break;
         case N_EXT_DEF:
-            printf("ExtDef detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("ExtDef detected\n");
+            }
             now_processing = IN_GLOBAL;
             if (func_ptr != NULL)
             {
                 free_func(func_ptr);
                 func_ptr = NULL;
-                printf("----------------------a function ended-----------------------------\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("----------------------a function ended-----------------------------\n");
+                }
             }
             if_unfold = 1;
             break;
@@ -970,11 +1071,17 @@ int tree_analys(treeNode *mytree)
         // specifier处理部分
         // specifier总是被期待返回一个类型值，所以在栈上统一解开（省点内存吧球球了）
         case N_SPECI:
-            printf("Specifier detected, now finding the type...\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Specifier detected, now finding the type...\n");
+            }
             if_unfold = 1;
             break;
         case N_TYPE:
-            printf("Normal type in the Specifier\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Normal type in the Specifier\n");
+            }
             if_unfold = 0;
             if (temp->subtype.IDVal[0] == 'i')
             {
@@ -986,7 +1093,10 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_STRUCT_SPECI:
-            printf("Structure type in the specifier\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Structure type in the specifier\n");
+            }
             if (temp->child->sibling->nodeType == N_TAG)
             {
                 nearest_speci_type = struct_specifier_dec(temp);
@@ -1004,20 +1114,29 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_OPT_TAG:
-            printf("Struct definition detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Struct definition detected\n");
+            }
             if_unfold = 0;
             struct_ptr = newNodeStruct(temp->child->subtype.IDVal);
             break;
 
         case N_EXT_DEC_L:
-            printf("ExtDecList detected.\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("ExtDecList detected.\n");
+            }
             if_unfold = 1;
             break;
 
         case N_VAR_DEC:
 
             // IN_DEC
-            printf("VarDec detected, processing with the outer functions...\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("VarDec detected, processing with the outer functions...\n");
+            }
             if_unfold = 0;
             if (var_head == NULL)
             {
@@ -1027,11 +1146,14 @@ int tree_analys(treeNode *mytree)
             }
             var_ptr->next = var_dec(temp, nearest_speci_type);
             var_ptr = var_ptr->next;
-            // printf("VarDec processed successfully\n");
+            // if(IF_DEBUG_PRINT){printf("VarDec processed successfully\n");}
             break;
 
         case N_SEMI:
-            printf("SEMI detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("SEMI detected\n");
+            }
             // SEMI在这个层次被扫描有两重功能，一个是结束变量。结束结构体
             //一个是结束函数的声明
             switch (now_processing)
@@ -1040,6 +1162,10 @@ int tree_analys(treeNode *mytree)
                 InsertFunc(fun_table, func_ptr);
                 free_func(func_ptr);
                 func_ptr = NULL;
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("----------------------a function ended-----------------------------\n");
+                }
                 now_processing = IN_GLOBAL;
                 break;
 
@@ -1084,7 +1210,10 @@ int tree_analys(treeNode *mytree)
         case N_FUN_DEC:
             //注意！这里还不知道函数有没有定义，只知道有这样一个声明
             //这个声明暂存后，并没有提交到表中
-            printf("Function declareration detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Function declareration detected\n");
+            }
             func_ptr = fun_dec(temp, nearest_speci_type);
             nearest_func_type = nearest_speci_type;
             now_processing = IN_FUNC_DEC;
@@ -1092,7 +1221,10 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_COMPST:
-            printf("Compst detected");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Compst detected\n");
+            }
             if_unfold = 1;
             break;
 
@@ -1105,26 +1237,41 @@ int tree_analys(treeNode *mytree)
             }
             if (now_processing == IN_FUNC_COMPST)
             {
-                printf("Create new domain\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("Create new domain\n");
+                }
                 var_domain_ptr = domainPush(var_domain_ptr);
             }
             if_unfold = 0;
             break;
 
         case N_DEF_L:
-            printf("DefList detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("DefList detected\n");
+            }
             if_unfold = 1;
             break;
         case N_DEF:
-            printf("Def detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Def detected\n");
+            }
             if_unfold = 1;
             break;
         case N_DEC_L:
-            printf("DecList detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("DecList detected\n");
+            }
             if_unfold = 1;
             break;
         case N_DEC:
-            printf("Dec detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("Dec detected\n");
+            }
             if_unfold = 1;
             break;
         case N_ASSIGNOP:
@@ -1133,43 +1280,73 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_EXP:
-            printf("EXP detected, finding the usage of expression...\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("EXP detected, finding the usage of expression...\n");
+            }
             switch (exp_flag)
             {
             case EXP_DO_NOTHING:
-                printf("EXP_DO_NOTHING\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("EXP_DO_NOTHING\n");
+                }
                 Exp_s(temp);
-                printf("EXP_DONE\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("EXP_DONE\n");
+                }
                 break;
 
             case EXP_BRANCH_AND_LOOP:
-                printf("EXP_BRANCH_AND_LOOP\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("EXP_BRANCH_AND_LOOP\n");
+                }
                 if (Exp_s(temp) != D_INT)
                 {
-                    printf("EXP_DONE\n");
+                    if (IF_DEBUG_PRINT)
+                    {
+                        printf("EXP_DONE\n");
+                    }
                     error_msg(7, temp->line_no, NULL);
                 }
                 break;
 
             case EXP_INIT_VAR:
-                printf("EXP_INIT_VAR\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("EXP_INIT_VAR\n");
+                }
                 if (Exp_s(temp) != nearest_speci_type)
                 {
-                    printf("EXP_DONE\n");
+                    if (IF_DEBUG_PRINT)
+                    {
+                        printf("EXP_DONE\n");
+                    }
                     error_msg(5, temp->line_no, NULL);
                 }
                 break;
             case EXP_RETURN:
-                printf("EXP_RETURN\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("EXP_RETURN\n");
+                }
                 if (Exp_s(temp) != nearest_func_type)
                 {
-                    printf("EXP_DONE\n");
+                    if (IF_DEBUG_PRINT)
+                    {
+                        printf("EXP_DONE\n");
+                    }
                     error_msg(8, temp->line_no, NULL);
                 }
                 break;
 
             default:
-                printf("BAD ERROR:the totally unexpected type of the exp_flag!!!!\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("BAD ERROR:the totally unexpected type of the exp_flag!!!!\n");
+                }
                 break;
             }
 
@@ -1178,23 +1355,35 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_STMT_L:
-            printf("StmtList detected\n ");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("StmtList detected\n ");
+            }
             if_unfold = 1;
             break;
 
         case N_STMT:
-            printf("stmt detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("stmt detected\n");
+            }
             if_unfold = 1;
             break;
 
         case N_RETURN:
-            printf("RETURN detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("RETURN detected\n");
+            }
             exp_flag = EXP_RETURN;
             if_unfold = 0;
             break;
         case N_IF:
         case N_WHILE:
-            printf("IF or WHILE detected\n");
+            if (IF_DEBUG_PRINT)
+            {
+                printf("IF or WHILE detected\n");
+            }
             exp_flag = EXP_BRANCH_AND_LOOP;
             if_unfold = 0;
             break;
@@ -1208,7 +1397,10 @@ int tree_analys(treeNode *mytree)
         case N_RC:
             if (now_processing == IN_FUNC_COMPST)
             {
-                printf("Close the domain\n");
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("Close the domain\n");
+                }
                 var_domain_ptr = domainPop(var_domain_ptr);
             }
             if_unfold = 0;
@@ -1217,11 +1409,15 @@ int tree_analys(treeNode *mytree)
         default:
             // 这些非终结符，理论上应该在函数中被处理掉
             // 但是既然走到了这一步，显然没有，所以这里肯定要报错
-            printf("ERROR: Unexpected node token with character %s\n", temp->character);
+            if (IF_DEBUG_PRINT)
+            {
+                printf("ERROR: Unexpected node token with character %s\n", temp->character);
+            }
             // pop(stack_ptr);
             if_unfold = 1;
             break;
         }
+
         //节点处理完了，下一个
 
         pop(stack_ptr);
