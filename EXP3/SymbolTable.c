@@ -385,10 +385,10 @@ int getFieldNum(dataNodeStruct s){
 //释放一个变量信息占据的空间
 int free_var(dataNodeVar* to_del){
     dataNodeVar* origin = to_del;
-    int i = 0;
+    // int i = 0;
     do{
         to_del = to_del->next;
-        printf("free success for %d\n", i++);
+        // printf("free success for %d\n", i++);
         free(origin->varName);
         // if(origin->len_of_dims != NULL){
             // free(origin->len_of_dims);
