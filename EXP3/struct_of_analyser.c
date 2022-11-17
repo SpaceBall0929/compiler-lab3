@@ -710,127 +710,127 @@ int Exp_s(treeNode *exp)
 }*/
 
 //处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
-int Stmt_s(treeNode *stmt, int d_type)
-{
-    printf("进入Stmt!\n");
-    /*
-    Stmt -> Exp SEMI
-    | CompSt
-    | RETURN Exp SEMI
-    | IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
-    | WHILE LP Exp RP Stmt
-    */
-    printf("test");
-    if (stmt == NULL)
-        return -3;
-    printf("Stmt非空！");
-    treeNode *tempnode1 = getchild(stmt, 0);
+// int Stmt_s(treeNode *stmt, int d_type)
+// {
+//     printf("进入Stmt!\n");
+//     /*
+//     Stmt -> Exp SEMI
+//     | CompSt
+//     | RETURN Exp SEMI
+//     | IF LP Exp RP Stmt
+//     | IF LP Exp RP Stmt ELSE Stmt
+//     | WHILE LP Exp RP Stmt
+//     */
+//     printf("test");
+//     if (stmt == NULL)
+//         return -3;
+//     printf("Stmt非空！");
+//     treeNode *tempnode1 = getchild(stmt, 0);
 
-    if (tempnode1->nodeType == N_COMPST)
-    {
-        /*//新开一个作用域,进入CompSt，然后溜
-        domainStack ds;
-        domainPush(ds);
-        comp_stmt(tempnode1, d_type);
-        domainPop(ds);*/
-        return -4;
-    }
-    else if (tempnode1->nodeType == N_EXP)
-    { // Exp SEMI
-        printf("Exp SEMI\n");
-        Exp_s(tempnode1);
-        printf("561faeflj\n");
-    }
-    else if (tempnode1->nodeType == N_RETURN)
-    { // RETURN Exp SEMI 返回Exp类型值
-        treeNode *expnode = getchild(stmt, 1);
-        if (expnode->nodeType != N_EXP)
-        {
-            printf("Stmt_s bug: should be Exp!\n");
-        }
-        int returntype = Exp_s(expnode);
-        if (!check_error(returntype, 1))
-        {
-            if (d_type != returntype)
-            {
-                error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
-            }
-            else
-            {
-                ; // exp里面已经因为NULL报错
-            }
-        }
-        return returntype;
-    }
-    else if (tempnode1->nodeType == N_WHILE)
-    { // WHILE LP Exp RP Stmt 返回-3
-        treeNode *expnode = getchild(stmt, 2);
-        treeNode *stmtnode = getchild(stmt, 4);
-        int type = Exp_s(expnode);
-        if (!check_error(type, 1))
-        {
-            if (type == 0)
-            {
-                ;
-            }
-            else
-            {
-                error_msg(7, stmt->line_no, NULL); //错误类型7，while条件操作数类型不匹配
-            }
-        }
-        else
-        {
-            ; // Exp里面已经报过了
-        }
-        Stmt_s(stmtnode, d_type);
-    }
-    else if (tempnode1->nodeType == N_IF)
-    {
-        /*	| IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt  返回-3
-    */
-        treeNode *expnode = getchild(stmt, 2);
-        if (expnode->nodeType != N_EXP)
-        {
-            printf("Stmt_s bug: should be Exp!\n");
-        }
-        treeNode *tempnode6 = getchild(stmt, 5); // ELSE
-        int iftype = Exp_s(expnode);
-        if (!check_error(iftype, 1))
-        {
-            if (iftype == 0)
-            {
-                ;
-            }
-            else
-            {
-                error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
-                return -1;
-            }
-        }
-        if (tempnode6 == NULL)
-        {
-            treeNode *stmtnode1 = getchild(stmt, 4);
+//     if (tempnode1->nodeType == N_COMPST)
+//     {
+//         /*//新开一个作用域,进入CompSt，然后溜
+//         domainStack ds;
+//         domainPush(ds);
+//         comp_stmt(tempnode1, d_type);
+//         domainPop(ds);*/
+//         return -4;
+//     }
+//     else if (tempnode1->nodeType == N_EXP)
+//     { // Exp SEMI
+//         printf("Exp SEMI\n");
+//         Exp_s(tempnode1);
+//         printf("561faeflj\n");
+//     }
+//     else if (tempnode1->nodeType == N_RETURN)
+//     { // RETURN Exp SEMI 返回Exp类型值
+//         treeNode *expnode = getchild(stmt, 1);
+//         if (expnode->nodeType != N_EXP)
+//         {
+//             printf("Stmt_s bug: should be Exp!\n");
+//         }
+//         int returntype = Exp_s(expnode);
+//         if (!check_error(returntype, 1))
+//         {
+//             if (d_type != returntype)
+//             {
+//                 error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
+//             }
+//             else
+//             {
+//                 ; // exp里面已经因为NULL报错
+//             }
+//         }
+//         return returntype;
+//     }
+//     else if (tempnode1->nodeType == N_WHILE)
+//     { // WHILE LP Exp RP Stmt 返回-3
+//         treeNode *expnode = getchild(stmt, 2);
+//         treeNode *stmtnode = getchild(stmt, 4);
+//         int type = Exp_s(expnode);
+//         if (!check_error(type, 1))
+//         {
+//             if (type == 0)
+//             {
+//                 ;
+//             }
+//             else
+//             {
+//                 error_msg(7, stmt->line_no, NULL); //错误类型7，while条件操作数类型不匹配
+//             }
+//         }
+//         else
+//         {
+//             ; // Exp里面已经报过了
+//         }
+//         Stmt_s(stmtnode, d_type);
+//     }
+//     else if (tempnode1->nodeType == N_IF)
+//     {
+//         /*	| IF LP Exp RP Stmt
+//     | IF LP Exp RP Stmt ELSE Stmt  返回-3
+//     */
+//         treeNode *expnode = getchild(stmt, 2);
+//         if (expnode->nodeType != N_EXP)
+//         {
+//             printf("Stmt_s bug: should be Exp!\n");
+//         }
+//         treeNode *tempnode6 = getchild(stmt, 5); // ELSE
+//         int iftype = Exp_s(expnode);
+//         if (!check_error(iftype, 1))
+//         {
+//             if (iftype == 0)
+//             {
+//                 ;
+//             }
+//             else
+//             {
+//                 error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
+//                 return -1;
+//             }
+//         }
+//         if (tempnode6 == NULL)
+//         {
+//             treeNode *stmtnode1 = getchild(stmt, 4);
 
-            Stmt_s(stmtnode1, d_type);
-        }
-        else
-        {
-            treeNode *stmtnode1 = getchild(stmt, 4);
-            treeNode *stmtnode2 = getchild(stmt, 6);
+//             Stmt_s(stmtnode1, d_type);
+//         }
+//         else
+//         {
+//             treeNode *stmtnode1 = getchild(stmt, 4);
+//             treeNode *stmtnode2 = getchild(stmt, 6);
 
-            Stmt_s(stmtnode1, d_type);
+//             Stmt_s(stmtnode1, d_type);
 
-            Stmt_s(stmtnode2, d_type);
-        };
-    }
-    else
-    {
-        printf("Stmt_s error: Impossible to be here!\n");
-    }
-    return -3;
-}
+//             Stmt_s(stmtnode2, d_type);
+//         };
+//     }
+//     else
+//     {
+//         printf("Stmt_s error: Impossible to be here!\n");
+//     }
+//     return -3;
+// }
 
 // int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
 // {
@@ -911,16 +911,8 @@ int tree_analys(treeNode *mytree)
     dataNodeStruct *struct_ptr = NULL;
     printf("Initializing varibles successfully\n");
 
-    do
+    while (!isEmpty(stack_ptr))
     {
-        pop(stack_ptr);
-        if (if_unfold)
-        {
-            reversed_insert(stack_ptr, temp);
-        }
-
-        temp = top(stack_ptr);
-
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
@@ -1221,7 +1213,15 @@ int tree_analys(treeNode *mytree)
         }
         //节点处理完了，下一个
 
-    } while (!isEmpty(stack_ptr));
+        pop(stack_ptr);
+        if (if_unfold)
+        {
+            reversed_insert(stack_ptr, temp);
+        }
+
+        temp = top(stack_ptr);
+
+    }
 
     return 0;
 }
