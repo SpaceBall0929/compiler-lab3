@@ -170,12 +170,15 @@ dataNodeStruct* newNodeStruct(char* tname){
 
 //填结构体表时，用前插法填入结构体的域
 void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain){
-    if(structNode->structDomains == NULL)
+    if(structNode->structDomains == NULL){
         structNode->structDomains = newDomain;
+        newDomain->next = NULL;
+    }
     else{
         //前插
         newDomain->next = structNode->structDomains;
         structNode->structDomains = newDomain;
+
     }
     return;
 }
@@ -255,17 +258,26 @@ int ifExistStructDomain(SymbolTableStruct st, int type, char* domainName){
     return 0;
 }
 
-void InsertVar(SymbolTableVar* st, dataNodeVar* elem)
+//注意：传参时传入行号和函数表
+void InsertVar(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeVar* elem, int line_no)
 {
-	int i = findPosVar(*st, elem -> varName);
-	if (st->sta[i] != Active)
+	if(ifExistVar(*st1, elem->varName)){  //在变量表中查找变量名，若存在则说明已经声明，报变量重定义
+		error_msg(3, line_no, elem->varName);
+		return;
+	}
+    if(ifExistFunc(*st2, elem->varName)){  //在函数表中查找变量名，若存在则说明已经声明过同名函数，报函数声明冲突
+		error_msg(19, line_no, elem->varName);
+		return;
+	}
+	int i = findPosVar(*st1, elem -> varName);
+	if (st1->sta[i] != Active)
 	{
-		st->data[i] = *elem;
-		st->sta[i] = (enum Status)Active;
-		st->curSize++;
+		st1->data[i] = *elem;
+		st1->sta[i] = (enum Status)Active;
+		st1->curSize++;
 	}
     else
-        printf("Symbol table is full. Insert failed");
+        printf("Var symbol table is full. Insert failed");
     //free(elem);
 
 }
@@ -280,7 +292,7 @@ void InsertFunc(SymbolTableFunc* st, dataNodeFunc* elem)
 		st->curSize++;
 	}
     else
-        printf("Symbol table is full. Insert failed");
+        printf("Func symbol table is full. Insert failed");
 }
 
 void InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem)
@@ -293,7 +305,7 @@ void InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem)
 		st->curSize++;
 	}
     else
-        printf("Symbol table is full. Insert failed");
+        printf("Struct symbol table is full. Insert failed");
 }
 
 dataNodeVar getNodeVar(SymbolTableVar st, char* key){
@@ -335,13 +347,13 @@ int getFieldNum(dataNodeStruct s){
 
 //释放一个变量信息占据的空间
 int free_var(dataNodeVar* to_del){
-    dataNodeVar* origin;
+    dataNodeVar* origin = to_del;
     int i = 0;
     do{
-        origin = to_del;
         to_del = to_del->next;
         printf("free success for %d\n", i++);
         free(origin);
+        origin = to_del;
     }while(to_del != NULL);
 
     return 0;
