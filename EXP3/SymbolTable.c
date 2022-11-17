@@ -361,6 +361,7 @@ int InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem, int line_no)
     }
 }
 
+
 dataNodeVar getNodeVar(SymbolTableVar st, char* key){
     int i = findPosVar(st, key);
     return st.data[i];
@@ -401,10 +402,14 @@ int getFieldNum(dataNodeStruct s){
 //释放一个变量信息占据的空间
 int free_var(dataNodeVar* to_del){
     dataNodeVar* origin = to_del;
-    int i = 0;
+    // int i = 0;
     do{
         to_del = to_del->next;
-        printf("free success for %d\n", i++);
+        // printf("free success for %d\n", i++);
+        free(origin->varName);
+        if(origin->len_of_dims != NULL){
+            free(origin->len_of_dims);
+        }
         free(origin);
         origin = to_del;
     }while(to_del != NULL);
@@ -415,15 +420,19 @@ int free_var(dataNodeVar* to_del){
 int free_func(dataNodeFunc* to_del){
     if(to_del->args != NULL)
     	free_var(to_del->args);
-    if(to_del != NULL)
-    	free(to_del);
+    if(to_del != NULL){
+    	free(to_del->funcName);
+        free(to_del);
+    }
     return 0;
 }
 
 int free_struct(dataNodeStruct* to_del){
     if(to_del->structDomains != NULL)
     	free_var(to_del->structDomains);
-    if(to_del != NULL)
-    	free(to_del);
+    if(to_del != NULL){
+        free(to_del->structTypeName);
+        free(to_del);
+    }
     return 0;
 }
