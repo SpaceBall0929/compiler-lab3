@@ -998,7 +998,7 @@ int tree_analys(treeNode *mytree)
             }
             else
             {
-                InsertVar(&(var_domain_ptr->tVar), var_ptr);
+                InsertVar(&(var_domain_ptr->tVar), var_ptr, temp->line_no);
                 printf("Insert new var successfully\n");
                 free_var(var_ptr);
                 printf("clean the var info\n");
