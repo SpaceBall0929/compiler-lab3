@@ -352,6 +352,10 @@ int free_var(dataNodeVar* to_del){
     do{
         to_del = to_del->next;
         printf("free success for %d\n", i++);
+        free(origin->varName);
+        if(origin->len_of_dims != NULL){
+            free(origin->len_of_dims);
+        }
         free(origin);
         origin = to_del;
     }while(to_del != NULL);
@@ -362,15 +366,19 @@ int free_var(dataNodeVar* to_del){
 int free_func(dataNodeFunc* to_del){
     if(to_del->args != NULL)
     	free_var(to_del->args);
-    if(to_del != NULL)
-    	free(to_del);
+    if(to_del != NULL){
+    	free(to_del->funcName);
+        free(to_del);
+    }
     return 0;
 }
 
 int free_struct(dataNodeStruct* to_del){
     if(to_del->structDomains != NULL)
     	free_var(to_del->structDomains);
-    if(to_del != NULL)
-    	free(to_del);
+    if(to_del != NULL){
+        free(to_del->structTypeName);
+        free(to_del);
+    }
     return 0;
 }
