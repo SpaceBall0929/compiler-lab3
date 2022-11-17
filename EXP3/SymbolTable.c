@@ -78,7 +78,7 @@ int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].varName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].varName)))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -89,7 +89,7 @@ int findPosFunc(SymbolTableFunc st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].funcName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].funcName)))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -100,7 +100,7 @@ int findPosStruct(SymbolTableStruct st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && key == st.data[j].structTypeName))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].structTypeName)))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);

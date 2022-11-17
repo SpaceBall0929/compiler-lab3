@@ -578,7 +578,7 @@ int Exp_s(treeNode *exp)
 
             if (tempnode3->nodeType == N_ARGS)
             {   printf("Check the args.\n");
-                printf("Check the args.\n");
+               
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参不匹配
@@ -622,7 +622,7 @@ int Exp_s(treeNode *exp)
             else
             {
                 printf("No-arg function.\n");
-                if (func_node.args != NULL)
+                if (func_node.args->varName != NULL)
                 {                                     //函数有形参，但此时没有实参
                     error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
                     return -1;
