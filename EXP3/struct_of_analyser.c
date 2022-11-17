@@ -422,7 +422,7 @@ int Exp_s(treeNode *exp)
     {   printf("ID is here\n");
         if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
-            printf("%s\n",var_domain_ptr->tVar.data->varName);
+            // printf("%s\n",var_domain_ptr->tVar.data->varName);
             if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
                 !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) &&
                 !ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
