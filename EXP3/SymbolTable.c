@@ -320,7 +320,7 @@ void InsertVar(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeVar* elem, int
 
 }
 
-void InsertFunc(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeVar* elem, int line_no)
+void InsertFunc(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeFunc* elem, int line_no)
 {
 	if(ifExistVar(*st1, elem->funcName)){  //在变量表中查找变量名，若存在则说明已经声明，报变量重定义
 		error_msg(3, line_no, elem->funcName);
@@ -330,12 +330,12 @@ void InsertFunc(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeVar* elem, in
 		error_msg(4, line_no, elem->funcName);
 		return;
 	}
-    int i = findPosFunc(*st, elem->funcName);
-	if (st->sta[i] != Active)
+    int i = findPosFunc(*st2, elem->funcName);
+	if (st2->sta[i] != Active)
 	{
-		deepcopyFunc(&st->data[i], elem);
-		st->sta[i] = (enum Status)Active;
-		st->curSize++;
+		deepcopyFunc(&st2->data[i], elem);
+		st2->sta[i] = (enum Status)Active;
+		st2->curSize++;
 	}
     else
         printf("Func symbol table is full. Insert failed");
@@ -401,14 +401,10 @@ int getFieldNum(dataNodeStruct s){
 //释放一个变量信息占据的空间
 int free_var(dataNodeVar* to_del){
     dataNodeVar* origin = to_del;
-    // int i = 0;
+    int i = 0;
     do{
         to_del = to_del->next;
-        // printf("free success for %d\n", i++);
-        free(origin->varName);
-        if(origin->len_of_dims != NULL){
-            free(origin->len_of_dims);
-        }
+        printf("free success for %d\n", i++);
         free(origin);
         origin = to_del;
     }while(to_del != NULL);
@@ -419,19 +415,15 @@ int free_var(dataNodeVar* to_del){
 int free_func(dataNodeFunc* to_del){
     if(to_del->args != NULL)
     	free_var(to_del->args);
-    if(to_del != NULL){
-    	free(to_del->funcName);
-        free(to_del);
-    }
+    if(to_del != NULL)
+    	free(to_del);
     return 0;
 }
 
 int free_struct(dataNodeStruct* to_del){
     if(to_del->structDomains != NULL)
     	free_var(to_del->structDomains);
-    if(to_del != NULL){
-        free(to_del->structTypeName);
-        free(to_del);
-    }
+    if(to_del != NULL)
+    	free(to_del);
     return 0;
 }
