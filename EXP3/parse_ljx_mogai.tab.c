@@ -812,7 +812,9 @@ enum { YYENOMEM = -2 };
 #define YYERRCODE YYUNDEF
 
 /* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
+   If N is 0, then set CURRENT to】、、】|
+   
+    the empty location which ends
    the previous symbol: RHS[0] (always defined).  */
 
 #ifndef YYLLOC_DEFAULT
@@ -2248,7 +2250,7 @@ yyreturnlab:
 int main(int argc, char** argv)
 {
 	// if(argc <= 1) return 1;
-	FILE* f = fopen("test1.cmm", "r");
+	FILE* f = fopen("test7.cmm", "r");
 	// if(!f){
 		// perror(argv[1]);
 		// return 1;
