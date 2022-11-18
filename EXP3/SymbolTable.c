@@ -258,9 +258,11 @@ void deepcopyVar(dataNodeVar* varnode1, dataNodeVar* varnode2){
     varnode1->numdim = varnode2->numdim;
     varnode1->varName = (char*)malloc(sizeof(char) * strlen(varnode2->varName));
     strcpy(varnode1->varName, varnode2->varName);
-    varnode1->len_of_dims = (int*)malloc(sizeof(int) * varnode2->numdim);
-    for(int i = 0;i < varnode2->numdim;i++)
-        varnode1->len_of_dims[i] = varnode2->len_of_dims[i];
+    if(varnode2->len_of_dims != NULL){
+        varnode1->len_of_dims = (int*)malloc(sizeof(int) * varnode2->numdim);
+        for(int i = 0;i < varnode2->numdim;i++)
+            varnode1->len_of_dims[i] = varnode2->len_of_dims[i];
+    }
 }
 
 void deepcopyVarComplete(dataNodeVar* varnode1, dataNodeVar* varnode2){
@@ -282,7 +284,7 @@ void deepcopyFunc(dataNodeFunc* funcnode1, dataNodeFunc* funcnode2){
     funcnode1->defined = funcnode2->defined;
     funcnode1->funcName = (char*)malloc(sizeof(char) * strlen(funcnode2->funcName));
     strcpy(funcnode1->funcName, funcnode2->funcName);
-    if(funcnode1 -> args != NULL){
+    if(funcnode2 -> args != NULL){
         funcnode1->args = (dataNodeVar*)malloc(sizeof(dataNodeVar));
         deepcopyVarComplete(funcnode1->args, funcnode2->args);
     }
@@ -292,8 +294,10 @@ void deepcopyFunc(dataNodeFunc* funcnode1, dataNodeFunc* funcnode2){
 void deepcopyStruct(dataNodeStruct* structnode1, dataNodeStruct* structnode2){
     structnode1->structTypeName = (char*)malloc(sizeof(char) * strlen(structnode2->structTypeName));
     strcpy(structnode1->structTypeName, structnode2->structTypeName);
-    structnode1->structDomains = (dataNodeVar*)malloc(sizeof(dataNodeVar));
-    deepcopyVarComplete(structnode1->structDomains, structnode2->structDomains);
+    if(structnode2->structDomains != NULL){
+        structnode1->structDomains = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+        deepcopyVarComplete(structnode1->structDomains, structnode2->structDomains);
+    }
     return;
 }
 
@@ -437,4 +441,34 @@ int free_struct(dataNodeStruct* to_del){
         free(to_del);
     }
     return 0;
+}
+
+void typeCount(dataNodeVar* varnode, int* num_of_types){
+while(varnode != NULL){
+    num_of_types[varnode->varType] += 1;
+    varnode = varnode->next;
+}
+}
+
+int ifStructEquivalent(SymbolTableStruct st, int struct1, int struct2){
+    //先assume都存在再说...
+    dataNodeVar* domain1 = st.data[struct1 - D_AMT].structDomains;
+    dataNodeVar* domain2 = st.data[struct2 - D_AMT].structDomains;
+    //int num_of_struct_types = st.curSize;  //结构体类型数
+    int* num_of_types1 = (int*)malloc((D_AMT + TABLESIZE) * sizeof(int));  //存储每种类型的结构体成员个数
+    int* num_of_types2 = (int*)malloc((D_AMT + TABLESIZE) * sizeof(int));
+    //所有类型的成员个数初始化为0
+    for(int j = 0; j < D_AMT + TABLESIZE; j++){
+        num_of_types1[j] = 0;
+        num_of_types2[j] = 0;
+    }
+    //数类型个数
+    typeCount(domain1, num_of_types1);
+    typeCount(domain2, num_of_types2);
+    //判断结构体是否等价
+    for(int j = 0; j < D_AMT + TABLESIZE; j++){
+        if(num_of_types1[j] != num_of_types2[j])
+            return 0;
+    }
+    return 1;
 }
