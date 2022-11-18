@@ -301,6 +301,16 @@ char* find_type2(int t, char* name){
     return c;
 }
 
+//检查类型是否可以赋值
+int right_type(int t1, int t2){
+    if(t1 >=6 && t2 >= 6){//看看是否是体相同结构体
+        return ifStructEquivalent(*struct_table, t1, t2);
+    }
+    else{
+        return t1 == t2;
+    }
+}
+
 //返回是不是这个type
 int check_type(treeNode *n, int type)
 {
@@ -551,7 +561,7 @@ int Exp_s(treeNode *exp)
                 {
                     //检查类型是否匹配
                     //赋值号
-                    if (exp1type != exp2type && tempnode2->nodeType == N_ASSIGNOP)
+                    if (!right_type(exp1type, exp2type) && tempnode2->nodeType == N_ASSIGNOP)
                     {
                         error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
                         return -1;
