@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 1
+#define IF_DEBUG_PRINT 0
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -582,7 +582,7 @@ int Exp_s(treeNode *exp)
                     }
 
                     //不是赋值号，为运算符
-                    if (exp1type != exp2type)
+                    if (!right_type(exp1type, exp2type))
                     {
                         error_msg(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
                         return -1;
@@ -802,7 +802,7 @@ int Exp_s(treeNode *exp)
                     if (!check_error(exptype, 1)) //已保证结构体存在
                     {   if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->child->subtype.IDVal);
                         dataNodeStruct stru_node = *getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
-                        if(IF_DEBUG_PRINT) printf("type: %d\n", exptype);
+                        /*111if(IF_DEBUG_PRINT)*/ printf("type: %d\n", exptype);
                         
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
