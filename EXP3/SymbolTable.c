@@ -368,9 +368,6 @@ int InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem, int line_no)
 	if (st->sta[i] != Active)
 	{
 		deepcopyStruct(&st->data[i], elem);
-        if(ifExistStruct(*st, elem->structTypeName)){
-            printf("Insert successfully\n");
-        }
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
         return i;
