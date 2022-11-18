@@ -857,7 +857,11 @@ int Exp_s(treeNode *exp)
                         }
                         else
                         {                                      // Exp不是整数
-                            error_msg(12, exp->line_no, NULL); //错误类型12，数组访问符中出现非整数
+                            if(tempnode3->child->nodeType == N_ID)error_msg(12, exp->line_no, tempnode3->child->subtype.IDVal); //错误类型12，数组访问符中出现非整数
+                            else{
+                                printf("Error type %d at Line %d: ", 12, exp->line_no);
+                                printf("\"%.2f\" is not an integer.\n", tempnode3->child->subtype.floatVal);
+                            }
                             return -1;
                         }
                     }
