@@ -277,6 +277,7 @@ int find_type(treeNode *n)
     }
 }
 
+//返回这个type的字符串
 char* find_type2(int t, char* name){
     char* c = "Sruct";
     switch (t)
