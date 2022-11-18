@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 0
+#define IF_DEBUG_PRINT 1
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
