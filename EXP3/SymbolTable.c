@@ -74,6 +74,8 @@ struct table3{
 
 typedef struct table3 SymbolTableStruct;
 
+int ifExistStructDomain(SymbolTableStruct st, int type, char* domainName);
+
 int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
@@ -169,7 +171,7 @@ void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain, Symb
     }
     else{
         //判断结构体域是否重定义
-        int type = charToInt(structNode->structTypeName);
+        int type = charToInt(structNode->structTypeName, st);
         if(ifExistStructDomain(st, type, newDomain->varName)){
             error_msg(15, line_no, newDomain->varName);
             return;

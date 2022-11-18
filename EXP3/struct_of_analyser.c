@@ -1271,7 +1271,7 @@ int tree_analys(treeNode *mytree)
                 var_ptr = var_head;
                 do
                 {
-                    insertStructDomain(struct_ptr, var_ptr);
+                    insertStructDomain(struct_ptr, var_ptr, *struct_table, temp->line_no);
                     var_ptr = var_ptr->next;
                 } while (var_ptr != NULL);
                 free_var(var_head);
