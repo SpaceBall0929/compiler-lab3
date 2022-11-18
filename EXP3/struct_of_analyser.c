@@ -1152,7 +1152,7 @@ int tree_analys(treeNode *mytree)
             switch (now_processing)
             {
             case IN_FUNC_DEC:
-                InsertFunc(fun_table, func_ptr);
+                InsertFunc(&(var_domain_ptr->tVar), fun_table, func_ptr, temp->line_no);
                 free_func(func_ptr);
                 func_ptr = NULL;
                 if (IF_DEBUG_PRINT)
@@ -1184,7 +1184,6 @@ int tree_analys(treeNode *mytree)
                     insertStructDomain(struct_ptr, var_ptr);
                     var_ptr = var_ptr->next;
                 } while (var_ptr != NULL);
-                free_var(var_head);
                 var_head = NULL;
                 var_ptr = NULL;
                 // InsertStruct(struct_table, struct_ptr);
@@ -1227,7 +1226,7 @@ int tree_analys(treeNode *mytree)
             {
                 now_processing = IN_FUNC_COMPST;
                 func_ptr->defined = 1;
-                InsertFunc(fun_table, func_ptr);
+                InsertFunc(&(var_domain_ptr->tVar),fun_table, func_ptr, temp->line_no);
             }
             if (now_processing == IN_FUNC_COMPST)
             {
