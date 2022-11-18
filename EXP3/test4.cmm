@@ -1,4 +1,4 @@
-int func(){}
+int func(int l, int p){}
 float func2(int m, float n){}
 
 int main(){

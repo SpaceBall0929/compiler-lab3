@@ -270,9 +270,35 @@ int find_type(treeNode *n)
         return 5;
     }
     else
-    {   if (IF_DEBUG_PRINT) printf("Var\n");
+    {   if (IF_DEBUG_PRINT)printf("Input name is %s\n", n->subtype.IDVal);
+        if (IF_DEBUG_PRINT) printf("After searching, the var name is %s\n var type is %d \n", getNodeVar(var_domain_ptr->tVar, name).varName, 
+                                                                                              getNodeVar(var_domain_ptr->tVar, name).varType);
         return getNodeVar(var_domain_ptr->tVar, name).varType;
     }
+}
+
+char* find_type2(int t, char* name){
+    char* c = "Sruct";
+    switch (t)
+    {
+    case 0:
+        return "int";
+        break;
+    case 1:
+        return "float";
+        break;
+    case 2:
+        return "array";
+        break;
+    case 5:
+        return "function";
+        break;
+    default:
+        //strcat(c, (char)(getNodeVar(var_domain_ptr->tVar, name).varType - 5));
+        c[5] = (char)(getNodeVar(var_domain_ptr->tVar, name).varType - 5);
+        break;
+    }
+    return c;
 }
 
 //返回是不是这个type
@@ -294,9 +320,11 @@ int Arg_s(treeNode *args, dataNodeVar *params, char* name)
     treeNode *tempnode = getchild(args, 1); //判断实参是否还有参数
 
     int temptype = Exp_s(expnode); //检查函数形参和实参类型是否匹配
-    if (temptype == params->varType)
+
+
+
+    if (temptype != params->varType)
     {
-        error_msg(9, args->line_no, name); //错误类型9，函数实参形参类型不匹配
         return -1;
     }
 
@@ -587,6 +615,7 @@ int Exp_s(treeNode *exp)
         //函数部分：判断第一个是不是ID;需要检查这个函数的存在性,得到函数的params交给下一层检查,并且查看这个ID是不是函数类型
         if (tempnode1->nodeType == N_ID)
         { //当前为函数，需要去检查该函数是否已定义
+            int tag = 0;
             if (IF_DEBUG_PRINT)
             {
                 printf("It's a function\n");
@@ -603,9 +632,26 @@ int Exp_s(treeNode *exp)
 
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
+            //char *tfun, *f_fun = NULL;
+            char tfun[100];
+            strcpy(tfun, funcname);
+            strcat(tfun, "(");
+            char efun[100];
+            strcpy(efun, funcname);
+            strcat(efun, "(");
 
-            //char *t_fun, *f_fun = NULL;
-            //t_fun = strcat(func_node.funcName, "(");
+            //printf("%s\n%s\n", tfun, efun);
+            
+            dataNodeVar* argNode = func_node.args;
+            printf("%d",argNode==NULL);
+            while(argNode != NULL){
+                strcat(tfun, find_type2(argNode->varType, argNode->varName));
+                argNode = argNode->next;
+                if (argNode != NULL) strcat(tfun, ", ");
+            }
+            strcat(tfun, ")");
+
+            printf("%s\n%s\n", tfun, efun);
 
             if (IF_DEBUG_PRINT)
             {
@@ -647,8 +693,10 @@ int Exp_s(treeNode *exp)
                 }
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
-                    error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参不匹配
-                    return -1;
+                    /*error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参不匹配
+                    return -1;*/
+                    printf("func没参数\n");
+                    tag = exp->line_no;
                 }
                 else
                 {
@@ -662,26 +710,41 @@ int Exp_s(treeNode *exp)
                     { //计算所有实参的数目
                         cnt += 1;
                         treeNode *tempcntnode = getchild(cntnode, 2);
+
+                        //获取实参
+                        int type1 = Exp_s(getchild(cntnode, 0));
+                        strcat(efun, find_type2(type1, getchild(cntnode, 0)->subtype.IDVal));
+
+
                         if (tempcntnode == NULL)
                         {
                             break;
                         }
                         // cnt+=1;
+
+                        strcat(efun, ", ");//加个逗号
                         cntnode = getchild(cntnode, 2);
                     }
+                    
+
                     if (cnt != getArgNum(*fun_table, funcname))
                     {
-                        error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
-                        return -1;
+                        /*error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
+                        return -1;*/
+                        tag = exp->line_no;
                     }
-                    int argresult = Arg_s(tempnode3, func_node.args, funcname);
-                    if (argresult != 0)
-                    {
-                        return result;
-                    }
-                    else
-                    {
-                        return ret_type;
+                    if(!tag) 
+                    {   int argresult = Arg_s(tempnode3, func_node.args, funcname);
+                        if (argresult != 0)
+                        {
+                            /*error_msg(9, tempnode3->line_no, funcname); //错误类型9，函数实参形参类型不匹配
+                            return result;*/
+                            tag = tempnode3->line_no;
+                        }
+                        else
+                        {
+                            return ret_type;
+                        }
                     }
                 }
             }
@@ -693,13 +756,19 @@ int Exp_s(treeNode *exp)
                 }
                 if (func_node.args != NULL)
                 {                                     //函数有形参，但此时没有实参
-                    error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
-                    return -1;
+                    /*error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
+                    return -1;*/
+                    tag = exp->line_no;
                 }
                 else
                 {
                     return ret_type;
                 }
+            }
+            if(tag){
+                strcat(efun, ")");
+                printf("Error type %d at Line %d: ", 9, tag);
+                printf("Function \"%s\" is not applicable for arguments\"%s\". \n", efun, tfun);
             }
         }
         else
@@ -1007,7 +1076,7 @@ int tree_analys(treeNode *mytree)
     int now_processing = IN_GLOBAL;
     int nearest_speci_type = -1;
     // int nearest_struct_type = -1;
-    int nearest_func_type = -1;
+    int nearestfunc_type = -1;
     // int in_local = 0;
     // int in_struct_def = 0;
     int exp_stmt_out = 0;
@@ -1220,7 +1289,7 @@ int tree_analys(treeNode *mytree)
                 printf("Function declareration detected\n");
             }
             func_ptr = fun_dec(temp, nearest_speci_type);
-            nearest_func_type = nearest_speci_type;
+            nearestfunc_type = nearest_speci_type;
             now_processing = IN_FUNC_DEC;
             if_unfold = 0;
             break;
@@ -1337,7 +1406,7 @@ int tree_analys(treeNode *mytree)
                 {
                     printf("EXP_RETURN\n");
                 }
-                if (Exp_s(temp) != nearest_func_type)
+                if (Exp_s(temp) != nearestfunc_type)
                 {
                     if (IF_DEBUG_PRINT)
                     {
