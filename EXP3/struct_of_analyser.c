@@ -461,7 +461,7 @@ int Exp_s(treeNode *exp)
             {   
                 int res = ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal);
                 printf("end search\n");
-                printf("search resulte: %d \n", res);
+                printf("search result: %d \n", res);
             }
             // else
             //{
