@@ -162,7 +162,9 @@ dataNodeStruct* newNodeStruct(char* tname){
 }
 
 //填结构体表时，用前插法填入结构体的域
-void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain){
+void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* input){
+    dataNodeVar* newDomain = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+    deepcopyVar(newDomain, input);
     if(structNode->structDomains == NULL){
         structNode->structDomains = newDomain;
         newDomain->next = NULL;
@@ -256,6 +258,7 @@ void deepcopyVar(dataNodeVar* varnode1, dataNodeVar* varnode2){
         return;
     varnode1->varType = varnode2->varType;
     varnode1->numdim = varnode2->numdim;
+    varnode1->next = NULL;
     varnode1->varName = (char*)malloc(sizeof(char) * strlen(varnode2->varName));
     strcpy(varnode1->varName, varnode2->varName);
     varnode1->len_of_dims = (int*)malloc(sizeof(int) * varnode2->numdim);

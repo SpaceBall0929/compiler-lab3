@@ -1090,7 +1090,6 @@ int tree_analys(treeNode *mytree)
                 break;
             }
             nearest_speci_type = D_FLOAT;
-            now_processing = IN_VAR_DEC;
             break;
 
         case N_STRUCT_SPECI:
@@ -1192,6 +1191,7 @@ int tree_analys(treeNode *mytree)
                     insertStructDomain(struct_ptr, var_ptr);
                     var_ptr = var_ptr->next;
                 } while (var_ptr != NULL);
+                free_var(var_head);
                 var_head = NULL;
                 var_ptr = NULL;
                 // InsertStruct(struct_table, struct_ptr);
@@ -1405,6 +1405,9 @@ int tree_analys(treeNode *mytree)
                 var_domain_ptr = domainPop(var_domain_ptr);
             }
             if(now_processing == IN_STRUCT_DEC_L){
+                if(IF_DEBUG_PRINT){
+                    printf("create New struct.\n");
+                }
                 nearest_speci_type = InsertStruct(struct_table, struct_ptr, temp->line_no);
                 now_processing = IN_VAR_DEC;
                 free_struct(struct_ptr);
