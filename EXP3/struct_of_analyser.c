@@ -67,7 +67,8 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     {
         return new_var;
     }
-
+    new_var->arrayVarType = var_type;
+    new_var->varType = D_ARRAY;
     new_var->numdim = dimension;
     new_var->len_of_dims = (int *)malloc(sizeof(int) * dimension);
     for (int i = 0; i < dimension; i++)
@@ -1205,6 +1206,7 @@ int tree_analys(treeNode *mytree)
             }
             if_unfold = 0;
             struct_ptr = newNodeStruct(temp->child->subtype.IDVal);
+            nearest_speci_type = InsertStruct(struct_table, struct_ptr, temp->line_no);
             break;
 
         case N_EXT_DEC_L:
@@ -1490,10 +1492,7 @@ int tree_analys(treeNode *mytree)
                 var_domain_ptr = domainPop(var_domain_ptr);
             }
             if(now_processing == IN_STRUCT_DEC_L){
-                if(IF_DEBUG_PRINT){
-                    printf("create New struct.\n");
-                }
-                nearest_speci_type = InsertStruct(struct_table, struct_ptr, temp->line_no);
+                
                 now_processing = IN_VAR_DEC;
                 free_struct(struct_ptr);
                 struct_ptr = NULL;

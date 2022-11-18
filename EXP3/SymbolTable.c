@@ -19,7 +19,7 @@ struct datanode1{
     char* varName;  //变量名
     /*结构体类型名不能穷举，改成用字符串表示*/
     int varType; //变量数据类型
-    // int arrayVarType; //数组存储的变量数据类型
+    int arrayVarType; //数组存储的变量数据类型
     int numdim;     //若为数组，数组维度
     int* len_of_dims; //每个维度的长度
     struct datanode1* next;
