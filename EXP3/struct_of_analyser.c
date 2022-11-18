@@ -1006,6 +1006,7 @@ int tree_analys(treeNode *mytree)
     int exp_flag = EXP_DO_NOTHING;
     int now_processing = IN_GLOBAL;
     int nearest_speci_type = -1;
+    // int nearest_struct_type = -1;
     int nearest_func_type = -1;
     // int in_local = 0;
     // int in_struct_def = 0;
@@ -1408,7 +1409,7 @@ int tree_analys(treeNode *mytree)
                 var_domain_ptr = domainPop(var_domain_ptr);
             }
             if(now_processing == IN_STRUCT_DEC_L){
-                // nearest_speci_type = InsertStruct(struct_table, struct_ptr);
+                nearest_speci_type = InsertStruct(struct_table, struct_ptr, temp->line_no);
                 now_processing = IN_VAR_DEC;
                 free_struct(struct_ptr);
                 struct_ptr = NULL;
