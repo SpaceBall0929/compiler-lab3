@@ -651,7 +651,7 @@ int Exp_s(treeNode *exp)
             }
             strcat(tfun, ")");
 
-            printf("%s\n%s\n", tfun, efun);
+            //printf("%s\n%s\n", tfun, efun);
 
             if (IF_DEBUG_PRINT)
             {
