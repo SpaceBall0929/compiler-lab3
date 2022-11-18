@@ -75,6 +75,7 @@ struct table3{
 typedef struct table3 SymbolTableStruct;
 
 int ifExistStructDomain(SymbolTableStruct st, int type, char* domainName);
+void deepcopyVarComplete(dataNodeVar* varnode1, dataNodeVar* varnode2);
 
 int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[0]) % st.divitor;
@@ -164,7 +165,9 @@ dataNodeStruct* newNodeStruct(char* tname){
 }
 
 //填结构体表时，用前插法填入结构体的域
-void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain, SymbolTableStruct st, int line_no){
+void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* input, SymbolTableStruct st, int line_no){
+    dataNodeVar* newDomain = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+    deepcopyVarComplete(newDomain, input);
     if(structNode->structDomains == NULL){
         structNode->structDomains = newDomain;
         newDomain->next = NULL;
@@ -347,6 +350,7 @@ void InsertFunc(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeFunc* elem, i
 	if (st2->sta[i] != Active)
 	{
 		deepcopyFunc(&st2->data[i], elem);
+        
 		st2->sta[i] = (enum Status)Active;
 		st2->curSize++;
 	}
@@ -364,6 +368,9 @@ int InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem, int line_no)
 	if (st->sta[i] != Active)
 	{
 		deepcopyStruct(&st->data[i], elem);
+        if(ifExistStruct(*st, elem->structTypeName)){
+            printf("Insert successfully\n");
+        }
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
         return i;
