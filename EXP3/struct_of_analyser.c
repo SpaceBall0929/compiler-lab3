@@ -801,8 +801,9 @@ int Exp_s(treeNode *exp)
 
                     if (!check_error(exptype, 1)) //已保证结构体存在
                     {   if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->child->subtype.IDVal);
-                        dataNodeStruct stru_node = *getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
+                        //dataNodeStruct stru_node = *getNodeVar(*struct_table, tempnode1->child->subtype.IDVal);
                         /*111if(IF_DEBUG_PRINT)*/ printf("type: %d\n", exptype);
+                        printf("I'm %s\n", tempnode1->child->subtype.IDVal);
                         
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
@@ -1501,6 +1502,7 @@ int tree_analys(treeNode *mytree)
                 
                 now_processing = IN_VAR_DEC;
                 nearest_speci_type = charToInt(struct_ptr->structTypeName, *struct_table);
+                //printf("%d, \n", nearest_speci_type);
                 free_struct(struct_ptr);
                 struct_ptr = NULL;
             }
