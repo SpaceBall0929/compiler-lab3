@@ -450,27 +450,25 @@ while(varnode != NULL){
 }
 }
 
-int ifStructEquivalent(SymbolTableStruct st, char* struct1, char* struct2){
-//先assume都存在再说...
-int pos1 = findPosStruct(st, struct1);
-int pos2 = findPosStruct(st, struct2);
-dataNodeVar* domain1 = st.data[pos1].structDomains;
-dataNodeVar* domain2 = st.data[pos2].structDomains;
-//int num_of_struct_types = st.curSize;  //结构体类型数
-int* num_of_types1 = (int*)malloc((D_AMT + TABLESIZE) * sizeof(int));  //存储每种类型的结构体成员个数
-int* num_of_types2 = (int*)malloc((D_AMT + TABLESIZE) * sizeof(int));
-//所有类型的成员个数初始化为0
-for(int j = 0; j < D_AMT + TABLESIZE; j++){
-    num_of_types1[j] = 0;
-    num_of_types2[j] = 0;
-}
-//数类型个数
-typeCount(domain1, num_of_types1);
-typeCount(domain2, num_of_types2);
-//判断结构体是否等价
-for(int j = 0; j < D_AMT + TABLESIZE; j++){
-    if(num_of_types1[j] != num_of_types2[j])
-        return 0;
-}
-return 1;
+int ifStructEquivalent(SymbolTableStruct st, int struct1, int struct2){
+    //先assume都存在再说...
+    dataNodeVar* domain1 = st.data[struct1 - D_AMT].structDomains;
+    dataNodeVar* domain2 = st.data[struct2 - D_AMT].structDomains;
+    //int num_of_struct_types = st.curSize;  //结构体类型数
+    int* num_of_types1 = (int*)malloc((D_AMT + TABLESIZE) * sizeof(int));  //存储每种类型的结构体成员个数
+    int* num_of_types2 = (int*)malloc((D_AMT + TABLESIZE) * sizeof(int));
+    //所有类型的成员个数初始化为0
+    for(int j = 0; j < D_AMT + TABLESIZE; j++){
+        num_of_types1[j] = 0;
+        num_of_types2[j] = 0;
+    }
+    //数类型个数
+    typeCount(domain1, num_of_types1);
+    typeCount(domain2, num_of_types2);
+    //判断结构体是否等价
+    for(int j = 0; j < D_AMT + TABLESIZE; j++){
+        if(num_of_types1[j] != num_of_types2[j])
+            return 0;
+    }
+    return 1;
 }
