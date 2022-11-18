@@ -654,7 +654,7 @@ int Exp_s(treeNode *exp)
             //printf("%s\n%s\n", tfun, efun);
             
             dataNodeVar* argNode = func_node.args;
-            printf("%d",argNode==NULL);
+            //printf("%d",argNode==NULL);
             while(argNode != NULL){
                 strcat(tfun, find_type2(argNode->varType, argNode->varName));
                 argNode = argNode->next;
@@ -706,7 +706,7 @@ int Exp_s(treeNode *exp)
                 {                                     //函数本身没有形参，但此时有实参
                     /*error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参不匹配
                     return -1;*/
-                    printf("func没参数\n");
+                    //printf("func没参数\n");
                     tag = exp->line_no;
                 }
                 else
@@ -1272,7 +1272,7 @@ int tree_analys(treeNode *mytree)
                 var_ptr = var_head;
                 do
                 {
-                    insertStructDomain(struct_ptr, var_ptr);
+                    insertStructDomain(struct_ptr, var_ptr, *struct_table, temp->line_no);
                     var_ptr = var_ptr->next;
                 } while (var_ptr != NULL);
                 free_var(var_head);
