@@ -507,7 +507,7 @@ int Exp_s(treeNode *exp)
             //{
             result = find_type(tempnode1); //找到了,返回这个ID代表的类型
             // result = charToInt(tempnode1->character, *struct_table);
-            printf("The type no. is %d \n", result);
+            //printf("The type no. is %d \n", result);
             return result;
             //}
         }
@@ -798,7 +798,7 @@ int Exp_s(treeNode *exp)
                     int exptype = Exp_s(tempnode1);
 
                     if (!check_error(exptype, 1)) //已保证结构体存在
-                    {   printf("%s\n", tempnode1->child->subtype.IDVal);
+                    {   if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->child->subtype.IDVal);
                         dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
                         if(IF_DEBUG_PRINT) printf("type: %d\n", exptype);
                         
@@ -857,7 +857,11 @@ int Exp_s(treeNode *exp)
                         }
                         else
                         {                                      // Exp不是整数
-                            error_msg(12, exp->line_no, NULL); //错误类型12，数组访问符中出现非整数
+                            if(tempnode3->child->nodeType == N_ID)error_msg(12, exp->line_no, tempnode3->child->subtype.IDVal); //错误类型12，数组访问符中出现非整数
+                            else{
+                                printf("Error type %d at Line %d: ", 12, exp->line_no);
+                                printf("\"%.2f\" is not an integer.\n", tempnode3->child->subtype.floatVal);
+                            }
                             return -1;
                         }
                     }
