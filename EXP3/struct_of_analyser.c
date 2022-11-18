@@ -714,7 +714,8 @@ int Exp_s(treeNode *exp)
                     if (!check_error(exptype, 1)) //已保证结构体存在
                     {   printf("%s\n", tempnode1->child->subtype.IDVal);
                         dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
-                        printf("type: %d\n", exptype);
+                        if(IF_DEBUG_PRINT) printf("type: %d\n", exptype);
+                        
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
@@ -775,7 +776,7 @@ int Exp_s(treeNode *exp)
                         }
                     }
                     //返回元素的类型
-                    dataNodeVar var_node = getNodeVar(var_domain_ptr->tVar, tempnode3->subtype.IDVal);
+                    dataNodeVar var_node = getNodeVar(var_domain_ptr->tVar, tempnode3->child->subtype.IDVal);
                     result = var_node.varType;
                     return result;
                 }
