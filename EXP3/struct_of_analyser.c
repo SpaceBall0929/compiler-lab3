@@ -699,7 +699,30 @@ int Exp_s(treeNode *exp)
             }
 
             if (tempnode3->nodeType == N_ARGS)
-            {
+            {   //检查args的数量;
+
+                int cnt = 0;
+                treeNode *cntnode = tempnode3;
+                while (1)
+                { //计算所有实参的数目
+                    cnt += 1;
+                    treeNode *tempcntnode = getchild(cntnode, 2);
+
+                    //获取实参
+                    int type1 = Exp_s(getchild(cntnode, 0));
+                    //if(getchild(cntnode, 0)->nodeType == )
+                    strcat(efun, find_type2(type1, getchild(cntnode, 0)->subtype.IDVal));
+
+
+                    if (tempcntnode == NULL)
+                    {
+                        break;
+                    }
+                    // cnt+=1;
+
+                    strcat(efun, ", ");//加个逗号
+                    cntnode = getchild(cntnode, 2);
+                }
                 if (IF_DEBUG_PRINT)
                 {
                     printf("Check the args.\n");
@@ -715,31 +738,6 @@ int Exp_s(treeNode *exp)
                 {
                     // Args -> Exp COMMA Args
                     //| Exp;
-                    //检查args的数量;
-
-                    int cnt = 0;
-                    treeNode *cntnode = tempnode3;
-                    while (1)
-                    { //计算所有实参的数目
-                        cnt += 1;
-                        treeNode *tempcntnode = getchild(cntnode, 2);
-
-                        //获取实参
-                        int type1 = Exp_s(getchild(cntnode, 0));
-                        strcat(efun, find_type2(type1, getchild(cntnode, 0)->subtype.IDVal));
-
-
-                        if (tempcntnode == NULL)
-                        {
-                            break;
-                        }
-                        // cnt+=1;
-
-                        strcat(efun, ", ");//加个逗号
-                        cntnode = getchild(cntnode, 2);
-                    }
-                    
-
                     if (cnt != getArgNum(*fun_table, funcname))
                     {
                         /*error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
