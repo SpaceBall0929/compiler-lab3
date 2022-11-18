@@ -1500,6 +1500,7 @@ int tree_analys(treeNode *mytree)
             if(now_processing == IN_STRUCT_DEC_L){
                 
                 now_processing = IN_VAR_DEC;
+                nearest_speci_type = charToInt(struct_ptr->structTypeName, *struct_table);
                 free_struct(struct_ptr);
                 struct_ptr = NULL;
             }
