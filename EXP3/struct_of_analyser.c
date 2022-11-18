@@ -284,7 +284,7 @@ int check_type(treeNode *n, int type)
 int Exp_s(treeNode *exp);
 
 //处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
-int Arg_s(treeNode *args, dataNodeVar *params)
+int Arg_s(treeNode *args, dataNodeVar *params, char* name)
 {
     /*Args ->
       Exp COMMA Args
@@ -296,14 +296,14 @@ int Arg_s(treeNode *args, dataNodeVar *params)
     int temptype = Exp_s(expnode); //检查函数形参和实参类型是否匹配
     if (temptype == params->varType)
     {
-        error_msg(9, args->line_no, NULL); //错误类型9，函数实参形参类型不匹配
+        error_msg(9, args->line_no, name); //错误类型9，函数实参形参类型不匹配
         return -1;
     }
 
     if (tempnode != NULL)
     { //实参还有参数，继续检查下一个实参和形参是否匹配
         treeNode *argsnode = getchild(args, 2);
-        return Arg_s(argsnode, params->next);
+        return Arg_s(argsnode, params->next, name);
     }
     return 0;
 }
@@ -638,7 +638,7 @@ int Exp_s(treeNode *exp)
                 }
                 if (func_node.args == NULL)
                 {                                     //函数本身没有形参，但此时有实参
-                    error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参不匹配
+                    error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参不匹配
                     return -1;
                 }
                 else
@@ -662,10 +662,10 @@ int Exp_s(treeNode *exp)
                     }
                     if (cnt != getArgNum(*fun_table, funcname))
                     {
-                        error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
+                        error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
                         return -1;
                     }
-                    int argresult = Arg_s(tempnode3, func_node.args);
+                    int argresult = Arg_s(tempnode3, func_node.args, funcname);
                     if (argresult != 0)
                     {
                         return result;
@@ -684,7 +684,7 @@ int Exp_s(treeNode *exp)
                 }
                 if (func_node.args != NULL)
                 {                                     //函数有形参，但此时没有实参
-                    error_msg(9, exp->line_no, NULL); //错误类型9，函数实参形参个数不匹配
+                    error_msg(9, exp->line_no, funcname); //错误类型9，函数实参形参个数不匹配
                     return -1;
                 }
                 else
@@ -707,8 +707,8 @@ int Exp_s(treeNode *exp)
                     int exptype = Exp_s(tempnode1);
 
                     if (!check_error(exptype, 1)) //已保证结构体存在
-                    {
-                        dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->subtype.IDVal);
+                    {   printf("%s\n", tempnode1->child->subtype.IDVal);
+                        dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
@@ -753,7 +753,7 @@ int Exp_s(treeNode *exp)
                     }
                     if (type1 != 2) // type1不是数组
                     {
-                        error_msg(10, exp->line_no, NULL); //错误类型10，对非数组变量进行数组访问
+                        error_msg(10, exp->line_no, tempnode1->child->subtype.IDVal); //错误类型10，对非数组变量进行数组访问
                         return -1;
                     }
                     else

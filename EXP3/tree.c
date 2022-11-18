@@ -306,16 +306,16 @@ void error_msg(int type, int line_no, char *content)
         printf("Type mismatched for return.\n");
         break;
     case 9:
-        printf("Function is not applicable for arguments.\n");
+        printf("Function \"%s\" is not applicable for arguments. \n", content);
         break;
     case 10:
-        printf("This is not an array.\n");
+        printf("\"%s\" is not an array.\n", content);
         break;
     case 11:
         printf("\"%s\" is not a function.\n", content);
         break;
     case 12:
-        printf("This is not an integer.\n");
+        printf("\"%s\" is not an integer.\n", content);
         break;
     case 13:
         printf("Illegal use of \".\".\n");
