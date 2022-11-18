@@ -119,7 +119,10 @@ int charToInt(char* type, SymbolTableStruct st){
         return D_ARRAY;
     else{
         int j = findPosStruct(st, type);
-        if(st.sta[j] == Active && strcmp(st.data[j].structTypeName, type))
+        // int k = 
+        // printf("%d, %s\n", st.sta[j], st.data[j].structTypeName);
+        // printf("%d", )
+        if(st.sta[j] == Active && !strcmp(st.data[j].structTypeName, type))
             return j + D_AMT;
         else
             return -1;
@@ -389,9 +392,9 @@ dataNodeFunc getNodeFunc(SymbolTableFunc st, char* key){
     return st.data[i];
 }
 
-dataNodeStruct getNodeStruct(SymbolTableStruct st, char* key){
+dataNodeStruct* getNodeStruct(SymbolTableStruct st, char* key){
     int i = findPosStruct(st, key);
-    return st.data[i];
+    return st.data + i;
 }
 
 int getArgNum(SymbolTableFunc st, char* key){

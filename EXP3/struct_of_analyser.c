@@ -306,7 +306,11 @@ char* find_type2(int t, char* name){
 //检查类型是否可以赋值
 int right_type(int t1, int t2){
     if(t1 >=6 && t2 >= 6){//看看是否是体相同结构体
-        return ifStructEquivalent(*struct_table, t1, t2);
+        int i = ifStructEquivalent(*struct_table, t1, t2);
+        if(IF_DEBUG_PRINT){
+            printf("比较结构体结果是%d", i);
+        }    
+        return i;
     }
     else{
         return t1 == t2;
@@ -797,7 +801,7 @@ int Exp_s(treeNode *exp)
 
                     if (!check_error(exptype, 1)) //已保证结构体存在
                     {   if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->child->subtype.IDVal);
-                        dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
+                        dataNodeStruct stru_node = *getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
                         if(IF_DEBUG_PRINT) printf("type: %d\n", exptype);
                         
                         if (exptype < 6)
@@ -1277,7 +1281,7 @@ int tree_analys(treeNode *mytree)
                 var_ptr = var_head;
                 do
                 {
-                    insertStructDomain(struct_ptr, var_ptr, *struct_table, temp->line_no);
+                    insertStructDomain(getNodeStruct(*struct_table, struct_ptr->structTypeName), var_ptr, *struct_table, temp->line_no);
                     var_ptr = var_ptr->next;
                 } while (var_ptr != NULL);
                 free_var(var_head);
