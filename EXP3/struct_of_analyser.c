@@ -803,8 +803,6 @@ int Exp_s(treeNode *exp)
                     {   if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->child->subtype.IDVal);
                         //dataNodeStruct stru_node = *getNodeVar(*struct_table, tempnode1->child->subtype.IDVal);
                         /*111if(IF_DEBUG_PRINT)*/ printf("type: %d\n", exptype);
-                        printf("I'm %s\n", tempnode1->child->subtype.IDVal);
-                        
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
@@ -1499,7 +1497,6 @@ int tree_analys(treeNode *mytree)
                 var_domain_ptr = domainPop(var_domain_ptr);
             }
             if(now_processing == IN_STRUCT_DEC_L){
-                
                 now_processing = IN_VAR_DEC;
                 nearest_speci_type = charToInt(struct_ptr->structTypeName, *struct_table);
                 //printf("%d, \n", nearest_speci_type);

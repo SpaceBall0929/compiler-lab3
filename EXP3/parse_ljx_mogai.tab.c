@@ -2508,10 +2508,10 @@ int main(int argc, char** argv)
     /*yylineno=1??*/
 	yyrestart(f);
 	yyparse();
-    printf("Built the tree successfully\n");
+    // printf("Built the tree successfully\n");
     
     if(error_count == 0){
-        preOrderTraverse(myTree, 0);
+        // preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
         
