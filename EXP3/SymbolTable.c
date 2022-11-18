@@ -282,8 +282,10 @@ void deepcopyFunc(dataNodeFunc* funcnode1, dataNodeFunc* funcnode2){
     funcnode1->defined = funcnode2->defined;
     funcnode1->funcName = (char*)malloc(sizeof(char) * strlen(funcnode2->funcName));
     strcpy(funcnode1->funcName, funcnode2->funcName);
-    funcnode1->args = (dataNodeVar*)malloc(sizeof(dataNodeVar));
-    deepcopyVarComplete(funcnode1->args, funcnode2->args);
+    if(funcnode1 -> args != NULL){
+        funcnode1->args = (dataNodeVar*)malloc(sizeof(dataNodeVar));
+        deepcopyVarComplete(funcnode1->args, funcnode2->args);
+    }
     return;
 }
 

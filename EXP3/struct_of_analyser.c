@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 1
+#define IF_DEBUG_PRINT 0
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -593,9 +593,6 @@ int Exp_s(treeNode *exp)
             if (IF_DEBUG_PRINT)
             {
                 printf("%s\n", funcname);
-            }
-            if (IF_DEBUG_PRINT)
-            {
                 printf("searching function name...\n");
             }
 
@@ -1401,8 +1398,7 @@ int tree_analys(treeNode *mytree)
                 var_domain_ptr = domainPop(var_domain_ptr);
             }
             if(now_processing == IN_STRUCT_DEC_L){
-                now_processing = IN_GLOBAL;
-                nearest_speci_type = InsertStruct(struct_table, struct_ptr);
+                // nearest_speci_type = InsertStruct(struct_table, struct_ptr);
                 now_processing = IN_VAR_DEC;
                 free_struct(struct_ptr);
                 struct_ptr = NULL;

@@ -2502,7 +2502,7 @@ yyreturn:
 int main(int argc, char** argv)
 {
 	// if(argc <= 1) return 1;
-	FILE* f = fopen("test5.cmm", "r");
+	FILE* f = fopen("test2.cmm", "r");
 	// if(!f){
 		// perror(argv[1]);
 		// return 1;
