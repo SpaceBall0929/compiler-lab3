@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 1
+#define IF_DEBUG_PRINT 0
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -603,6 +603,10 @@ int Exp_s(treeNode *exp)
 
             int queryresult = ifExistFunc(*fun_table, funcname);        //在全局里面搜索;
             dataNodeFunc func_node = getNodeFunc(*fun_table, funcname); //搜素这个函数节点
+
+            //char *t_fun, *f_fun = NULL;
+            //t_fun = strcat(func_node.funcName, "(");
+
             if (IF_DEBUG_PRINT)
             {
                 printf("search end.\n");
