@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 1
+#define IF_DEBUG_PRINT 0
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -507,7 +507,7 @@ int Exp_s(treeNode *exp)
             //{
             result = find_type(tempnode1); //找到了,返回这个ID代表的类型
             // result = charToInt(tempnode1->character, *struct_table);
-            printf("The type no. is %d \n", result);
+            //printf("The type no. is %d \n", result);
             return result;
             //}
         }
