@@ -274,7 +274,7 @@ int find_type(treeNode *n)
     {   if (IF_DEBUG_PRINT)printf("Input name is %s\n", n->subtype.IDVal);
         if (IF_DEBUG_PRINT) printf("After searching, the var name is %s\n var type is %d \n", getNodeVar(var_domain_ptr->tVar, name).varName, 
                                                                                               getNodeVar(var_domain_ptr->tVar, name).varType);
-        return getNodeVar(var_domain_ptr->tVar, name).varType;
+        return getNodeVarStack(var_domain_ptr, name).varType;
     }
 }
 
@@ -802,7 +802,7 @@ int Exp_s(treeNode *exp)
                     if (!check_error(exptype, 1)) //已保证结构体存在
                     {   if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->child->subtype.IDVal);
                         //dataNodeStruct stru_node = *getNodeVar(*struct_table, tempnode1->child->subtype.IDVal);
-                        /*111if(IF_DEBUG_PRINT)*/ printf("type: %d\n", exptype);
+                        // printf("type: %d\n", exptype);
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
@@ -811,7 +811,7 @@ int Exp_s(treeNode *exp)
                         else
                         {
                             //搜索域名;
-                            if (ifExistStructDomain(*struct_table, tempnode3->nodeType, tempnode3->subtype.IDVal))
+                            if (ifExistStructDomain(*struct_table, exptype, tempnode3->subtype.IDVal))
                             {
                                 //找到了!
                                 result = find_type(tempnode3);
@@ -867,7 +867,7 @@ int Exp_s(treeNode *exp)
                         }
                     }
                     //返回元素的类型
-                    dataNodeVar var_node = getNodeVar(var_domain_ptr->tVar, tempnode3->child->subtype.IDVal);
+                    dataNodeVar var_node = getNodeVarStack(var_domain_ptr, tempnode3->child->subtype.IDVal);
                     result = var_node.varType;
                     return result;
                 }
