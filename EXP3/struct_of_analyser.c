@@ -506,6 +506,7 @@ int Exp_s(treeNode *exp)
             //{
             result = find_type(tempnode1); //找到了,返回这个ID代表的类型
             // result = charToInt(tempnode1->character, *struct_table);
+            printf("The type no. is %d \n", result);
             return result;
             //}
         }
