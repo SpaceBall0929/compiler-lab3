@@ -11,7 +11,7 @@
 #define IN_VAR_DEC 1919814
 
 //改成任意不为0的数字开启debug输出
-#define IF_DEBUG_PRINT 0
+#define IF_DEBUG_PRINT 1
 
 // 用到的变量作用域，函数和结构体表
 stackNode *var_domain_ptr;
@@ -262,7 +262,7 @@ int find_type(treeNode *n)
 {
     char *name = n->subtype.IDVal;
     if (ifExistStruct(*struct_table, name))
-    {
+    {   if (IF_DEBUG_PRINT) printf("Struct\n");
         return charToInt(name, *struct_table);
     }
     else if (ifExistFunc(*fun_table, name))
@@ -270,7 +270,7 @@ int find_type(treeNode *n)
         return 5;
     }
     else
-    {
+    {   if (IF_DEBUG_PRINT) printf("Var\n");
         return getNodeVar(var_domain_ptr->tVar, name).varType;
     }
 }
@@ -447,16 +447,21 @@ int Exp_s(treeNode *exp)
         if (tempnode1->nodeType == N_ID)
         { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
             // if(IF_DEBUG_PRINT){printf("%s\n",var_domain_ptr->tVar.data->varName);
+            if(IF_DEBUG_PRINT) printf("%s\n", tempnode1->subtype.IDVal);
+
             if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
-                !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) &&
-                !ifExistStruct(*struct_table, tempnode1->subtype.IDVal))
+                //!ifExistStruct(*struct_table, tempnode1->subtype.IDVal) &&
+                !ifExistFunc(*fun_table, tempnode1->subtype.IDVal) 
+                )
             {
                 error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
                 return -1;
             }
             if (IF_DEBUG_PRINT)
-            {
+            {   
+                int res = ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal);
                 printf("end search\n");
+                printf("search resulte: %d \n", res);
             }
             // else
             //{
@@ -709,6 +714,7 @@ int Exp_s(treeNode *exp)
                     if (!check_error(exptype, 1)) //已保证结构体存在
                     {   printf("%s\n", tempnode1->child->subtype.IDVal);
                         dataNodeStruct stru_node = getNodeStruct(*struct_table, tempnode1->child->subtype.IDVal);
+                        printf("type: %d\n", exptype);
                         if (exptype < 6)
                         {                                      //当前Exp不是结构体
                             error_msg(13, exp->line_no, NULL); //错误类型13，对非结构体变量使用“.”
