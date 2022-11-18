@@ -162,20 +162,22 @@ dataNodeStruct* newNodeStruct(char* tname){
 }
 
 //填结构体表时，用前插法填入结构体的域
-void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* input){
-    dataNodeVar* newDomain = (dataNodeVar*)malloc(sizeof(dataNodeVar));
-    deepcopyVar(newDomain, input);
+void insertStructDomain(dataNodeStruct* structNode, dataNodeVar* newDomain, SymbolTableStruct st, int line_no){
     if(structNode->structDomains == NULL){
         structNode->structDomains = newDomain;
         newDomain->next = NULL;
     }
     else{
+        //判断结构体域是否重定义
+        int type = charToInt(structNode->structTypeName);
+        if(ifExistStructDomain(st, type, newDomain->varName)){
+            error_msg(15, line_no, newDomain->varName);
+            return;
+        }
         //前插
         newDomain->next = structNode->structDomains;
         structNode->structDomains = newDomain;
-
     }
-    return;
 }
 
 SymbolTableVar* tableVarInit(){
