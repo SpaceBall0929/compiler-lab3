@@ -78,7 +78,7 @@ int findPosVar(SymbolTableVar st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].varName)))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && strcmp(key, st.data[j].varName) == 0))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -89,7 +89,7 @@ int findPosFunc(SymbolTableFunc st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].funcName)))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && strcmp(key, st.data[j].funcName) == 0))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -100,7 +100,7 @@ int findPosStruct(SymbolTableStruct st, char* key){
     int i = abs(key[0]) % st.divitor;
     int j = i;
     do {
-		if (st.sta[j] == Empty || (st.sta[j] == Active && !strcmp(key, st.data[j].structTypeName)))
+		if (st.sta[j] == Empty || (st.sta[j] == Active && strcmp(key, st.data[j].structTypeName) == 0))
 			return j;
 		j = (j + 1) % st.tableSize;
 	} while (j != i);
@@ -116,7 +116,7 @@ int charToInt(char* type, SymbolTableStruct st){
         return D_ARRAY;
     else{
         int j = findPosStruct(st, type);
-        if(st.sta[j] == Active && st.data[j].structTypeName == type)
+        if(st.sta[j] == Active && strcmp(st.data[j].structTypeName, type))
             return j + D_AMT;
         else
             return -1;
@@ -222,7 +222,7 @@ int ifExistVar(SymbolTableVar st, char* key){
 
 int ifExistFunc(SymbolTableFunc st, char* key){
     int i = findPosFunc(st, key);
-    if(st.sta[i] == Active && strcmp(st.data[i].funcName, key) == 0)
+        if(st.sta[i] == Active && strcmp(st.data[i].funcName, key) == 0)
         return 1;
     return 0;
 }
@@ -316,36 +316,53 @@ void InsertVar(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeVar* elem, int
 		st1->curSize++;
 	}
     else
-        printf("Var symbol table is full. Insert failed");
+        //printf("Var symbol table is full. Insert failed");
+    error_msg(3, line_no, elem->varName);
     //free(elem);
 
 }
 
-void InsertFunc(SymbolTableFunc* st, dataNodeFunc* elem)
+void InsertFunc(SymbolTableVar* st1, SymbolTableFunc* st2, dataNodeFunc* elem, int line_no)
 {
-	int i = findPosFunc(*st, elem->funcName);
-	if (st->sta[i] != Active)
+	if(ifExistVar(*st1, elem->funcName)){  //在变量表中查找变量名，若存在则说明已经声明，报变量重定义
+		error_msg(3, line_no, elem->funcName);
+		return;
+	}
+    if(ifExistFunc(*st2, elem->funcName)){  //在函数表中查找变量名，若存在则说明已经声明过同名函数，报函数声明冲突
+		error_msg(4, line_no, elem->funcName);
+		return;
+	}
+    int i = findPosFunc(*st2, elem->funcName);
+	if (st2->sta[i] != Active)
 	{
-		deepcopyFunc(&st->data[i], elem);
-		st->sta[i] = (enum Status)Active;
-		st->curSize++;
+		deepcopyFunc(&st2->data[i], elem);
+		st2->sta[i] = (enum Status)Active;
+		st2->curSize++;
 	}
     else
         printf("Func symbol table is full. Insert failed");
 }
 
-void InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem)
+int InsertStruct(SymbolTableStruct* st, dataNodeStruct* elem, int line_no)
 {
-	int i = findPosStruct(*st, elem->structTypeName);
+	if(ifExistStruct(*st, elem->structTypeName)){  //在函数表中查找变量名，若存在则说明已经声明过同名函数，报函数声明冲突
+		error_msg(16, line_no, elem->structTypeName);
+		return -1;
+	}
+    int i = findPosStruct(*st, elem->structTypeName);
 	if (st->sta[i] != Active)
 	{
 		deepcopyStruct(&st->data[i], elem);
 		st->sta[i] = (enum Status)Active;
 		st->curSize++;
+        return i;
 	}
-    else
+    else{
         printf("Struct symbol table is full. Insert failed");
+        return -1;
+    }
 }
+
 
 dataNodeVar getNodeVar(SymbolTableVar st, char* key){
     int i = findPosVar(st, key);
