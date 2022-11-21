@@ -1,0 +1,95 @@
+Grammar
+
+    0 $accept: Program $end
+
+    1 Program: ExtDefList
+
+    2 ExtDefList: ε
+    3           | ExtDef ExtDefList
+
+    4 ExtDef: Specifier ExtDecList SEMI
+    5       | Specifier SEMI
+    6       | Specifier FunDec CompSt
+            | Specifier FunDec SEMI
+
+    7 ExtDecList: VarDec
+    8           | VarDec COMMA ExtDecList
+
+    9 Specifier: TYPE
+   10          | StructSpecifier
+
+   11 StructSpecifier: STRUCT OptTag LC DefList RC
+   12                | STRUCT Tag
+
+   13 OptTag: ε
+   14       | ID
+
+   15 Tag: ID
+
+   16 VarDec: ID
+   17       | VarDec LB INT RB
+
+   18 FunDec: ID LP VarList RP
+   19       | ID LP RP
+
+   20 VarList: ParamDec COMMA VarList
+   21        | ParamDec
+
+   22 ParamDec: Specifier VarDec
+
+   23 CompSt: LC DefList StmtList RC
+
+   24 StmtList: Stmt StmtList
+   25         | ε
+
+   26 Stmt:(考虑到EXP那边-1, -2都被占了, 这里用-3, -4)
+   27     | CompSt  返回-4
+   28     | RETURN Exp SEMI 返回Exp的类型值
+        以下的都返回-3
+          | Exp SEMI 
+          | IF LP Exp RP Stmt
+   30     | IF LP Exp RP Stmt ELSE Stmt
+   31     | WHILE LP Exp RP Stmt
+   32     | Exp error
+
+   33 DefList: Def DefList
+   34        | ε
+
+   35 Def: Specifier DecList SEMI
+   36    | error DecList SEMI
+
+   37 DecList: Dec
+   38        | Dec COMMA DecList
+
+   39 Dec: VarDec
+   40    | VarDec ASSIGNOP Exp
+
+   41 Exp: Exp ASSIGNOP Exp
+   42    | Exp AND Exp
+   43    | Exp OR Exp
+   44    | Exp RELOP Exp
+   45    | Exp PLUS Exp
+   46    | Exp MINUS Exp
+   47    | Exp STAR Exp
+   48    | Exp DIV Exp
+   49    | LP Exp RP
+   50    | MINUS Exp
+   51    | NOT Exp
+   52    | ID LP Args RP
+   53    | ID LP RP
+   54    | Exp LB Exp RB
+   55    | Exp DOT ID
+   56    | ID
+   57    | INT
+   58    | FLOAT
+   59    | LP error RP
+   60    | ID LP error RP
+   61    | Exp LB error RB
+   62    | Exp ASSIGNOP error
+
+   63 Args: Exp COMMA Args
+   64     | Exp
+
+
+
+   
