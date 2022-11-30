@@ -25,7 +25,7 @@ int num_of_vars[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
 //变量从a开始
 int letter_now = 97;
 char* var_name_gen(){
-    char* out = malloc(sizeof(char) * 2);
+    char* out = (char*)malloc(sizeof(char) * 2);
     out[0] = letter_now;
     out[1] = '\0';
     str(out, itoa(num_of_vars[letter_now - 97]));
@@ -1029,7 +1029,17 @@ int tree_analys(treeNode *mytree)
                 printf("Function declareration detected\n");
             }
             func_ptr = fun_dec(temp, nearest_speci_type);
-            lst_of_ir
+
+            //添加标签用的，能不能别这么多事情啊我丢。。。
+            operand_to_use = (operand*)malloc(sizeof(operand));
+            operand_to_use->o_type = VARIABLE;
+            operand_to_use->o_value.name = (char*)malloc(sizeof(char) * strlen(func_ptr->funcName));
+            strcpy(operand_to_use->o_value.name, func_ptr->funcName);
+            new_op(lst_of_ir, I_LABLE, operand_to_use, 1);
+
+            
+
+            
             nearestfunc_type = nearest_speci_type;
             now_processing = IN_FUNC_DEC;
             if_unfold = 0;
@@ -1057,6 +1067,16 @@ int tree_analys(treeNode *mytree)
                     printf("Create new domain\n");
                 }
                 var_domain_ptr = domainPush(var_domain_ptr);
+                dataNodeVar* arg_of_func = func_ptr->args;
+                
+                //根据师兄建议，增加了形参段
+                //这个部分可以节约exp的工作量Z
+                while (arg_of_func != NULL)
+                {
+                    InsertVar(&(var_domain_ptr->tVar), fun_table, arg_of_func, temp->line_no);
+                    arg_of_func = arg_of_func -> next;
+                }
+            
             }
             if_unfold = 0;
             break;
