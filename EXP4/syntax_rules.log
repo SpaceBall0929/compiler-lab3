@@ -18,14 +18,18 @@ Grammar
                 //结构体声明，正常处理即可
     6       | Specifier FunDec CompSt
                 //函数定义声明，接下来要写函数,写个标签
+                //接收一下函数变量,写一堆指令
             | Specifier FunDec SEMI
                 //函数只声明不定义，等于啥都没干们不用管
     7 ExtDecList: VarDec
     8           | VarDec COMMA ExtDecList
+                //全局变量，啥也不干
 
     9 Specifier: TYPE
-   10          | StructSpecifier
 
+                // 全局变量 啥也不干
+   10          | StructSpecifier
+                //结构体定义，啥也不管（可以增加一点结构体信息吗？）
    11 StructSpecifier: STRUCT OptTag LC DefList RC
    12                | STRUCT Tag
 
@@ -36,10 +40,10 @@ Grammar
 
    16 VarDec: ID
    17       | VarDec LB INT RB
-
+        //有数组情况，注意特殊处理
    18 FunDec: ID LP VarList RP
    19       | ID LP RP
-
+        //函数定义！应该接收参数
    20 VarList: ParamDec COMMA VarList
    21        | ParamDec
 

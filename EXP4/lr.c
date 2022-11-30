@@ -13,7 +13,7 @@ struct operand
         int im_value;   //立即数取值
         long addr;      //地址          
     }o_value;
-    struct operand* next;
+    // struct operand* next;
     
 };
 typedef struct operand operand;
