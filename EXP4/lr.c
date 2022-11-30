@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 //操作数类型
 enum operand_type {VARIABLE, IMMEDIATE, ADDRESS};
@@ -13,10 +14,27 @@ struct operand
         int im_value;   //立即数取值
         long addr;      //地址          
     }o_value;
-    struct operand* next;
+    //struct operand* next;
     
 };
 typedef struct operand operand;
+
+operand* init_operand(enum operand_type t, char* n, int i, long a){
+    operand* oper = (operand*)malloc(sizeof(operand));
+    oper->o_type = t;
+    if(t == VARIABLE){
+        oper->o_value.name = (char*)malloc(sizeof(char) * strlen(n));
+        strcpy(oper->o_value.name, n);
+    }
+    else if(t == IMMEDIATE)
+        oper->o_value.im_value = i;
+    else if(t == ADDRESS)
+        oper->o_value.addr = a;
+    else{
+        exit(1);
+    }
+    return oper;
+}
 
 //指令类型
 enum opcode {
@@ -142,7 +160,7 @@ void print_op(operation* op, FILE* F){
             break;
         case IMMEDIATE:
             //右值为立即数
-            fprintf(F, "%s:=%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
+            fprintf(F, "%s:=#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
             break;
 
         default:
@@ -156,11 +174,11 @@ void print_op(operation* op, FILE* F){
         if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == VARIABLE)
             fprintf(F, "%s:=%s+%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%s+%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=%s+#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == VARIABLE)
-            fprintf(F, "%s:=%d+%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
+            fprintf(F, "%s:=#%d+%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%d+%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=#%d+#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
         else{
             printf("Operand type error\n");
             exit(1);
@@ -171,11 +189,11 @@ void print_op(operation* op, FILE* F){
         if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == VARIABLE)
             fprintf(F, "%s:=%s-%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%s-%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=%s-#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == VARIABLE)
-            fprintf(F, "%s:=%d-%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
+            fprintf(F, "%s:=#%d-%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%d-%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=#%d-#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
         else{
             printf("Operand type error\n");
             exit(1);
@@ -186,11 +204,11 @@ void print_op(operation* op, FILE* F){
         if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == VARIABLE)
             fprintf(F, "%s:=%s*%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%s*%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=%s*#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == VARIABLE)
-            fprintf(F, "%s:=%d*%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
+            fprintf(F, "%s:=#%d*%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%d*%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=#%d*#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
         else{
             printf("Operand type error\n");
             exit(1);
@@ -201,11 +219,11 @@ void print_op(operation* op, FILE* F){
         if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == VARIABLE)
             fprintf(F, "%s:=%s/%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == VARIABLE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%s/%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=%s/#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == VARIABLE)
-            fprintf(F, "%s:=%d/%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
+            fprintf(F, "%s:=#%d/%s\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.name);
         else if(op->opers[1].o_type == IMMEDIATE && op->opers[2].o_type == IMMEDIATE)
-            fprintf(F, "%s:=%d/%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
+            fprintf(F, "%s:=#%d/#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value, op->opers[2].o_value.im_value);
         else{
             printf("Operand type error\n");
             exit(1);
@@ -229,7 +247,7 @@ void print_op(operation* op, FILE* F){
             break;
         case IMMEDIATE:
             //右值为立即数
-            fprintf(F, "*%s:=%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
+            fprintf(F, "*%s:=#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
             break;
 
         default:
@@ -250,7 +268,7 @@ void print_op(operation* op, FILE* F){
             fprintf(F, "IF %s %s %s GOTO %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name, op->opers[3].o_value.name);
             break;
         case IMMEDIATE:
-            fprintf(F, "IF %s %s %d GOTO %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value, op->opers[3].o_value.name);
+            fprintf(F, "IF %s %s #%d GOTO %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value, op->opers[3].o_value.name);
             break;
         default:
             printf("Operand type error!\n");
@@ -268,7 +286,7 @@ void print_op(operation* op, FILE* F){
             break;
         case IMMEDIATE:
             //右值为立即数
-            fprintf(F, "RETURN %d\n", op->opers[0].o_value.im_value);
+            fprintf(F, "RETURN #%d\n", op->opers[0].o_value.im_value);
             break;
         default:
             printf("Operand type error!\n");
@@ -278,7 +296,7 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_DEC:
-        fprintf(F, "DEC %s %d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
+        fprintf(F, "DEC %s #%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
         break;
 
     case I_ARG:
@@ -290,7 +308,7 @@ void print_op(operation* op, FILE* F){
             break;
         case IMMEDIATE:
             //右值为立即数
-            fprintf(F, "ARG %d\n", op->opers[0].o_value.im_value);
+            fprintf(F, "ARG #%d\n", op->opers[0].o_value.im_value);
             break;
         default:
             printf("Operand type error!\n");
@@ -332,8 +350,50 @@ void print_IR(IR_list* lst, FILE* F){
     return;
 }
 
-// int main(){
-//     IR_list* lst = init_IR();
-//     new_op(lst, I_ADD, )
-//     return 0;
-// }
+int main(){
+    IR_list* lst = init_IR();
+    char* v1 = "x";
+    char* v2 = "y";
+    char* v3 = "z";
+    char* v4 = "<=";
+    
+    operand* oper1 = init_operand(VARIABLE, v1, 0, 0);
+    operand* oper2 = init_operand(VARIABLE, v2, 0, 0);
+    operand* oper3 = init_operand(VARIABLE, v3, 0, 0);
+    operand* oper4 = init_operand(IMMEDIATE, NULL, 5, 0);
+    operand* oper5 = init_operand(IMMEDIATE, NULL, 6, 0);
+    operand* oper6 = init_operand(VARIABLE, v4, 0, 0);
+
+    new_op(lst, I_LABLE, oper1, 1);
+    new_op(lst, I_FUNC, oper1, 1);
+    operand op_array1[2] = {*oper1, *oper2}; 
+    new_op(lst, I_ASSIGN, op_array1, 2);
+    operand op_array2[3] = {*oper1, *oper2, *oper3};
+    new_op(lst, I_ADD, op_array2, 3);
+    operand op_array3[3] = {*oper1, *oper2, *oper4};
+    new_op(lst, I_SUB, op_array3, 3);
+    operand op_array4[3] = {*oper1, *oper4, *oper2};
+    new_op(lst, I_MUL, op_array4, 3);
+    operand op_array5[3] = {*oper1, *oper4, *oper5};
+    new_op(lst, I_DIV, op_array5, 3);
+    insert_op(lst, I_AS_ADDR, op_array1, 2, 2);
+    insert_op(lst, I_AS_VALUE, op_array1, 2, 4);
+    insert_op(lst, I_VALUE_ASSIGN, op_array1, 2, 6);
+    new_op(lst, I_GOTO, oper1, 1);
+    operand op_array6[4] = {*oper3, *oper6, *oper5, *oper2};
+    new_op(lst, I_IF, op_array6, 4);
+    new_op(lst, I_RETURN, oper4, 1);
+    operand op_array7[2] = {*oper3, *oper5};
+    new_op(lst, I_DEC, op_array7, 2);
+    new_op(lst, I_ARG, oper1, 1);
+    new_op(lst, I_CALL, op_array1, 2);
+    new_op(lst, I_PARAM, oper1, 1);
+    new_op(lst, I_READ, oper1, 1);
+    new_op(lst, I_WRITE, oper1, 1);
+
+    FILE* F = fopen("test.txt", "w");
+    print_IR(lst, F);
+
+
+    return 0;
+}
