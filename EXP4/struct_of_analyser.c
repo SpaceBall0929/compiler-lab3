@@ -782,194 +782,6 @@ int Exp_s(treeNode *exp)
     return result;
 }
 
-/*int StmtList_s(treeNode *stmt, int d_type)
-{
-
-    StmtList ->
-      Stmt StmtList
-    | 空
-    Stmt ->
-      Exp SEMI
-    | CompSt
-    | RETURN Exp SEMI
-    | IF LP Exp RP Stmt
-    | IF LP Exp RP Stmt ELSE Stmt
-    | WHILE LP Exp RP Stmt
-
-    treeNode *Stmtnode = getchild(stmt, 0);
-    treeNode *tempnode = getchild(stmt, 1);
-    Stmt_s(Stmtnode, d_type);
-    if (tempnode != NULL)
-    {
-        StmtList_s(tempnode, d_type);
-    }
-}*/
-
-//处理stmt，CompSt返回-4，RETURN Exp SEMI返回Exp类型值，其他返回-3
-// int Stmt_s(treeNode *stmt, int d_type)
-// {
-//     if(IF_DEBUG_PRINT){printf("进入Stmt!\n");}
-//     /*
-//     Stmt -> Exp SEMI
-//     | CompSt
-//     | RETURN Exp SEMI
-//     | IF LP Exp RP Stmt
-//     | IF LP Exp RP Stmt ELSE Stmt
-//     | WHILE LP Exp RP Stmt
-//     */
-//     if(IF_DEBUG_PRINT){printf("test");
-//     if (stmt == NULL)
-//         return -3;
-//     if(IF_DEBUG_PRINT){printf("Stmt非空！");
-//     treeNode *tempnode1 = getchild(stmt, 0);
-
-//     if (tempnode1->nodeType == N_COMPST)
-//     {
-//         /*//新开一个作用域,进入CompSt，然后溜
-//         domainStack ds;
-//         domainPush(ds);
-//         comp_stmt(tempnode1, d_type);
-//         domainPop(ds);*/
-//         return -4;
-//     }
-//     else if (tempnode1->nodeType == N_EXP)
-//     { // Exp SEMI
-//         if(IF_DEBUG_PRINT){printf("Exp SEMI\n");}
-//         Exp_s(tempnode1);
-//         if(IF_DEBUG_PRINT){printf("561faeflj\n");}
-//     }
-//     else if (tempnode1->nodeType == N_RETURN)
-//     { // RETURN Exp SEMI 返回Exp类型值
-//         treeNode *expnode = getchild(stmt, 1);
-//         if (expnode->nodeType != N_EXP)
-//         {
-//             if(IF_DEBUG_PRINT){printf("Stmt_s bug: should be Exp!\n");}
-//         }
-//         int returntype = Exp_s(expnode);
-//         if (!check_error(returntype, 1))
-//         {
-//             if (d_type != returntype)
-//             {
-//                 error_msg(8, stmt->line_no, NULL); //错误类型8，函数返回类型不匹配
-//             }
-//             else
-//             {
-//                 ; // exp里面已经因为NULL报错
-//             }
-//         }
-//         return returntype;
-//     }
-//     else if (tempnode1->nodeType == N_WHILE)
-//     { // WHILE LP Exp RP Stmt 返回-3
-//         treeNode *expnode = getchild(stmt, 2);
-//         treeNode *stmtnode = getchild(stmt, 4);
-//         int type = Exp_s(expnode);
-//         if (!check_error(type, 1))
-//         {
-//             if (type == 0)
-//             {
-//                 ;
-//             }
-//             else
-//             {
-//                 error_msg(7, stmt->line_no, NULL); //错误类型7，while条件操作数类型不匹配
-//             }
-//         }
-//         else
-//         {
-//             ; // Exp里面已经报过了
-//         }
-//         Stmt_s(stmtnode, d_type);
-//     }
-//     else if (tempnode1->nodeType == N_IF)
-//     {
-//         /*	| IF LP Exp RP Stmt
-//     | IF LP Exp RP Stmt ELSE Stmt  返回-3
-//     */
-//         treeNode *expnode = getchild(stmt, 2);
-//         if (expnode->nodeType != N_EXP)
-//         {
-//             if(IF_DEBUG_PRINT){printf("Stmt_s bug: should be Exp!\n");}
-//         }
-//         treeNode *tempnode6 = getchild(stmt, 5); // ELSE
-//         int iftype = Exp_s(expnode);
-//         if (!check_error(iftype, 1))
-//         {
-//             if (iftype == 0)
-//             {
-//                 ;
-//             }
-//             else
-//             {
-//                 error_msg(7, stmt->line_no, NULL); //错误类型7，if条件操作数类型不匹配
-//                 return -1;
-//             }
-//         }
-//         if (tempnode6 == NULL)
-//         {
-//             treeNode *stmtnode1 = getchild(stmt, 4);
-
-//             Stmt_s(stmtnode1, d_type);
-//         }
-//         else
-//         {
-//             treeNode *stmtnode1 = getchild(stmt, 4);
-//             treeNode *stmtnode2 = getchild(stmt, 6);
-
-//             Stmt_s(stmtnode1, d_type);
-
-//             Stmt_s(stmtnode2, d_type);
-//         };
-//     }
-//     else
-//     {
-//         if(IF_DEBUG_PRINT){printf("Stmt_s error: Impossible to be here!\n");}
-//     }
-//     return -3;
-// }
-
-// int ext_def(treeNode *ExtDef, seqStack *stack, stackNode *domain)
-// {
-//     treeNode *type_node = ExtDef->child->child;
-//     treeNode *core_node = ExtDef->child->sibling;
-//     int def_type = specifier(type_node);
-//     switch (def_type)
-//     {
-//     case D_STRUCT_DEC:
-//         def_type = charToInt(type_node->child->sibling->child->subtype.IDVal, *struct_table);
-//     case D_INT:
-//     case D_FLOAT:
-//         if (core_node->nodeType == N_EXT_DEC_L)
-//         {
-//             treeNode *temp_node;
-//             do
-//             {
-//                 temp_node = core_node->child;
-//                 core_node = temp_node->sibling->sibling;
-//                 InsertVar(&(domain->tVar), var_dec(temp_node, def_type));
-//             } while (core_node != NULL);
-//         }
-//         else
-//         {
-//             dataNodeFunc *abc = fun_dec(core_node, type_node->child->character);
-//             if (core_node->sibling->nodeType != N_SEMI)
-//             {
-//                 abc->defined = 1;
-//                 //返回类型不匹配在这里面报错
-//                 comp_stmt(core_node->sibling, def_type);
-//             }
-//             InsertFunc(fun_table, abc);
-//             free(abc);
-//         }
-//         break;
-//     case D_STRUCT_DEF:
-//         struct_specifier_def(type_node);
-//         break;
-//     default:
-//         break;
-//     }
-//     return 0;
-// }
 
 int tree_analys(treeNode *mytree)
 {
@@ -977,6 +789,7 @@ int tree_analys(treeNode *mytree)
     treeNode *temp = mytree;
     seqStack myStack;
     seqStack *stack_ptr;
+    operand* operand_to_use;
     stack_ptr = &myStack;
     initStack(stack_ptr);
     push(stack_ptr, mytree);
@@ -1216,6 +1029,7 @@ int tree_analys(treeNode *mytree)
                 printf("Function declareration detected\n");
             }
             func_ptr = fun_dec(temp, nearest_speci_type);
+            lst_of_ir
             nearestfunc_type = nearest_speci_type;
             now_processing = IN_FUNC_DEC;
             if_unfold = 0;

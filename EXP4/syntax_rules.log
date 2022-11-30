@@ -1,5 +1,10 @@
 Grammar
 
+
+        //关于结构体和数组咋办：
+        //申请内存空间
+        //给出指针
+        //访问内容的时候，把地址算出来，然后指针去取值
     0 $accept: Program $end
 
     1 Program: ExtDefList
@@ -10,9 +15,11 @@ Grammar
     4 ExtDef: Specifier ExtDecList SEMI
                 //全局变量声明，不需要输出语句，需要的时候直接使用即可
     5       | Specifier SEMI
+                //结构体声明，正常处理即可
     6       | Specifier FunDec CompSt
+                //函数定义声明，接下来要写函数,写个标签
             | Specifier FunDec SEMI
-
+                //函数只声明不定义，等于啥都没干们不用管
     7 ExtDecList: VarDec
     8           | VarDec COMMA ExtDecList
 
