@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "DomainStack.c"
+#include "Ir.c"
 #define EXP_DO_NOTHING 114514
 #define EXP_RETURN 114515
 #define EXP_BRANCH_AND_LOOP 114516
@@ -17,6 +18,27 @@
 stackNode *var_domain_ptr;
 SymbolTableFunc *fun_table;
 SymbolTableStruct *struct_table;
+
+// 为了生成一系列中间变量，这里需要一个记录体来简单记录一下都有哪些变量
+//每一个字母下属变量一共有几个
+int num_of_vars[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
+//变量从a开始
+int letter_now = 97;
+char* var_name_gen(){
+    char* out = malloc(sizeof(char) * 2);
+    out[0] = letter_now;
+    out[1] = '\0';
+    str(out, itoa(num_of_vars[letter_now - 97]));
+    
+    if(num_of_vars[letter_now - 97]++ == 9){
+        letter_now += 1;
+    }
+
+    return out;
+}
+
+// 中间代码使用的表
+IR_list* lst_of_ir = init_IR();
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
 //判定specifier的指向：整形/浮点/结构体定义/结构体使用
@@ -62,7 +84,9 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
         dimensionlen[dimension++] = dec_node->sibling->sibling->subtype.intVal;
         dec_node = dec_node->child;
     }
-    new_var = newNodeVar(dec_node->subtype.IDVal, var_type);
+    
+    //这里直接给变量换名字了，方便中间代码使用
+    new_var = newNodeVar(dec_node->subtype.IDVal, var_name_gen(), var_type);
     if (dimension == 0)
     {
         return new_var;
@@ -124,125 +148,6 @@ dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
     return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
 }
 
-// dataNodeVar *dec_list(treeNode *decs, int var_type)
-// {
-//     dataNodeVar *temp_var;
-//     dataNodeVar *return_vars;
-//     decs = decs->child;
-//     temp_var = var_dec(decs->child, var_type);
-//     return_vars = temp_var;
-//     if (decs->child->sibling != NULL)
-//     {
-//         if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
-//         {
-//             error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
-//         }
-//     }
-//     decs = decs->sibling;
-//     while (decs != NULL)
-//     {
-//         decs = decs->sibling->child;
-//         temp_var->next = var_dec(decs->child, var_type);
-//         temp_var = temp_var->next;
-//         if (decs->child->sibling != NULL)
-//         {
-//             if (charToInt(var_type, *struct_table) != Exp_s(decs->child->sibling->sibling))
-//             {
-//                 error_msg(5, decs->line_no, decs->child->child->subtype.IDVal);
-//             }
-//         }
-//         decs = decs->sibling;
-//     }
-
-//     temp_var = NULL;
-//     return return_vars;
-// }
-
-// int dec_list(treeNode* decs, char* var_type){
-//     dataNodeVar* temp_var;
-
-//     do{
-//         decs = decs  -> child;
-//         InsertVar(&(var_domain_ptr -> tVar), var_dec(decs -> child, var_type));
-//         if(decs -> sibling != NULL){
-//             if(charToInt(var_type, struct_table) !=Exp_s(decs -> sibling -> sibling)){
-//                 error_msg(5, decs ->line_no, decs -> child -> child -> subtype.IDVal);
-//             }
-//         }
-//         decs = decs -> sibling;
-//         if(decs != NULL){
-//             decs = decs -> sibling;
-//         }
-//     }while(decs != NULL);
-
-//     return 0;
-// }
-
-// dataNodeVar *def_list(treeNode *defs)
-// {
-//     // int temp_type;
-//     dataNodeVar *return_vars;
-//     dataNodeVar *temp_ptr;
-//     int def_type;
-//     defs = defs->child;
-//     if (defs == NULL)
-//     {
-//         return NULL;
-//     }
-//     def_type = specifier(defs->child);
-//     return_vars = dec_list(defs->child->sibling, def_type);
-//     temp_ptr = return_vars;
-//     defs = defs->sibling->child;
-//     while (defs != NULL)
-//     {
-//         temp_ptr = temp_ptr->next;
-//         temp_ptr = dec_list(defs->child->sibling, def_type);
-//         defs = defs->sibling->child;
-//     }
-//     temp_ptr = NULL;
-//     return return_vars;
-// }
-
-// int comp_stmt(treeNode *comp_stmt, int expected_type)
-// {
-//     dataNodeVar *all_vars;
-//     dataNodeVar *temp_for_del;
-//     domainPush(var_domain_ptr);
-//     all_vars = def_list(comp_stmt->child->sibling);
-//     while (all_vars != NULL)
-//     {
-//         temp_for_del = all_vars;
-//         InsertVar(&(var_domain_ptr->tVar), all_vars);
-//         all_vars = all_vars->next;
-//         free(temp_for_del);
-//     }
-//     Stmt_s(comp_stmt->child->sibling->sibling, expected_type);
-//     domainPop(var_domain_ptr);
-//     return 0;
-// }
-
-// int struct_specifier_def(treeNode *def_node)
-// {
-//     char *name = NULL;
-//     def_node = def_node->child->sibling;
-//     if (def_node->child != NULL)
-//     {
-//         name = def_node->sibling->child->subtype.IDVal;
-//     }
-//     dataNodeStruct *new_struc = newNodeStruct(name);
-//     dataNodeVar *temp_for_del = new_struc->structDomains;
-//     dataNodeVar *temp2;
-//     insertStructDomain(new_struc, def_list(def_node->sibling->sibling));
-//     InsertStruct(struct_table, *new_struc);
-//     while (temp_for_del != NULL)
-//     {
-//         temp2 = temp_for_del;
-//         temp_for_del = temp_for_del->next;
-//         free(temp2);
-//     }
-//     free(new_struc);
-//     return 0;
-// }
 
 int struct_specifier_dec(treeNode *dec_node)
 {
@@ -1108,12 +1013,15 @@ int tree_analys(treeNode *mytree)
         printf("Initializing varibles successfully\n");
     }
 
+    //这个地方需要提前的插入read()和write()两个函数，后面会有调用的。
+    //或者说exp那一层直接给我解决了？我不知道，问你刘爹
+
+
     while (!isEmpty(stack_ptr))
     {
         //根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
-        //这里涉及的一系列节点都是不需要做特殊处理的，接着pop就好
         case N_PROGRAM:
             if (IF_DEBUG_PRINT)
             {

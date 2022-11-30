@@ -8,6 +8,7 @@ Grammar
     3           | ExtDef ExtDefList
 
     4 ExtDef: Specifier ExtDecList SEMI
+                //全局变量声明，不需要输出语句，需要的时候直接使用即可
     5       | Specifier SEMI
     6       | Specifier FunDec CompSt
             | Specifier FunDec SEMI

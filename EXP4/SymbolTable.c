@@ -18,6 +18,7 @@ enum Status { Active, Empty, Deleted };
 struct datanode1{
     char* varName;  //变量名
     /*结构体类型名不能穷举，改成用字符串表示*/
+    char* ir_name; //为了写IR专门起的名字
     int varType; //变量数据类型
     int arrayVarType; //数组存储的变量数据类型
     int numdim;     //若为数组，数组维度
@@ -129,10 +130,11 @@ int charToInt(char* type, SymbolTableStruct st){
     }
 }
 
-dataNodeVar* newNodeVar(char* name, int type){
+dataNodeVar* newNodeVar(char* name, char* in_ir_name, int type){
     dataNodeVar* newNode;
     newNode = (dataNodeVar*)malloc(sizeof(dataNodeVar));
     newNode -> varName = name;
+    newNode -> ir_name = in_ir_name;
     newNode -> varType = type;
     newNode -> numdim = -1;
     newNode -> len_of_dims = NULL;

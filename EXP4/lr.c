@@ -332,8 +332,8 @@ void print_IR(IR_list* lst, FILE* F){
     return;
 }
 
-int main(){
-    // IR_list* lst = init_IR();
-    // new_op(lst, I_FUNC, )
-    return 0;
-}
+// int main(){
+//     IR_list* lst = init_IR();
+//     new_op(lst, I_ADD, )
+//     return 0;
+// }
