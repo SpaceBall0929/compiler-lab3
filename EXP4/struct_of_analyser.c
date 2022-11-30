@@ -1030,13 +1030,9 @@ int tree_analys(treeNode *mytree)
             }
             func_ptr = fun_dec(temp, nearest_speci_type);
 
-            //添加标签用的，能不能别这么多事情啊我丢。。。
-            operand_to_use = (operand*)malloc(sizeof(operand));
-            operand_to_use->o_type = VARIABLE;
-            operand_to_use->o_value.name = (char*)malloc(sizeof(char) * strlen(func_ptr->funcName));
-            strcpy(operand_to_use->o_value.name, func_ptr->funcName);
+            //函数初始化之写标签
+            operand_to_use = init_operand(VARIABLE, func_ptr->funcName, 0, 0);
             new_op(lst_of_ir, I_LABLE, operand_to_use, 1);
-
             
 
             
@@ -1070,11 +1066,13 @@ int tree_analys(treeNode *mytree)
                 dataNodeVar* arg_of_func = func_ptr->args;
                 
                 //根据师兄建议，增加了形参段
-                //这个部分可以节约exp的工作量Z
+                //这个部分可以节约exp的工作量
                 while (arg_of_func != NULL)
                 {
                     InsertVar(&(var_domain_ptr->tVar), fun_table, arg_of_func, temp->line_no);
                     arg_of_func = arg_of_func -> next;
+                    operand_to_use = init_operand(VARIABLE, arg_of_func -> ir_name, 0, 0);
+                    new_op(lst_of_ir, I_PARAM, operand_to_use, 1);
                 }
             
             }
