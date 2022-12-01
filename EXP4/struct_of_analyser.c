@@ -19,9 +19,11 @@ stackNode *var_domain_ptr;
 SymbolTableFunc *fun_table;
 SymbolTableStruct *struct_table;
 
+int exp_re;
+int flag = 0;//是否有用到这个临时变量,没用到=0,用到了=1
 // 为了生成一系列中间变量，这里需要一个记录体来简单记录一下都有哪些变量
 //每一个字母下属变量一共有几个
-int num_of_vars[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }
+int num_of_vars[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 //变量从a开始
 int letter_now = 97;
 char* var_name_gen(){
@@ -160,9 +162,7 @@ int struct_specifier_dec(treeNode *dec_node)
     return temp;
 }
 
-/**************************
- *       以下施工完了        *
- ***************************/
+
 //返回对应类型的宏
 int find_type(treeNode *n)
 {
@@ -300,6 +300,26 @@ int Exp_s(treeNode *exp)
     | INT
     | FLOAT
     */
+
+   /*
+   中间代码版：
+    I_ASSIGN,       //赋值操作
+    I_ADD,          //加法操作
+    I_SUB,          //减法操作
+    I_MUL,          //乘法操作
+    I_DIV,          //除法操作
+    I_AS_ADDR,       //x := &y
+    I_AS_VALUE,      //x := *y
+    I_VALUE_ASSIGN,  //*x := y
+    I_GOTO,          //无条件跳转到标号x
+    I_IF,            //若满足关系则跳转
+    I_RETURN,        //函数返回
+    I_DEC,           //内存空间申请
+    I_ARG,           //函数传实参
+    I_CALL,          //函数调用
+    I_READ,          //从控制台读取
+    I_WRITE          //向控制台打印
+   */
     if (exp == NULL)
     {
         return -1;
@@ -447,7 +467,7 @@ int Exp_s(treeNode *exp)
             if (tempnode4 == NULL &&
                 tempnode3->nodeType == N_EXP &&
                 tempnode2->nodeType != N_LB)
-            { // 3元且第三项是Exp，如Exp AND Exp
+            { // 3元且第三项是Exp
                 treeNode *Expnode1 = tempnode1;
                 treeNode *Expnode2 = tempnode3;
                 if (Expnode1->nodeType != N_EXP)
@@ -458,25 +478,20 @@ int Exp_s(treeNode *exp)
                     }
                 }
 
-                // if(IF_DEBUG_PRINT){printf("%s\n", Expnode1->child->character);
-
-                // if(IF_DEBUG_PRINT){printf("%s\n", Expnode1->child->character);
                 int exp1type = Exp_s(Expnode1);
-
-                if (IF_DEBUG_PRINT)
-                {
-                    printf("test point\n");
-                }
-
                 int exp2type = Exp_s(Expnode2);
                 if (!check_error(exp1type, exp2type))
                 {
-                    //检查类型是否匹配
-                    //赋值号
-                    if (!right_type(exp1type, exp2type) && tempnode2->nodeType == N_ASSIGNOP)
-                    {
-                        error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
-                        return -1;
+                    //I_ASSIGN  赋值操作
+                    if(tempnode2->nodeType == N_ASSIGNOP){
+                        if (!right_type(exp1type, exp2type))
+                        {
+                            error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
+                            return -1;
+                        }
+
+
+                        new_op(lst_of_ir, I_ASSIGN, ?, 2);
                     }
 
                     if (check_type(tempnode2, N_AND) ||
