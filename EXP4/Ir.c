@@ -88,7 +88,8 @@ enum opcode {
     I_CALL,          //函数调用
     I_PARAM,         //函数参数声明
     I_READ,          //从控制台读取
-    I_WRITE          //向控制台打印
+    I_WRITE,          //向控制台打印
+    I_BOOL         //关系式
     };       
 
 struct operation
@@ -107,11 +108,11 @@ typedef struct operation operation;
 设lst为操作数链表，指令类型为co，传入
 init_op(co, lst->head, lst->length);
 */
-operation* init_op(enum opcode co, operand* op, int op_num){
+operation* init_op(enum opcode co, operand_list oplst, int op_num){
     operation* new_op = (operation*)malloc(sizeof(operation));
     new_op->code = co;
     new_op->opers = (operand*)malloc(op_num * sizeof(operand));
-    operand* pt = op;
+    operand* pt = oplst.head;
     for(int i = 0;i < op_num; i++){
         new_op->opers[i] = *pt;
         pt = pt->next;

@@ -68,7 +68,7 @@ int ifExistVarStack(domainStack ds, char *key)
 }
 
 dataNodeVar getNodeVarStack(domainStack ds, char *key){
-   domainStack p = ds;
+   domainStack *p = ds;
    dataNodeVar* fault = newNodeVar("error", -1);
    while (p != NULL)
    {
