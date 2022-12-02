@@ -21,7 +21,9 @@ SymbolTableFunc *fun_table;
 SymbolTableStruct *struct_table;
 
 int exp_re;
-int flag = 0; //是否有用到这个临时变量,没用到=0,用到了=1
+
+ //是否有用到这个临时变量,没用到=0,用到了=1
+int flag = 0;
 
 // 为了生成一系列中间变量，这里需要一个记录体来简单记录一下都有哪些变量
 //每一个字母下属变量一共有几个
@@ -247,7 +249,7 @@ int check_type(treeNode *n, int type)
     return n->nodeType == type;
 }
 
-int Exp_s(treeNode *exp);
+operand* Exp_s(treeNode *exp);
 
 //处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
 int Arg_s(treeNode *args, dataNodeVar *params, char *name)
@@ -304,28 +306,67 @@ int op_type(int c){
 }
 
 //处理二元运算，输入树的节点，输出生成的operation指针
-operation* binary(treeNode *t){
+operation* binary(treeNode *t)
+{
     treeNode *t1 = getchild(t, 1);
+    operand_list* oplst = init_operand_list();
     int type = op_type(t1->nodeType);
-    if(type == -1){
-        operand_list o_lst = bool(t);//为关系运算，处理关系运算
-        return init_op(I_BOOL, o_lst[0], 3);
+    if(type == -1)
+    {
+        operand_list o_lst = bool(t, 3);//为关系运算，处理关系运算
+        return init_op(I_BOOL, o_lst, 3);
     }
+    else//不是关系运算
+    {
+        operand* opr2 = Exp_s(t->child->sibling->sibling);
+        flag = 1;
+        operand* opr1 = Exp_s(t->child);
+        flag = 1;
+        operand* opr0 = temp_op(flag);
+        flag = 1;    
+        add_operand(oplst, opr0);
+        add_operand(oplst, opr1);
+        add_operand(oplst, opr2); 
+        return init_op(type, *oplst, 3);   
+    }
+}
+
+//处理单元运算，输入树的节点，输出生成的operation指针
+operation* unary(treeNode *t)
+{
+    operand_list* oplst = init_operand_list();
+    operand* opr2 = Exp_s(t->child->sibling);
+    flag = 1;
+    
+
+
 }
 
 //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
-operand_list bool(treeNode *t){
-    1;
+operand_list bool(treeNode *t, int opnum){
+    treeNode* n = t->child;
+    operand_list* oplst = init_operand_list();
+    if(opnum == 3)
+    {
+        operand* opr2 = Exp_s(n->sibling->sibling);
+        operand* opr0 = Exp_s(n);        
+        operand* opr1 = init_operand(VARIABLE, n->subtype.IDVal, 0, 0);
+        add_operand(oplst, opr0);
+        add_operand(oplst, opr1);
+        add_operand(oplst, opr2);
+    }
+    else if(opnum == 2)
+    {
+        operand* opr2 = Exp_s(n->sibling);
+        operand* opr1 = init_operand(VARIABLE, n->subtype.IDVal, 0, 0);
+        add_operand(oplst, opr1);
+        add_operand(oplst, opr2);        
+    }
 }
 
 //处理Exp节点
-int Exp_s(treeNode *exp)
+operand* Exp_s(treeNode *exp)
 {
-
-    if (IF_DEBUG_PRINT)
-    {
-        printf("In Exp\n");
-    }
     //处理Exp
     /*Exp ->
       Exp ASSIGNOP Exp
@@ -371,8 +412,9 @@ int Exp_s(treeNode *exp)
      I_READ,          //从控制台读取
      I_WRITE          //向控制台打印
     */
-    treeNode *tempnode1 = getchild(exp, 0);
+   
     treeNode *tempnode2 = getchild(exp, 1);
+    treeNode *tempnode1 = getchild(exp, 0);
 
     //1-处理变量或者数   ID，INT，FLOAT
     if (tempnode2 == NULL)
@@ -419,29 +461,31 @@ int Exp_s(treeNode *exp)
                     }
 
                     //处理运算
-                    
+                    operation* op = binary(exp);
+                    add_op(lst_of_ir, op);//加入这个运算
+                    operand* opr = init_operand(VARIABLE, temp_op(flag), 0, 0);
+                    flag = 0;//生成但是暂时没有用到，置于0
+                    return opr;
                 }
             }
         }
-        //第二部分;
         if (tempnode1->nodeType == N_LP ||
             tempnode1->nodeType == N_MINUS ||
             tempnode1->nodeType == N_NOT)
-        { // LP Exp RP，MINUS Exp，NOT Exp
+        { 
+    //3- LP Exp RP，MINUS Exp，NOT Exp
             treeNode *expnode = tempnode2;
-            if (expnode->nodeType != N_EXP)
-            { //第二个不是exp
-                if (IF_DEBUG_PRINT)
-                {
-                    printf("The second part should be Exp!\n");
-                }
-            }
             int exp1type = Exp_s(expnode);
-            if (check_type(expnode, N_NOT) && !check_error(exp1type, 1))
-            { // NOT结果返回int
-                return D_INT;
-            }
             exp_re = exp1type;
+            if (check_type(expnode, N_NOT))
+            { // NOT结果返回int
+                exp_re = D_INT;
+            }
+            operation* op = unary(exp);
+            add_op(lst_of_ir, op);//加入这个运算
+            operand* opr = init_operand(VARIABLE, temp_op(flag), 0, 0);
+            flag = 0;//生成但是暂时没有用到，置于0
+            return opr;
         }
         //第三部分;
         /*

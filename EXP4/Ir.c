@@ -67,6 +67,14 @@ void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a)
     lst->length += 1;
     return;
 }
+void add_operand(operand_list* lst, operand* new)
+{
+    lst->tail->next = new;
+    new->next = NULL;
+    lst->tail = new;
+    lst->length += 1;
+    return;
+}
 
 //指令类型
 enum opcode {
@@ -151,6 +159,21 @@ void new_op(IR_list* lst, enum opcode co, operand* op, int op_num){
     lst->tail = new;
     lst->length += 1;
     return;
+}
+
+//末尾插入运算
+void add_op(IR_list* lst, operation *op){
+    if(lst->head == NULL && lst->tail == NULL){
+        lst->head = lst->tail = op;
+        lst->length += 1;
+        return;
+    }
+    lst->tail->next = op;
+    op->front = lst->tail;
+    op->next = NULL;
+    lst->tail = op;
+    lst->length += 1;
+    return;    
 }
 
 //插入后为第index个（从0开始）
