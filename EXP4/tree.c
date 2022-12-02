@@ -21,6 +21,7 @@ typedef enum node_type
     N_PARAM_DEC,
     N_COMPST,
     N_STMT_L,
+    N_ELSE_L,
     N_DEF_L,
     N_DEF,
     N_DEC,

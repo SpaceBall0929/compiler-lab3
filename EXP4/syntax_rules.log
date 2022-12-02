@@ -60,9 +60,12 @@ Grammar
         以下的都返回-3
           | Exp SEMI 
           | IF LP Exp RP Stmt
-   30     | IF LP Exp RP Stmt ELSE Stmt
+   30     | IF LP Exp RP Stmt ElseList
    31     | WHILE LP Exp RP Stmt
    32     | Exp error
+
+     ElseList: ELSE IF LP Exp RP Stmt  ElseList
+               | ELSE Stmt
 
    33 DefList: Def DefList
    34        | ε
