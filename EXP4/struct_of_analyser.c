@@ -284,7 +284,41 @@ int check_error(int a, int b)
     return 0;
 }
 
-//处理Exp节点，返回对应类型，如果有错误返回-1
+int op_type(int c){
+    switch(c){
+        case N_ASSIGNOP:
+            return I_ASSIGN;
+            break;
+        case N_PLUS:
+            return I_ADD;
+            break;
+        case N_DEC:
+            return I_DEC;
+            break;
+        case N_STAR:
+            return I_MUL;
+            break;
+        default:
+            return -1;
+    }
+}
+
+//处理二元运算，输入树的节点，输出生成的operation指针
+operation* binary(treeNode *t){
+    treeNode *t1 = getchild(t, 1);
+    int type = op_type(t1->nodeType);
+    if(type == -1){
+        operand_list o_lst = bool(t);//为关系运算，处理关系运算
+        return init_op(I_BOOL, o_lst[0], 3);
+    }
+}
+
+//处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
+operand_list bool(treeNode *t){
+    1;
+}
+
+//处理Exp节点
 int Exp_s(treeNode *exp)
 {
 
@@ -337,203 +371,55 @@ int Exp_s(treeNode *exp)
      I_READ,          //从控制台读取
      I_WRITE          //向控制台打印
     */
-    if (exp == NULL)
-    {
-        return -1;
-    };
-    int result = -1;
-
     treeNode *tempnode1 = getchild(exp, 0);
     treeNode *tempnode2 = getchild(exp, 1);
-    if (tempnode2 != NULL && tempnode1 != NULL)
-        if (IF_DEBUG_PRINT)
-        {
-            printf("%s %s ", tempnode1->character, tempnode2->character);
-        }
-    if (getchild(exp, 2) != NULL)
-        if (IF_DEBUG_PRINT)
-        {
-            printf("%s \n", getchild(exp, 2)->character);
-        }
 
-    /*if(exp->child->sibling == NULL){
-        if(IF_DEBUG_PRINT){printf("Node2 is NULL!\n");}
-    }*/
-    // ID, EXP DOT ID(结构体), Exp LB Exp RB (数组)
-    if (tempnode1->nodeType == N_EXP)
-    {
-        if (tempnode2 != NULL && tempnode2->nodeType == N_ASSIGNOP)
-        { // Exp ASSIGNOP Exp
-            treeNode *tempnode11 = getchild(tempnode1, 0);
-            treeNode *tempnode12 = getchild(tempnode1, 1);
-            if (tempnode12 == NULL)
-            {
-                if (tempnode11->nodeType != N_ID)
-                {                                     //左侧不是ID
-                    error_msg(6, exp->line_no, NULL); //报错
-                    return -1;
-                }
-            }
-            else
-            {
-                treeNode *tempnode13 = getchild(tempnode1, 2);
-                if (tempnode13 != NULL)
-                {
-                    treeNode *tempnode14 = getchild(tempnode1, 3);
-                    if (tempnode14 == NULL)
-                    { // Exp DOT ID(结构体)
-                        if (tempnode11->nodeType == N_EXP &&
-                            tempnode12->nodeType == N_DOT &&
-                            tempnode13->nodeType == N_ID)
-                        {
-                            ; //正确
-                        }
-                        else
-                        { //报错
-                            error_msg(6, exp->line_no, NULL);
-                            return -1;
-                        }
-                    }
-                    else
-                    { // EXP LB EXP RB (数组)
-                        if (tempnode11->nodeType == N_EXP &&
-                            tempnode12->nodeType == N_LB &&
-                            tempnode13->nodeType == N_EXP &&
-                            tempnode14->nodeType == N_RB)
-                        {
-                            ; //正确
-                        }
-                        else
-                        { //报错
-                            error_msg(6, exp->line_no, NULL);
-                            return -1;
-                        }
-                    }
-                }
-                else
-                { // tempnode13==NULL 报错
-                    error_msg(6, exp->line_no, NULL);
-                    return -1;
-                }
-            }
-            if (IF_DEBUG_PRINT)
-            {
-                printf("左值判断完成\n");
-            }
-        }
-    }
-
-    // ID，INT，FLOAT
+    //1-处理变量或者数   ID，INT，FLOAT
     if (tempnode2 == NULL)
     {
-        if (IF_DEBUG_PRINT)
-        {
-            printf("ID is here\n");
-        }
         if (tempnode1->nodeType == N_ID)
-        { //检查该ID是否已定义  (local & global) 只要是变量就算ID!
-            // if(IF_DEBUG_PRINT){printf("%s\n",var_domain_ptr->tVar.data->varName);
-            if (IF_DEBUG_PRINT)
-                printf("%s\n", tempnode1->subtype.IDVal);
-
-            if (!ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal) &&
-                //! ifExistStruct(*struct_table, tempnode1->subtype.IDVal) &&
-                !ifExistFunc(*fun_table, tempnode1->subtype.IDVal))
-            {
-                error_msg(1, exp->line_no, tempnode1->subtype.IDVal); //错误类型1，变量未定义
-                return -1;
-            }
-            if (IF_DEBUG_PRINT)
-            {
-                int res = ifExistVarStack(var_domain_ptr, tempnode1->subtype.IDVal);
-                printf("end search\n");
-                printf("search result: %d \n", res);
-            }
-            // else
-            //{
-            result = find_type(tempnode1); //找到了,返回这个ID代表的类型
-            // result = charToInt(tempnode1->character, *struct_table);
-            // printf("The type no. is %d \n", result);
-            return result;
-            //}
+        { 
+            exp_re = find_type(tempnode1); //找到了,返回这个ID代表的类型
+            return init_operand(VARIABLE, getNodeVarStack(var_domain_ptr, tempnode1->subtype.IDVal).ir_name, 0, 0);
         }
         else if (tempnode1->nodeType == N_INT)
-        { //返回int
-            result = D_INT;
-            return result;
+        { //返回一个立即数类型的operand
+            exp_re = D_INT;
+            return init_operand(IMMEDIATE, NULL, tempnode1->subtype.intVal, 0);
             ;
         }
-        else if (tempnode1->nodeType == N_FLOAT)
-        { //处理float
-            result = D_FLOAT;
-            return result;
-        };
     }
     else
     {
         treeNode *tempnode3 = getchild(exp, 2);
-        //第一部分;
+
+    //2- 处理 Exp  <operator>  Exp
         if (tempnode3 != NULL)
         {
-            if (IF_DEBUG_PRINT)
-            {
-                printf("It's Exp <> Exp\n");
-            }
-
             treeNode *tempnode4 = getchild(exp, 3);
             if (tempnode4 == NULL &&
                 tempnode3->nodeType == N_EXP &&
                 tempnode2->nodeType != N_LB)
-            { // 3元且第三项是Exp
+            { 
                 treeNode *Expnode1 = tempnode1;
                 treeNode *Expnode2 = tempnode3;
-                if (Expnode1->nodeType != N_EXP)
-                {
-                    if (IF_DEBUG_PRINT)
-                    {
-                        printf("It isn't Exp xx Exp.\n");
-                    }
-                }
 
                 int exp1type = Exp_s(Expnode1);
                 int exp2type = Exp_s(Expnode2);
                 if (!check_error(exp1type, exp2type))
                 {
-                    // I_ASSIGN  赋值操作
-                    if (tempnode2->nodeType == N_ASSIGNOP)
-                    {
-                        if (!right_type(exp1type, exp2type))
-                        {
-                            error_msg(5, exp->line_no, NULL); //错误类型5，赋值号两侧类型不匹配
-                            return -1;
-                        }
-
-                        new_op(lst_of_ir, I_ASSIGN, ?, 2);
-                    }
+                    //非关系运算  返回操作数(随便哪个exp)的类型
+                    exp_re = exp1type;
 
                     if (check_type(tempnode2, N_AND) ||
                         check_type(tempnode2, N_OR) ||
                         check_type(tempnode2, N_RELOP))
                     { //关系运算,返回INT
-                        return D_INT;
+                        exp_re = D_INT;
                     }
 
-                    //不是赋值号，为运算符
-                    if (!right_type(exp1type, exp2type))
-                    {
-                        error_msg(7, exp->line_no, NULL); //错误类型7，操作数类型不匹配
-                        return -1;
-                    }
-                    else
-                    { //返回操作数(随便哪个exp)的类型
-                        result = exp1type;
-                        return result;
-                    }
-                }
-                else
-                {
-                    //返回-1,子exp里面有错,把-1往前传
-                    return -1;
+                    //处理运算
+                    
                 }
             }
         }
@@ -555,8 +441,7 @@ int Exp_s(treeNode *exp)
             { // NOT结果返回int
                 return D_INT;
             }
-            result = exp1type;
-            return result;
+            exp_re = exp1type;
         }
         //第三部分;
         /*
