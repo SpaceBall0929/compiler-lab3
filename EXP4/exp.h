@@ -1,0 +1,44 @@
+#ifndef EXP_H
+#define EXP_H
+#include <stdio.h>
+#include "DomainStack.c"
+#include "Ir.c"
+
+//是否有用到这个临时变量,没用到=0,用到了=1
+int flag = 0;
+
+//exp的返回类型
+int exp_re;
+
+// 中间代码使用的表
+IR_list *lst_of_ir;
+
+// 用到的变量作用域，函数和结构体表
+stackNode *var_domain_ptr;
+SymbolTableFunc *fun_table;
+SymbolTableStruct *struct_table;
+
+//处理Exp节点
+operand* Exp_s(treeNode *exp);
+
+//处理单元运算，输入树的节点，输出生成的operation指针
+operation* unary(treeNode *t);
+
+//返回是不是这个type
+int check_type(treeNode* t, int i);
+
+//处理单元运算，输入树的节点，输出生成的operation指针
+operation* unary(treeNode *t);
+
+//返回operator的类型，若为关系型返回-1，只在当前是操作符的时候调用。
+int op_type(int c);
+
+//处理二元运算，输入树的节点，输出生成的operation指针
+operation* binary(treeNode *t);
+
+//处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
+operand_list bool(treeNode *t, int opnum);
+
+//处理if和while条件里的exp节点,返回这个的index值
+int Exp_o(treeNode *exp);
+#endif

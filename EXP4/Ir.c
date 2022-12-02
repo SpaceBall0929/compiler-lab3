@@ -19,7 +19,7 @@ struct operand
     struct operand* next;
     
 };
-typedef struct operand operand;
+typedef operand operand;
 
 operand* init_operand(enum operand_type t, char* n, int i, long a){
     operand* oper = (operand*)malloc(sizeof(operand));
@@ -44,7 +44,7 @@ struct operand_list{
     operand* tail;
     int length;
 };
-typedef struct operand_list operand_list;
+typedef operand_list operand_list;
 
 operand_list* init_operand_list(){
     operand_list* new = (operand_list*)malloc(sizeof(operand_list));
