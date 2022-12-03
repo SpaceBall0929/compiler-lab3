@@ -3,6 +3,11 @@
 #include <string.h>
 #include "SymbolTable.c"
 #define MAX_TEMP_OP_NUM 5
+#define INT_LEN 4
+#define FLOAT_LEN 8
+
+//基本数据类型长度（单位：字节）
+int data_len[2] = {INT_LEN, FLOAT_LEN};
 
 //操作数类型
 enum operand_type {VARIABLE, IMMEDIATE, ADDRESS};
@@ -19,7 +24,7 @@ struct operand
     struct operand* next;
     
 };
-typedef operand operand;
+typedef struct operand operand;
 
 operand* init_operand(enum operand_type t, char* n, int i, long a){
     operand* oper = (operand*)malloc(sizeof(operand));
@@ -44,7 +49,7 @@ struct operand_list{
     operand* tail;
     int length;
 };
-typedef operand_list operand_list;
+typedef struct operand_list operand_list;
 
 operand_list* init_operand_list(){
     operand_list* new = (operand_list*)malloc(sizeof(operand_list));
@@ -53,7 +58,7 @@ operand_list* init_operand_list(){
     return new;
 }
 
-//在末尾插入指令
+//在末尾插入操作数
 void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a){
     operand* new = init_operand(t, n, i, a);
     if(lst->head == NULL && lst->tail == NULL){
@@ -67,6 +72,7 @@ void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a)
     lst->length += 1;
     return;
 }
+
 void add_operand(operand_list* lst, operand* new)
 {
     lst->tail->next = new;
@@ -74,6 +80,17 @@ void add_operand(operand_list* lst, operand* new)
     lst->tail = new;
     lst->length += 1;
     return;
+}
+
+//拼接参数表
+operand_list* add_args(operand_list* lst1, operand_list* lst2){
+    operand_list* new_lst = init_operand_list();
+    new_lst->head = lst1->head;
+    new_lst->tail = lst1->tail;
+    new_lst->tail->next = lst2->head;
+    new_lst->tail = lst2->tail;
+    new_lst->length = lst1->length + lst2->length;
+    return new_lst;
 }
 
 //指令类型
@@ -114,14 +131,15 @@ typedef struct operation operation;
 /*
 传参：
 设lst为操作数链表，指令类型为co，传入
-init_op(co, lst->head, lst->length);
+init_op(co, lst);
 */
-operation* init_op(enum opcode co, operand_list oplst, int op_num){
+operation* init_op(enum opcode co, operand_list oplst){
     operation* new_op = (operation*)malloc(sizeof(operation));
     new_op->code = co;
-    new_op->opers = (operand*)malloc(op_num * sizeof(operand));
+    new_op->op_num = oplst.length;
+    new_op->opers = (operand*)malloc(oplst.length * sizeof(operand));
     operand* pt = oplst.head;
-    for(int i = 0;i < op_num; i++){
+    for(int i = 0;i < oplst.length; i++){
         new_op->opers[i] = *pt;
         pt = pt->next;
     }
@@ -146,8 +164,8 @@ IR_list* init_IR(){
 }
 
 //在末尾插入指令
-void new_op(IR_list* lst, enum opcode co, operand* op, int op_num){
-    operation* new = init_op(co, op, op_num);
+void new_op(IR_list* lst, enum opcode co, operand_list oplst){
+    operation* new = init_op(co, oplst);
     if(lst->head == NULL && lst->tail == NULL){
         lst->head = lst->tail = new;
         lst->length += 1;
@@ -177,12 +195,12 @@ void add_op(IR_list* lst, operation *op){
 }
 
 //插入后为第index个（从0开始）
-void insert_op(IR_list* lst, enum opcode co, operand* op, int op_num, int index){
+void insert_op(IR_list* lst, enum opcode co, operand_list oplst, int index){
     if(index >= lst->length){
         printf("Index out of range!\n");
         exit(1);
     }
-    operation* new = init_op(co, op, op_num);
+    operation* new = init_op(co, oplst);
     operation* pt = lst->head;
     for(int i = 1;i < index; i++)
         pt = pt->next;
@@ -295,7 +313,10 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_AS_ADDR:
-        fprintf(F, "%s:=&%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+        if(op->op_num == 2)
+            fprintf(F, "%s:=&%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+        else
+            fprintf(F, "%s:=&%s+#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
         break;
 
     case I_AS_VALUE:
@@ -364,21 +385,29 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_ARG:
-        switch (op->opers[0].o_type)
-        {
-        case VARIABLE:
-            //右值为变量
-            fprintf(F, "ARG %s\n", op->opers[0].o_value.name);
-            break;
-        case IMMEDIATE:
-            //右值为立即数
-            fprintf(F, "ARG #%d\n", op->opers[0].o_value.im_value);
-            break;
-        default:
-            printf("Operand type error!\n");
-            exit(1);
-            break;
+        fprintf(F, "ARG ");
+        for(int i = 0; i < op->op_num; i++){
+            switch (op->opers[i].o_type)
+            {
+            case VARIABLE:
+                //右值为变量
+                fprintf(F, "%s", op->opers[i].o_value.name);
+                if(i < op->op_num - 1)
+                    fprintf(F, ",");
+                break;
+            case IMMEDIATE:
+                //右值为立即数
+                fprintf(F, "#%d", op->opers[i].o_value.im_value);
+                if(i < op->op_num - 1)
+                    fprintf(F, ",");
+                break;
+            default:
+                printf("Operand type error!\n");
+                exit(1);
+                break;
+            }
         }
+        fprintf(F, "\n");
         break;
 
     case I_CALL:
@@ -397,6 +426,12 @@ void print_op(operation* op, FILE* F){
         fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
         break;
     
+    case I_BOOL:
+        for(int i = 0; i < op->op_num; i++)
+            fprintf(F, "%s ", op->opers[i].o_value.name);
+        fprintf("\n");
+        break;
+
     default:
         printf("Operation type error!\n");
         exit(1);
@@ -442,18 +477,49 @@ operand* temp_op(int flag){
     return op;
 }
 
+
+//求数组大小（单位：字节）
+int array_size(dataNodeVar* array){
+    int unit_num = 1;
+    for(int i = 0; i < array->numdim; i++)
+        unit_num *= array->len_of_dims[i];
+    return unit_num * data_len[array->arrayVarType];
+}
+
+//求结构体大小（单位：字节）
+int struct_size(SymbolTableStruct* st, int struct_type){
+    dataNodeStruct* node = st->data[struct_type - D_AMT];
+    dataNodeVar* p = node->structDomains;
+    int i = 0;
+    while(p != NULL){
+        if(p->varType == D_ARRAY)      //成员为数组
+            i += array_size(p);
+        else if(p->varType >= D_AMT)   //成员为结构体
+            i += struct_size(st, p->varType);
+        else                           //成员为INT或FLOAT
+            i += data_len[p->varType];
+        p = p->next;
+    }
+    return i;
+}
+
 //结构体域的偏移量
 int struct_offset(SymbolTableStruct* st, char* struct_type, char* domain_name){
     dataNodeStruct* node = getNodeStruct(*st, struct_type);
-    int i = 0;
     dataNodeVar* p = node->structDomains;
+    int i = 0;
     while(p != NULL){
         if(!strcmp(p->varName, domain_name))
             return i;
-        i++;
+        if(p->varType == D_ARRAY)     //成员为数组
+            i += array_size(p);
+        else if(p->varType >= D_AMT)  //成员为结构体
+            i += struct_size(st, p->varType);
+        else                          //成员为INT或FLOAT
+            i += data_len[p->varType];
         p = p->next;
     }
-    return -1;
+    return 0;
 }
 
 int main(){
@@ -473,11 +539,11 @@ int main(){
     // operand* oper5 = init_operand(IMMEDIATE, NULL, 6, 0);
     // operand* oper6 = init_operand(VARIABLE, v4, 0, 0);
 
-    new_op(lst, I_LABLE, op_lst->head, op_lst->length);
-    new_op(lst, I_FUNC, op_lst->head, op_lst->length);
+    new_op(lst, I_LABLE, *op_lst);
+    new_op(lst, I_FUNC, *op_lst);
     new_operand(op_lst, VARIABLE, v2, 0, 0);
     // operand op_array1[2] = {*oper1, *oper2}; 
-    new_op(lst, I_ASSIGN, op_lst->head, op_lst->length);
+    new_op(lst, I_ASSIGN, *op_lst);
     // operand op_array2[3] = {*oper1, *oper2, *oper3};
     // new_op(lst, I_ADD, op_array2, 3);
     // operand op_array3[3] = {*oper1, *oper2, *oper4};
