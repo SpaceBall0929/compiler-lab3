@@ -125,7 +125,7 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     new_var->len_of_dims = (int *)malloc(sizeof(int) * dimension);
     for (int i = 0; i < dimension; i++)
     {
-        new_var->len_of_dims[i] = dimensionlen[dimension - 1 - i];
+        new_var->len_of_dims[i] = dimensionlen[i];
     }
     return new_var;
 }
