@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "SymbolTable.c"
+#define MAX_TEMP_OP_NUM 5
 
 //操作数类型
 enum operand_type {VARIABLE, IMMEDIATE, ADDRESS};
+
 //操作数
 struct operand
 {
@@ -13,10 +16,10 @@ struct operand
         int im_value;   //立即数取值
         long addr;      //地址          
     }o_value;
-    //struct operand* next;
+    struct operand* next;
     
 };
-typedef struct operand operand;
+typedef operand operand;
 
 operand* init_operand(enum operand_type t, char* n, int i, long a){
     operand* oper = (operand*)malloc(sizeof(operand));
@@ -33,6 +36,44 @@ operand* init_operand(enum operand_type t, char* n, int i, long a){
         exit(1);
     }
     return oper;
+}
+
+//操作数链表
+struct operand_list{
+    operand* head;
+    operand* tail;
+    int length;
+};
+typedef operand_list operand_list;
+
+operand_list* init_operand_list(){
+    operand_list* new = (operand_list*)malloc(sizeof(operand_list));
+    new->head = new->tail = NULL;
+    new->length = 0;
+    return new;
+}
+
+//在末尾插入指令
+void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a){
+    operand* new = init_operand(t, n, i, a);
+    if(lst->head == NULL && lst->tail == NULL){
+        lst->head = lst->tail = new;
+        lst->length += 1;
+        return;
+    }
+    lst->tail->next = new;
+    new->next = NULL;
+    lst->tail = new;
+    lst->length += 1;
+    return;
+}
+void add_operand(operand_list* lst, operand* new)
+{
+    lst->tail->next = new;
+    new->next = NULL;
+    lst->tail = new;
+    lst->length += 1;
+    return;
 }
 
 //指令类型
@@ -55,7 +96,8 @@ enum opcode {
     I_CALL,          //函数调用
     I_PARAM,         //函数参数声明
     I_READ,          //从控制台读取
-    I_WRITE          //向控制台打印
+    I_WRITE,          //向控制台打印
+    I_BOOL         //关系式
     };       
 
 struct operation
@@ -69,12 +111,20 @@ struct operation
 typedef struct operation operation;
 
 //指令初始化
-operation* init_op(enum opcode co, operand* op, int op_num){
+/*
+传参：
+设lst为操作数链表，指令类型为co，传入
+init_op(co, lst->head, lst->length);
+*/
+operation* init_op(enum opcode co, operand_list oplst, int op_num){
     operation* new_op = (operation*)malloc(sizeof(operation));
     new_op->code = co;
     new_op->opers = (operand*)malloc(op_num * sizeof(operand));
-    for(int i = 0;i < op_num; i++)
-        new_op->opers[i] = op[i];
+    operand* pt = oplst.head;
+    for(int i = 0;i < op_num; i++){
+        new_op->opers[i] = *pt;
+        pt = pt->next;
+    }
     new_op->next = new_op->front = NULL;
     return new_op;
 }
@@ -109,6 +159,21 @@ void new_op(IR_list* lst, enum opcode co, operand* op, int op_num){
     lst->tail = new;
     lst->length += 1;
     return;
+}
+
+//末尾插入运算
+void add_op(IR_list* lst, operation *op){
+    if(lst->head == NULL && lst->tail == NULL){
+        lst->head = lst->tail = op;
+        lst->length += 1;
+        return;
+    }
+    lst->tail->next = op;
+    op->front = lst->tail;
+    op->next = NULL;
+    lst->tail = op;
+    lst->length += 1;
+    return;    
 }
 
 //插入后为第index个（从0开始）
@@ -349,6 +414,48 @@ void print_IR(IR_list* lst, FILE* F){
     return;
 }
 
+char* get_ir(treeNode* node, SymbolTableVar* st){
+    int i = findPosVar(*st, node->subtype.IDVal);
+    char* ir_name = st->data[i].ir_name;
+    return ir_name;
+}
+
+enum operand_type get_ir_type(treeNode* node){
+    if(node->nodeType == N_ID)
+        return VARIABLE;
+    else{
+        printf("Node type error!\n");
+        exit(1);
+    }
+}
+
+//返回临时变量
+operand* temp_op(int flag){
+    static int count = 0;
+    count += flag;
+    char *num = (char*)malloc(MAX_TEMP_OP_NUM * sizeof(char));
+    char* t = (char*)malloc((MAX_TEMP_OP_NUM + 1) * sizeof(char));
+    t[0] = 't';
+    sprintf(num, "%d", count);
+    strcat(t, num); 
+    operand* op = init_operand(VARIABLE, t, 0, 0);
+    return op;
+}
+
+//结构体域的偏移量
+int struct_offset(SymbolTableStruct* st, char* struct_type, char* domain_name){
+    dataNodeStruct* node = getNodeStruct(*st, struct_type);
+    int i = 0;
+    dataNodeVar* p = node->structDomains;
+    while(p != NULL){
+        if(!strcmp(p->varName, domain_name))
+            return i;
+        i++;
+        p = p->next;
+    }
+    return -1;
+}
+
 int main(){
     IR_list* lst = init_IR();
     char* v1 = "x";
@@ -356,43 +463,52 @@ int main(){
     char* v3 = "z";
     char* v4 = "<=";
     
-    operand* oper1 = init_operand(VARIABLE, v1, 0, 0);
-    operand* oper2 = init_operand(VARIABLE, v2, 0, 0);
-    operand* oper3 = init_operand(VARIABLE, v3, 0, 0);
-    operand* oper4 = init_operand(IMMEDIATE, NULL, 5, 0);
-    operand* oper5 = init_operand(IMMEDIATE, NULL, 6, 0);
-    operand* oper6 = init_operand(VARIABLE, v4, 0, 0);
+    operand_list* op_lst = init_operand_list();
+    new_operand(op_lst, VARIABLE, v1, 0, 0);
 
-    new_op(lst, I_LABLE, oper1, 1);
-    new_op(lst, I_FUNC, oper1, 1);
-    operand op_array1[2] = {*oper1, *oper2}; 
-    new_op(lst, I_ASSIGN, op_array1, 2);
-    operand op_array2[3] = {*oper1, *oper2, *oper3};
-    new_op(lst, I_ADD, op_array2, 3);
-    operand op_array3[3] = {*oper1, *oper2, *oper4};
-    new_op(lst, I_SUB, op_array3, 3);
-    operand op_array4[3] = {*oper1, *oper4, *oper2};
-    new_op(lst, I_MUL, op_array4, 3);
-    operand op_array5[3] = {*oper1, *oper4, *oper5};
-    new_op(lst, I_DIV, op_array5, 3);
-    insert_op(lst, I_AS_ADDR, op_array1, 2, 2);
-    insert_op(lst, I_AS_VALUE, op_array1, 2, 4);
-    insert_op(lst, I_VALUE_ASSIGN, op_array1, 2, 6);
-    new_op(lst, I_GOTO, oper1, 1);
-    operand op_array6[4] = {*oper3, *oper6, *oper5, *oper2};
-    new_op(lst, I_IF, op_array6, 4);
-    new_op(lst, I_RETURN, oper4, 1);
-    operand op_array7[2] = {*oper3, *oper5};
-    new_op(lst, I_DEC, op_array7, 2);
-    new_op(lst, I_ARG, oper1, 1);
-    new_op(lst, I_CALL, op_array1, 2);
-    new_op(lst, I_PARAM, oper1, 1);
-    new_op(lst, I_READ, oper1, 1);
-    new_op(lst, I_WRITE, oper1, 1);
+    // operand* oper1 = init_operand(VARIABLE, v1, 0, 0);
+    // operand* oper2 = init_operand(VARIABLE, v2, 0, 0);
+    // operand* oper3 = init_operand(VARIABLE, v3, 0, 0);
+    // operand* oper4 = init_operand(IMMEDIATE, NULL, 5, 0);
+    // operand* oper5 = init_operand(IMMEDIATE, NULL, 6, 0);
+    // operand* oper6 = init_operand(VARIABLE, v4, 0, 0);
+
+    new_op(lst, I_LABLE, op_lst->head, op_lst->length);
+    new_op(lst, I_FUNC, op_lst->head, op_lst->length);
+    new_operand(op_lst, VARIABLE, v2, 0, 0);
+    // operand op_array1[2] = {*oper1, *oper2}; 
+    new_op(lst, I_ASSIGN, op_lst->head, op_lst->length);
+    // operand op_array2[3] = {*oper1, *oper2, *oper3};
+    // new_op(lst, I_ADD, op_array2, 3);
+    // operand op_array3[3] = {*oper1, *oper2, *oper4};
+    // new_op(lst, I_SUB, op_array3, 3);
+    // operand op_array4[3] = {*oper1, *oper4, *oper2};
+    // new_op(lst, I_MUL, op_array4, 3);
+    // operand op_array5[3] = {*oper1, *oper4, *oper5};
+    // new_op(lst, I_DIV, op_array5, 3);
+    // insert_op(lst, I_AS_ADDR, op_array1, 2, 2);
+    // insert_op(lst, I_AS_VALUE, op_array1, 2, 4);
+    // insert_op(lst, I_VALUE_ASSIGN, op_array1, 2, 6);
+    // new_op(lst, I_GOTO, oper1, 1);
+    // operand op_array6[4] = {*oper3, *oper6, *oper5, *oper2};
+    // new_op(lst, I_IF, op_array6, 4);
+    // new_op(lst, I_RETURN, oper4, 1);
+    // operand op_array7[2] = {*oper3, *oper5};
+    // new_op(lst, I_DEC, op_array7, 2);
+    // new_op(lst, I_ARG, oper1, 1);
+    // new_op(lst, I_CALL, op_array1, 2);
+    // new_op(lst, I_PARAM, oper1, 1);
+    // new_op(lst, I_READ, oper1, 1);
+    // new_op(lst, I_WRITE, oper1, 1);
 
     FILE* F = fopen("test.txt", "w");
     print_IR(lst, F);
 
+    operand* tmp = temp_op(2);
+    printf("%s\n", tmp->o_value.name);
+
+    operand* tmp2 = temp_op(-1);
+    printf("%s\n", tmp2->o_value.name);
 
     return 0;
 }
