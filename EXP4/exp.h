@@ -20,24 +20,28 @@ SymbolTableStruct *struct_table;
 
 //处理Exp节点
 operand* Exp_s(treeNode *exp);
+//分别处理exp的几种情况
+    //1-处理id int或者float的情况
+    operand* id_int_float(treeNode *tn1);
 
-//处理单元运算，输入树的节点，输出生成的operation指针
-operation* unary(treeNode *t);
+    //2-处理 exp <operator> exp
+    operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3);
+        //处理二元运算，输入树的节点，输出生成的operation指针
+        operation* binary(treeNode *t);
+        //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
+        operand_list bool(treeNode *t, int opnum);
+
+    //3-处理MINUS Exp，NOT Exp,lp exp rp直接在exp里处理
+    operand* o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3);
+        //处理单元运算，输入树的节点，输出生成的operation指针
+        operation* unary(treeNode *t);
+
 
 //返回是不是这个type
 int check_type(treeNode* t, int i);
 
-//处理单元运算，输入树的节点，输出生成的operation指针
-operation* unary(treeNode *t);
-
 //返回operator的类型，若为关系型返回-1，只在当前是操作符的时候调用。
 int op_type(int c);
-
-//处理二元运算，输入树的节点，输出生成的operation指针
-operation* binary(treeNode *t);
-
-//处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
-operand_list bool(treeNode *t, int opnum);
 
 //处理if和while条件里的exp节点,返回这个的index值
 int Exp_o(treeNode *exp);
