@@ -25,19 +25,20 @@ int flag = 0; //是否有用到这个临时变量,没用到=0,用到了=1
 
 // 为了生成一系列中间变量，这里需要一个记录体来简单记录一下都有哪些变量
 //每一个字母下属变量一共有几个
-int num_of_vars[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int num_of_vars = 0;
 //变量从a开始
 int letter_now = 97;
 char *var_name_gen()
 {
-    char *out = (char *)malloc(sizeof(char) * 2);
+    char *out = (char *)malloc(sizeof(char) * 3);
     out[0] = letter_now;
-    out[1] = '\0';
-    str(out, itoa(num_of_vars[letter_now - 97]));
-
-    if (num_of_vars[letter_now - 97]++ == 9)
+    out[1] = num_of_vars + 48;
+    out[2] = '\0';
+    num_of_vars++;
+    if (num_of_vars == 10)
     {
         letter_now += 1;
+        num_of_vars = 0;
     }
 
     return out;
@@ -47,15 +48,39 @@ char *var_name_gen()
 IR_list *lst_of_ir;
 
 //为了给标签计数
-int lable_num = 0;
+int lable_num0 = 0;
+int lable_num1 = 0;
+
+//插入标签的简便方式,返回值为标签编号，标签名格式为lb+编号
+char* insert_lable(){
+    char* lable_name = (char*)malloc(sizeof(char)* 5);
+    lable_name[0] = 'l';
+    lable_name[1] = 'b';
+    lable_name[2] = lable_num0 + 48;
+    lable_name[3] = lable_num1 + 48;
+    lable_name[4] = '\0';
+    lable_num1++;
+    if(lable_num1 == 10){
+        lable_num0++;
+        lable_num1 = 0;
+    }
+    operand* myop = init_operand(VARIABLE, lable_name, 0, 0);
+    new_op(lst_of_ir, I_LABLE, myop, 0);
+
+    return lable_name;
+}
 
 //为了处理if语句，这里需要一个记录stmt的地方哦
 treeNode *stmt_quene[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 //这个用来记录if对应语句块在哪里
 int goto_idx[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-// 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
-//判定specifier的指向：整形/浮点/结构体定义/结构体使用
+char* all_lable_names[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+//记录stmt的总个数
+int stmt_cnt = 0;
 
+// 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
+
+// 判定specifier的指向：整形/浮点/结构体定义/结构体使用
 int specifier(treeNode * speci)
 {
     switch (speci->child->nodeType)
@@ -1167,20 +1192,24 @@ int tree_analys(treeNode *mytree)
                 break;
 
             case EXP_LOOP:
+                all_lable_names[2] = insert_lable();
+                //exp_o(temp);
+                goto_idx[stmt_cnt++] = lst_of_ir->length - 1;
+                operand_to_use = init_operand(VARIABLE, NULL, 0, 0);
+                new_op(lst_of_ir, I_GOTO, operand_to_use, 1);
+                goto_idx[stmt_cnt++] = lst_of_ir->length - 1;
+                all_lable_names[0] = insert_lable();
+
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("EXP_LOOP\n");
+                }
+                break;
+
             case EXP_BRANCH:
                 if (IF_DEBUG_PRINT)
                 {
-                    printf("EXP_BRANCH or EXP_LOOP\n");
-                }
-                //这里要加exp_o()函数
-
-                if (Exp_s(temp) != D_INT)
-                {
-                    if (IF_DEBUG_PRINT)
-                    {
-                        printf("EXP_DONE\n");
-                    }
-                    error_msg(7, temp->line_no, NULL);
+                    printf("EXP_LOOP\n");
                 }
                 break;
 
@@ -1238,6 +1267,8 @@ int tree_analys(treeNode *mytree)
             {
                 printf("stmt detected\n");
             }
+            
+
             if_unfold = 1;
             break;
 
