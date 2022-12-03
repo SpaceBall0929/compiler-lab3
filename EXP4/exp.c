@@ -108,8 +108,7 @@ operand* Exp_s(treeNode *exp)
                 if (tn1->nodeType == N_EXP &&
                     tn2->nodeType == N_LB &&
                     tn3->nodeType == N_EXP)
-                     return exp_ar(tn1, tn2, tn3, tn4);
-                
+                     return exp_ar(tn1, exp);
             }
         };
     }
@@ -363,12 +362,57 @@ operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
     return init_operand(VARIABLE, ret_char, 0, 0);
 }
 
-operand* exp_ar(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn4)
+operand* exp_ar(treeNode *tn1, treeNode *exp)
 {
+        //返回元素的类型
+    exp_re = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).arrayVarType;
+    operand_list *opl = init_operand_list();
+    new_operand(opl, VARIABLE, temp_op(flag), 0, 0);
+    flag = 1;
+    new_operand(opl, VARIABLE, get_ar_name(tn1), 0, 0); 
+    int* dimlen = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).len_of_dims;
+    new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*arr_offset(dimlen, exp, 0, 0), 0);
+    new_op(lst_of_ir, I_AS_ADDR, opl, 3);
+
     
-    
-    /*未完*/
-    //返回元素的类型
-    dataNodeVar var_node = getNodeVar(var_domain_ptr->tVar, tn3->child->subtype.IDVal);
-    exp_re = var_node.varType;
+
+    char* ret_char = "";
+    strcat(ret_char, "*");
+    strcat(ret_char, temp_op(0));//*ti
+    flag = 1;
+    return init_operand(VARIABLE, ret_char, 0, 0);
+}
+
+int byte_len(int type)
+{
+    return 4;
+}
+
+char* get_ar_name(treeNode *tn1)
+{
+    treeNode *t = tn1;
+    while(t->child != NULL)
+    {
+        t = t->child;
+    }
+    return get_ir(t, var_domain_ptr);
+}
+
+int arr_offset(int *dimlen, treeNode* t, int n, int tag)
+{
+    if(getchild(t, 0)->nodeType == N_ID)//base case
+    {
+        return dimlen[n]*getchild(t, 2)->subtype.intVal;
+    }
+    else
+    {
+        if(!tag)
+        {
+            return getchild(t, 2)->child->subtype.intVal + arr_offset(dimlen, t->child, n, 1);
+        }
+        else
+        {
+            return dimlen[n]*(getchild(t, 2)->child->subtype.intVal) + arr_offset(dimlen, t->child, n + 1, 1);
+        }
+    }
 }
