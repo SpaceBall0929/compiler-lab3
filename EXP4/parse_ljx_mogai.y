@@ -251,7 +251,6 @@ Stmt : Exp SEMI{
         $3->sibling = $4;
         $4->sibling = $5;
         $5->sibling = $6;
-        $6->sibling = $7;
         myTree = $$;
     }
     | WHILE LP Exp RP Stmt{
@@ -288,7 +287,7 @@ ElseList : ELSE IF LP Exp RP Stmt  ElseList{
         }
 
 
-        
+
  /*Local Definitions*/
 DefList : Def DefList{
         $$ = upConstruct($1, "DefList", @1.first_line, N_DEF_L);
@@ -509,7 +508,6 @@ Args : Exp COMMA Args{
     }
     ;
 
-IO : 
 %%
 
 #include "lex.yy.c"
