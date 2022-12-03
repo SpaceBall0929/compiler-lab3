@@ -28,6 +28,7 @@
 %token IF                          /* if */
 %token ELSE                        /* else */
 %token WHILE                       /* while */
+%token IO                        /* IO read/write */
 
 // 定义结合性和优先级次序
 %right ASSIGNOP
@@ -250,6 +251,7 @@ Stmt : Exp SEMI{
         $3->sibling = $4;
         $4->sibling = $5;
         $5->sibling = $6;
+        $6->sibling = $7;
         myTree = $$;
     }
     | WHILE LP Exp RP Stmt{
@@ -286,7 +288,7 @@ ElseList : ELSE IF LP Exp RP Stmt  ElseList{
         }
 
 
-
+        
  /*Local Definitions*/
 DefList : Def DefList{
         $$ = upConstruct($1, "DefList", @1.first_line, N_DEF_L);
@@ -413,11 +415,24 @@ Exp : Exp ASSIGNOP Exp{
         $1->sibling = $2;
         myTree = $$;
     }
+    | IO LP Args RP{
+        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
+        $1->sibling = $2;
+        $2->sibling = $3;
+        $3->sibling = $4;
+        myTree = $$;
+    }
     | ID LP Args RP{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
         $1->sibling = $2;
         $2->sibling = $3;
         $3->sibling = $4;
+        myTree = $$;
+    }
+    | IO LP RP{
+        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
+        $1->sibling = $2;
+        $2->sibling = $3;
         myTree = $$;
     }
     | ID LP RP{
@@ -494,6 +509,7 @@ Args : Exp COMMA Args{
     }
     ;
 
+IO : 
 %%
 
 #include "lex.yy.c"
