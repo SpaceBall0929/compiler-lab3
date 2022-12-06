@@ -644,13 +644,11 @@ int tree_analys(treeNode *mytree)
 
             case EXP_LOOP:
                 all_lable_names[2] = insert_lable();
-                //exp_o(temp);
-                goto_idx[stmt_cnt++] = lst_of_ir->length - 1;
+                goto_idx[stmt_cnt++] = Exp_o(temp);
                 operand_to_use = init_operand(VARIABLE, NULL, 0, 0);
                 new_op(lst_of_ir, I_GOTO, operand_to_use, 1);
                 goto_idx[stmt_cnt++] = lst_of_ir->length - 1;
                 all_lable_names[0] = insert_lable();
-
                 if (IF_DEBUG_PRINT)
                 {
                     printf("EXP_LOOP\n");
@@ -714,6 +712,12 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_STMT:
+            if(){
+                
+            }
+
+
+            
             if (IF_DEBUG_PRINT)
             {
                 printf("stmt detected\n");
