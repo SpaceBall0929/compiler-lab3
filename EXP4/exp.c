@@ -161,7 +161,8 @@ operand* id_int_float_IO(treeNode *tn1)
         }
         else if (tn1->nodeType == N_IO)
         {
-            
+            exp_re = D_INT;
+            return init_operand(VARIABLE, NULL, tn1->subtype.IDVal, 0);
         }
 }
 
