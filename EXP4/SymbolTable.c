@@ -488,3 +488,5 @@ int ifStructEquivalent(SymbolTableStruct st, int struct1, int struct2){
     }
     return 1;
 }
+
+
