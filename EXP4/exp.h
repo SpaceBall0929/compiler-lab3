@@ -29,7 +29,7 @@ operand* Exp_s(treeNode *exp);
         //处理二元运算，输入树的节点，输出生成的operation指针
         operation* binary(treeNode *t);
         //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
-        operand_list bool(treeNode *t, int opnum);
+        operand_list* bool(treeNode *t, int opnum);
         //处理and or not这三种情况
         operation* and_or_not(treeNode*t, int type);
 

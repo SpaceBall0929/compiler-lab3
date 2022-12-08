@@ -227,7 +227,7 @@ operation* unary(treeNode *t)
         add_operand(oplst, opr0);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
-        return init_op(type, *oplst, 3);   
+        return init_op(type, *oplst);   
     }
 
 }
@@ -240,8 +240,8 @@ operation* binary(treeNode *t)
     int type = op_type(t1->nodeType);
     if(type == -1)
     {
-        operand_list o_lst = bool(t, 3);//为关系运算，处理关系运算
-        return init_op(I_BOOL, o_lst, 3);
+        oplst = bool(t, 3);//为关系运算，处理关系运算
+        return init_op(I_BOOL, *oplst);
     }
     else if(type > 1989)
     {
@@ -258,12 +258,12 @@ operation* binary(treeNode *t)
         add_operand(oplst, opr0);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
-        return init_op(type, *oplst, 3);   
+        return init_op(type, *oplst);   
     }
 }
 
 //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
-operand_list bool(treeNode *t, int opnum){
+operand_list* bool(treeNode *t, int opnum){
     treeNode* n = t->child;
     operand_list* oplst = init_operand_list();
     if(opnum == 3)
@@ -275,6 +275,7 @@ operand_list bool(treeNode *t, int opnum){
         add_operand(oplst, opr1);
         add_operand(oplst, opr2);
     }
+    return oplst;
 }
 
 
@@ -284,7 +285,7 @@ int Exp_o(treeNode *exp)
     {
         operand_list *oplst = NULL;
         oplst = bool(exp, 3);
-        new_op(lst_of_ir, I_IF, oplst, 3);
+        new_op(lst_of_ir, I_IF, *oplst);
     }
     else
     {//处理and or not
@@ -303,7 +304,7 @@ operand* fun_no_args(treeNode *tn1, treeNode *tn2, treeNode *tn3)
     new_operand(opl, VARIABLE, temp_op(flag), 0, 0);
     new_operand(opl, VARIABLE, funcname, 0, 0);
     flag = 1;
-    new_op(lst_of_ir, I_CALL, opl, 2);
+    new_op(lst_of_ir, I_CALL, *opl);
     exp_re = getNodeFunc(*fun_table, funcname).returnType;
     return temp_op(0);
 }
@@ -313,7 +314,7 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
     char *funcname = tn1->subtype.IDVal;
     treeNode *cntnode = tn3;
     int cnt = 0;    
-    operand_list opl = init_operand_list();
+    operand_list* opl = init_operand_list();
     while (1)
     {   //计算所有实参的数目
         cnt += 1;
@@ -328,19 +329,19 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
         }
         cntnode = getchild(cntnode, 2);
     }
-    new_op(lst_of_ir, I_ARG, opl, cnt);
+    new_op(lst_of_ir, I_ARG, *opl);
     operand_list *opl = init_operand_list();
     new_operand(opl, VARIABLE, temp_op(flag), 0, 0);
     new_operand(opl, VARIABLE, funcname, 0, 0);
     flag = 1;
-    new_op(lst_of_ir, I_CALL, opl, 2);
+    new_op(lst_of_ir, I_CALL, *opl);
     exp_re = getNodeFunc(*fun_table, funcname).returnType;
     return temp_op(0);
 }
 
 operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
 {
-    operand op0 = Exp_s(tn1);
+    operand* op0 = Exp_s(tn1);
     int offset = struct_offset(struct_table, getchild(tn1, 0)->subtype.IDVal, tn3->subtype.IDVal);
     operand_list *oplst= init_operand_list();
     add_operand(oplst, temp_op(flag));//ti
@@ -348,12 +349,12 @@ operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
     flag = 0;
     if(offset == 0)
     {
-        new_op(lst_of_ir, I_ASSIGN, oplst, 2);
+        new_op(lst_of_ir, I_ASSIGN, *oplst);
     }
     else
     {
         new_operand(oplst, ADDRESS, NULL, offset, 0);//地址偏移
-        new_op(lst_of_ir, I_AS_ADDR, oplst, 3);
+        new_op(lst_of_ir, I_AS_ADDR, *oplst);
     }
     char* ret_char = "";
     strcat(ret_char, "*");
@@ -372,7 +373,7 @@ operand* exp_ar(treeNode *tn1, treeNode *exp)
     new_operand(opl, VARIABLE, get_ar_name(tn1), 0, 0); 
     int* dimlen = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).len_of_dims;
     new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*arr_offset(dimlen, exp, 0, 0), 0);
-    new_op(lst_of_ir, I_AS_ADDR, opl, 3);
+    new_op(lst_of_ir, I_AS_ADDR, *opl);
 
     
 
