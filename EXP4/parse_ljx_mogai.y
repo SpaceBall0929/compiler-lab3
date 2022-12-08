@@ -462,6 +462,9 @@ Exp : Exp ASSIGNOP Exp{
     | FLOAT{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
+    | IO{
+        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
+    }
     | LP error RP {
         if(line_check[@2.first_line-1]==0){
         line_check[@2.first_line-1]=1;
