@@ -5,7 +5,7 @@
 
 int num_of_vars[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 //变量从a开始
-int letter_now = 99;
+int letter_now = 97;
 char *var_name_gen()
 {
     char *out = (char *)malloc(sizeof(char) * 3);
