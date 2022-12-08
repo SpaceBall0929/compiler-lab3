@@ -56,8 +56,8 @@ operand* Exp_s(treeNode *exp)
     treeNode *tn2 = getchild(exp, 1);
     treeNode *tn1 = getchild(exp, 0);
 
-    //1-处理变量或者数   ID，INT，FLOAT
-    if (tn2 == NULL)   return id_int_float(tn1);
+    //1-处理变量或者数或者IO   ID，INT，FLOAT，read, write
+    if (tn2 == NULL)   return id_int_float_IO(tn1);
     else
     {
         treeNode *tn3 = getchild(exp, 2);
@@ -146,7 +146,7 @@ int op_type(int c){
 }
 
 //1-处理id int或者float的情况
-operand* id_int_float(treeNode *tn1)
+operand* id_int_float_IO(treeNode *tn1)
 {
     if (tn1->nodeType == N_ID)
         { 
@@ -158,6 +158,10 @@ operand* id_int_float(treeNode *tn1)
             exp_re = D_INT;
             return init_operand(IMMEDIATE, NULL, tn1->subtype.intVal, 0);
             ;
+        }
+        else if (tn1->nodeType == N_IO)
+        {
+            
         }
 }
 
@@ -279,12 +283,13 @@ operand_list* bool(treeNode *t, int opnum){
 }
 
 
-int Exp_o(treeNode *exp)
+int Exp_o(treeNode *exp, char* label)
 {   
     if(getchild(exp, 1)->nodeType == N_RELOP)
     {
         operand_list *oplst = NULL;
         oplst = bool(exp, 3);
+        new_operand(oplst, VARIABLE, label, 0, 0);
         new_op(lst_of_ir, I_IF, *oplst);
     }
     else
@@ -292,7 +297,10 @@ int Exp_o(treeNode *exp)
         int type;
         if(count_child(exp) == 3) type = getchild(exp, 1)->nodeType;
         else type = I_NOT;
-        add_op(lst_of_ir, and_or_not(exp, op_type(type)));
+        operand_list *oplst = NULL;
+        oplst = and_or_not(exp, op_type(type));
+        new_operand(oplst, VARIABLE, label, 0, 0);
+        add_op(lst_of_ir, oplst);
     }
     return lst_of_ir->length;
 }

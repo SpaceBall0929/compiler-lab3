@@ -22,7 +22,7 @@ SymbolTableStruct *struct_table;
 operand* Exp_s(treeNode *exp);
 //分别处理exp的几种情况
     //1-处理id int或者float的情况
-    operand* id_int_float(treeNode *tn1);
+    operand* id_int_float_IO(treeNode *tn1);
 
     //2-处理 exp <operator> exp
     operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3);
@@ -58,5 +58,5 @@ int op_type(int c);
 int byte_len(int type);
 
 //处理if和while条件里的exp节点,返回这个的index值
-int Exp_o(treeNode *exp);
+int Exp_o(treeNode *exp, char* label);
 #endif
