@@ -84,6 +84,14 @@ ID [_a-zA-Z][_0-9a-zA-Z]*
     error_count += 1;
     printf("ERROR TYPE A at line %d: Illegal hexadecimal number: '%s'\n",yylineno,yytext);
     }
+    
+{IO} {
+    treeNode* node = (treeNode*)malloc(sizeof(treeNode));
+    nodeInit(node, "IO", yylineno, NULL, NULL, N_IO);
+    node->subtype.IDVal = strdup(yytext);
+    yylval = node;
+    return IO;
+    }
 
 {SEMI} {
     treeNode* node = (treeNode*)malloc(sizeof(treeNode));
