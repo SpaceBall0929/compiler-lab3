@@ -206,7 +206,6 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
     {
         if( !strcmp(tn3->child->subtype.IDVal, "read"))
         {
-            printf("read");
             operand_list *opl = init_operand_list();
             add_operand(opl, Exp_s(Expnode1));
             new_op(lst_of_ir, I_READ, *opl);
@@ -214,8 +213,7 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
             return Exp_s(Expnode1);
         }
     }
-    Exp_s(Expnode2);//exp_re已修改
-    operand* o = Exp_s(Expnode1);
+
     //非关系运算  返回操作数(随便哪个exp)的类型
 
         if (check_type(tn2, N_AND) ||
@@ -228,6 +226,7 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
         //处理运算
         operation* op = binary(exp);
         add_op(lst_of_ir, op);//加入这个运算
+        if(op->code == I_ASSIGN) return op->opers;
         operand* opr = temp_op(flag);
         flag = 0;//生成但是暂时没有用到，置于0
         return opr;
@@ -286,23 +285,23 @@ operation* binary(treeNode *t)
         oplst = bool_(t, 3);//为关系运算，处理关系运算
         return init_op(I_BOOL, *oplst);
     }
-    /*else if(type > 1989)
-    {
-        return and_or_not(t, type);
-    }
-    else//不是关系运算
-    {*/
         operand* opr2 = Exp_s(t->child->sibling->sibling);
         flag = 1;
         operand* opr1 = Exp_s(t->child);
         flag = 1;
+        if(type == I_ASSIGN)//为赋值
+        {
+            add_operand(oplst, opr1);
+            add_operand(oplst, opr2); 
+            return init_op(type, *oplst);  
+        }
         operand* opr0 = temp_op(flag);
         flag = 1;    
         add_operand(oplst, opr0);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
         return init_op(type, *oplst);   
-    //}
+    
 }
 
 //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
@@ -363,23 +362,22 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
     operand_list* opl = init_operand_list();
     if(!strcmp(funcname, "write"))
     {
-        printf("%s", funcname);
-        add_operand(opl, Exp_s(tn3->child));
+        operand* o = Exp_s(tn3->child);
+        add_operand(opl, o);
         new_op(lst_of_ir, I_WRITE, *opl);
-        return Exp_s(tn3->child);
+        //return Exp_s(tn3->child);
     }
     while (1)
     {   //计算所有实参的数目
         cnt += 1;
         treeNode *tempcntnode = getchild(cntnode, 2);
 
-        //获取实参
-        add_operand(opl, Exp_s(getchild(cntnode, 0)));
-
         if (tempcntnode == NULL)
         {
             break;
         }
+        //获取实参
+        add_operand(opl, Exp_s(getchild(cntnode, 0)));
         cntnode = getchild(cntnode, 2);
     }
     operand_list *opl2 = init_operand_list();
@@ -419,16 +417,16 @@ operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
 
 operand* exp_ar(treeNode *tn1, treeNode *exp)
 {
-        //返回元素的类型
+    //返回元素的类型
     exp_re = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).arrayVarType;
     operand_list *opl = init_operand_list();
     add_operand(opl, temp_op(flag));
     flag = 1;
     new_operand(opl, VARIABLE, get_ar_name(tn1), 0, 0); 
     int* dimlen = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).len_of_dims;
+    if(dimlen)printf("ok");
     new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*arr_offset(dimlen, exp, 0, 0), 0);
     new_op(lst_of_ir, I_AS_ADDR, *opl);
-
     
 
     char ret_char[5] = "*";

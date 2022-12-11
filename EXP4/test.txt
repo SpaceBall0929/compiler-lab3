@@ -1,36 +1,22 @@
-LABLE fact:
-PARAM a0
-IF a0 == #1 GOTO lb00
-GOTO lb01
 LABLE main:
+READ a0
+IF a0 > #0 GOTO lb00
+IF a0 < #0 GOTO lb01
 GOTO lb02
-IF a1 > #1 GOTO lb03
-GOTO lb04
 LABLE lb00:
-RETURN a0
-GOTO lb05
+WRITE 1
+ARG #1
+t0:=CALL write
+GOTO lb03
 LABLE lb01:
-t1:=a0-#1
+t1:=#0-#1
+WRITE 1234621056
 ARG t2
-t2:=CALL fact
-t3:=a0-#1
-ARG t4
-t4:=CALL fact
-t5:=a0*t4
-RETURN t6
-GOTO lb05
+t2:=CALL write
+GOTO lb03
 LABLE lb02:
-READ a1
-GOTO lb05
+WRITE 0
+ARG #0
+t3:=CALL write
 LABLE lb03:
-ARG a1
-t6:=CALL fact
-ARG a1
-t7:=CALL fact
-t8:=a2
-GOTO lb05
-LABLE lb04:
-t10:=a2
-LABLE lb05:
-WRITE a2
 RETURN #0

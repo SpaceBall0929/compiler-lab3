@@ -63,7 +63,7 @@ void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a)
     if(lst->head == NULL && lst->tail == NULL){
         lst->head = lst->tail = new;
         lst->length += 1;
-        printf("test\n");
+        //printf("test\n");
         return;
     }
     lst->tail->next = new;
@@ -78,7 +78,7 @@ void add_operand(operand_list* lst, operand* new)
     if(lst->head == NULL && lst->tail == NULL){
         lst->head = lst->tail = new;
         lst->length += 1;
-        printf("test2\n");
+        //printf("test\n");
         return;
     }
     lst->tail->next = new;
@@ -454,7 +454,8 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_WRITE:
-        fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
+        //fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
+        fprintf(F, "WRITE %d\n", op->opers[0].o_value.im_value);
         break;
     
     case I_BOOL:
@@ -550,7 +551,7 @@ int struct_offset(SymbolTableStruct* st, char* struct_type, char* domain_name){
             i += data_len[p->varType];
         p = p->next;
     }
-    return 0;
+    return i;
 }
 
 // int main(){
