@@ -14,6 +14,7 @@
     Tree* myTree;
 %}
 %token INT                         /* int 类型 */
+%token IO                        /* IO read/write */
 %token FLOAT                       /* float 类型 */
 %token TYPE                        /* TYPE 终结符 */
 %token LF                          /* 换行符 \n */
@@ -28,7 +29,7 @@
 %token IF                          /* if */
 %token ELSE                        /* else */
 %token WHILE                       /* while */
-%token IO                        /* IO read/write */
+
 
 // 定义结合性和优先级次序
 %right ASSIGNOP
@@ -459,7 +460,7 @@ Exp : Exp ASSIGNOP Exp{
         myTree = $$;
     }
     | IO{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
+        $$ =  upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
     | ID{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
