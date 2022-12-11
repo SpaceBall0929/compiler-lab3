@@ -4,6 +4,39 @@
 #define I_OR 198965
 #define I_NOT 198966
 
+
+
+
+//返回是否报错，若只有一个参数，第二个参数写1
+int check_error(int a, int b)
+{
+    if (a == -1 || b == -1)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+//返回对应类型的宏
+int find_type(treeNode *n)
+{
+    char *name = n->subtype.IDVal;
+    if (ifExistStruct(*struct_table, name))
+    {
+
+        return charToInt(name, *struct_table);
+    }
+    else if (ifExistFunc(*fun_table, name))
+    {
+        return 5;
+    }
+    else
+    {
+        return getNodeVar(var_domain_ptr->tVar, name).varType;
+    }
+}
+
+
 //处理Exp节点
 operand* Exp_s(treeNode *exp)
 {
@@ -66,7 +99,7 @@ operand* Exp_s(treeNode *exp)
         {
             treeNode *tn4 = getchild(exp, 3);
             if (tn4 == NULL &&tn3->nodeType == N_EXP && tn2->nodeType != N_LB)  
-                exp_o_exp(tn1, tn2, tn3);
+                exp_o_exp(tn1, tn2, tn3, exp);
         }
 
     //3- LP exp RP 调用一次exp，返回这个exp的东西,不做别的处理
@@ -75,7 +108,7 @@ operand* Exp_s(treeNode *exp)
 
     //3- MINUS Exp，NOT Exp
         if (tn1->nodeType == N_MINUS || tn1->nodeType == N_NOT)    
-            return o_exp(tn1, tn2, tn3);
+            return o_exp(tn1, tn2, tn3, exp);
     
     //4-函数部分   ID LP Args RP 有参函数  ID LP RP 无参函数
         if (tn1->nodeType == N_ID)
@@ -162,22 +195,19 @@ operand* id_int_float_IO(treeNode *tn1)
         else if (tn1->nodeType == N_IO)
         {
             exp_re = D_INT;
-            return init_operand(VARIABLE, NULL, tn1->subtype.IDVal, 0);
+            return init_operand(VARIABLE, tn1->subtype.IDVal, 0, 0);
         }
 }
 
 //2-处理 exp <operator> exp
-operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3)
+operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
 {
     treeNode *Expnode1 = tn1;
     treeNode *Expnode2 = tn3;
 
-    int exp1type = Exp_s(Expnode1);
-    int exp2type = Exp_s(Expnode2);
-    if (!check_error(exp1type, exp2type))
-    {
-        //非关系运算  返回操作数(随便哪个exp)的类型
-        exp_re = exp1type;
+    Exp_s(Expnode1);
+    Exp_s(Expnode2);//exp_re已修改
+    //非关系运算  返回操作数(随便哪个exp)的类型
 
         if (check_type(tn2, N_AND) ||
             check_type(tn2, N_OR) ||
@@ -189,24 +219,23 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3)
         //处理运算
         operation* op = binary(exp);
         add_op(lst_of_ir, op);//加入这个运算
-        operand* opr = init_operand(VARIABLE, temp_op(flag), 0, 0);
+        operand* opr = temp_op(flag);
         flag = 0;//生成但是暂时没有用到，置于0
         return opr;
 }
-}
 
-operand* o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3)
+
+operand* o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
 {
     treeNode *expnode = tn2;
-    int exp1type = Exp_s(expnode);
-    exp_re = exp1type;
+    Exp_s(expnode);//修改exp_s
     if (check_type(expnode, N_NOT))
     { // NOT结果返回int
         exp_re = D_INT;
     }
     operation* op = unary(exp);
     add_op(lst_of_ir, op);//加入这个运算
-    operand* opr = init_operand(VARIABLE, temp_op(flag), 0, 0);
+    operand* opr = temp_op(flag);
     flag = 0;//生成但是暂时没有用到，置于0
     return opr;
 }
@@ -293,16 +322,15 @@ int Exp_o(treeNode *exp, char* label)
         new_operand(oplst, VARIABLE, label, 0, 0);
         new_op(lst_of_ir, I_IF, *oplst);
     }
-    else
-    {//处理and or not
+    /*else
+    {//处理and or not//不处理了 假装没有
         int type;
         if(count_child(exp) == 3) type = getchild(exp, 1)->nodeType;
         else type = I_NOT;
-        operand_list *oplst = NULL;
-        oplst = and_or_not(exp, op_type(type));
+        operand_list *oplst = and_or_not(exp, op_type(type));
         new_operand(oplst, VARIABLE, label, 0, 0);
-        add_op(lst_of_ir, oplst);
-    }
+        new_op(lst_of_ir, oplst);
+    }*/
     return lst_of_ir->length;
 }
 
@@ -310,7 +338,7 @@ operand* fun_no_args(treeNode *tn1, treeNode *tn2, treeNode *tn3)
 {
     char *funcname = tn1->subtype.IDVal;
     operand_list *opl = init_operand_list();
-    new_operand(opl, VARIABLE, temp_op(flag), 0, 0);
+    add_operand(opl, temp_op(flag));
     new_operand(opl, VARIABLE, funcname, 0, 0);
     flag = 1;
     new_op(lst_of_ir, I_CALL, *opl);
@@ -338,12 +366,12 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
         }
         cntnode = getchild(cntnode, 2);
     }
-    new_op(lst_of_ir, I_ARG, *opl);
-    operand_list *opl = init_operand_list();
-    new_operand(opl, VARIABLE, temp_op(flag), 0, 0);
-    new_operand(opl, VARIABLE, funcname, 0, 0);
+    operand_list *opl2 = init_operand_list();
+    add_operand(opl2, temp_op(flag));
+    new_operand(opl2, VARIABLE, funcname, 0, 0);
     flag = 1;
-    new_op(lst_of_ir, I_CALL, *opl);
+    new_op(lst_of_ir, I_CALL, *opl2);
+    new_op(lst_of_ir, I_ARG, *opl);
     exp_re = getNodeFunc(*fun_table, funcname).returnType;
     return temp_op(0);
 }
@@ -367,7 +395,7 @@ operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
     }
     char* ret_char = "";
     strcat(ret_char, "*");
-    strcat(ret_char, temp_op(flag));//*ti
+    strcat(ret_char, temp_op(flag)->o_value.name);//*ti
     flag = 1;
     return init_operand(VARIABLE, ret_char, 0, 0);
 }
@@ -377,7 +405,7 @@ operand* exp_ar(treeNode *tn1, treeNode *exp)
         //返回元素的类型
     exp_re = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).arrayVarType;
     operand_list *opl = init_operand_list();
-    new_operand(opl, VARIABLE, temp_op(flag), 0, 0);
+    add_operand(opl, temp_op(flag));
     flag = 1;
     new_operand(opl, VARIABLE, get_ar_name(tn1), 0, 0); 
     int* dimlen = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).len_of_dims;
@@ -388,7 +416,7 @@ operand* exp_ar(treeNode *tn1, treeNode *exp)
 
     char* ret_char = "";
     strcat(ret_char, "*");
-    strcat(ret_char, temp_op(0));//*ti
+    strcat(ret_char, temp_op(0)->o_value.name);//*ti
     flag = 1;
     return init_operand(VARIABLE, ret_char, 0, 0);
 }
@@ -405,7 +433,7 @@ char* get_ar_name(treeNode *tn1)
     {
         t = t->child;
     }
-    return get_ir(t, var_domain_ptr);
+    return get_ir(t, &(var_domain_ptr->tVar));
 }
 
 int arr_offset(int *dimlen, treeNode* t, int n, int tag)

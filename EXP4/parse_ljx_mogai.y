@@ -51,7 +51,7 @@ Program : ExtDefList{
 };
 
 ExtDefList : %empty{
-        //修改$$ = insertNode(NULL, "ExtDefList", yylineno, NONTERMINAL);
+        //修改$$ = insertNode(NULL, "ExtDefList", yylineno, N_STMT);
         $$ = upConstruct(NULL, "ExtDefList", yylineno, N_EXT_DEF_L);
         myTree = $$;
     }
@@ -244,13 +244,14 @@ Stmt : Exp SEMI{
         $4->sibling = $5;
         myTree = $$;
     }
-    | IF LP Exp RP Stmt ELseList{
+    | IF LP Exp RP Stmt ELSE Stmt{
         $$ = upConstruct($1, "Stmt", @1.first_line, N_STMT);
         $1->sibling = $2;
         $2->sibling = $3;
         $3->sibling = $4;
         $4->sibling = $5;
         $5->sibling = $6;
+        $6->sibling = $7;
         myTree = $$;
     }
     | WHILE LP Exp RP Stmt{
@@ -271,20 +272,24 @@ Stmt : Exp SEMI{
     }
 ;
 
-ElseList : ELSE IF LP Exp RP Stmt  ElseList{
-            $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
-            $1->sibling = $2;
-            $2->sibling = $3;
-            $3->sibling = $4;
-            $4->sibling = $5;
-            $5->sibling = $6;
-            $6->sibling = $7;
-            myTree = $$;
-        }
-        | ELSE Stmt{
-            $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
-            $1->sibling = $2;
-        }
+
+// ElseList : ELSE IF LP Exp RP Stmt  ElseList{
+//             $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
+//             $1->sibling = $2;
+//             $2->sibling = $3;
+//             $3->sibling = $4;
+//             $4->sibling = $5;
+//             $5->sibling = $6;
+//             $6->sibling = $7;
+//             myTree = $$;
+//         }
+//         | ELSE Stmt{
+//             $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
+//             $1->sibling = $2;
+//         }
+//         | %empty{
+//             $$ = upConstruct(NULL, "ElseList", yylineno, N_ELSE_L);
+//         }
 
 
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SymbolTable.c"
+// #include "SymbolTable.c"
 #define MAX_TEMP_OP_NUM 5
 #define INT_LEN 4
 #define FLOAT_LEN 8
@@ -44,12 +44,11 @@ operand* init_operand(enum operand_type t, char* n, int i, long a){
 }
 
 //操作数链表
-struct operand_list{
+typedef struct operand_list{
     operand* head;
     operand* tail;
     int length;
-};
-typedef struct operand_list operand_list;
+}operand_list;
 
 operand_list* init_operand_list(){
     operand_list* new = (operand_list*)malloc(sizeof(operand_list));
@@ -91,6 +90,21 @@ operand_list* add_args(operand_list* lst1, operand_list* lst2){
     new_lst->tail = lst2->tail;
     new_lst->length = lst1->length + lst2->length;
     return new_lst;
+}
+
+//删除当前参数链表
+int del_operand_content(operand_list* lst_to_del){
+    operand* temp0 = lst_to_del->head;
+    operand* temp1;
+    while(temp0 != NULL){
+        temp1 = temp0;
+        temp0 = temp0->next;
+        free(temp1);
+    }
+    lst_to_del->length = 0;
+    lst_to_del->head = NULL;
+    lst_to_del->tail = NULL;
+    return 0;
 }
 
 //指令类型

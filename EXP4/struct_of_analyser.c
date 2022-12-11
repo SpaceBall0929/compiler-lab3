@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "DomainStack.c"
-#include "Ir.c"
 #include "exp.c"
+#include "syntax_treenode_analyz_dcs.c"
+#include "ir_gen_dcs.c"
 #define EXP_DO_NOTHING 114514
 #define EXP_RETURN 114515
 #define EXP_BRANCH 114516
@@ -13,297 +13,21 @@
 #define IN_STRUCT_DEC_L 1919813
 #define IN_VAR_DEC 1919814
 
-//改成任意不为0的数字开启debug输出
+// 改成任意不为0的数字开启debug输出
 #define IF_DEBUG_PRINT 0
 
 // 为了生成一系列中间变量，这里需要一个记录体来简单记录一下都有哪些变量
-//每一个字母下属变量一共有几个
-int num_of_vars = 0;
-//变量从a开始
-int letter_now = 97;
-char *var_name_gen()
-{
-    char *out = (char *)malloc(sizeof(char) * 3);
-    out[0] = letter_now;
-    out[1] = num_of_vars + 48;
-    out[2] = '\0';
-    num_of_vars++;
-    if (num_of_vars == 10)
-    {
-        letter_now += 1;
-        num_of_vars = 0;
-    }
-
-    return out;
-}
-
-//为了给标签计数
-int lable_num0 = 0;
-int lable_num1 = 0;
-
-//插入标签的简便方式,返回值为标签编号，标签名格式为lb+编号
-char* insert_lable(){
-    char* lable_name = (char*)malloc(sizeof(char)* 5);
-    lable_name[0] = 'l';
-    lable_name[1] = 'b';
-    lable_name[2] = lable_num0 + 48;
-    lable_name[3] = lable_num1 + 48;
-    lable_name[4] = '\0';
-    lable_num1++;
-    if(lable_num1 == 10){
-        lable_num0++;
-        lable_num1 = 0;
-    }
-    operand* myop = init_operand(VARIABLE, lable_name, 0, 0);
-    new_op(lst_of_ir, I_LABLE, myop, 0);
-
-    return lable_name;
-}
-
-//为了处理if语句，这里需要一个记录stmt的地方哦
-treeNode *stmt_quene[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-//这个用来记录if对应语句块在哪里
-int goto_idx[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
-char* all_lable_names[10] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-//记录stmt的总个数
-int stmt_cnt = 0;
+// 每一个字母下属变量一共有几个
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
 
-// 判定specifier的指向：整形/浮点/结构体定义/结构体使用
-int specifier(treeNode * speci)
-{
-    switch (speci->child->nodeType)
-    {
-    case N_TYPE:
-        if (speci->child->subtype.IDVal[0] == 'i')
-        {
-            return D_INT;
-        }
-        return D_FLOAT;
-
-        break;
-
-    case N_STRUCT_SPECI:
-        if (speci->child->child->sibling->nodeType == N_TAG)
-        {
-            return D_STRUCT_DEC;
-        }
-        return D_STRUCT_DEF;
-    default:
-        if (IF_DEBUG_PRINT)
-        {
-            printf("ERROR: Unexpected nodeType in the child of Specifier\n");
-        }
-        return 0;
-        break;
-    }
-}
-
-dataNodeVar *var_dec(treeNode *dec_node, int var_type)
-{
-    dataNodeVar *new_var;
-    treeNode *origrn = dec_node;
-    dec_node = dec_node->child;
-    int dimension = 0;
-    int dimensionlen[10];
-    while (dec_node->nodeType != N_ID)
-    {
-        dimensionlen[dimension++] = dec_node->sibling->sibling->subtype.intVal;
-        dec_node = dec_node->child;
-    }
-
-    //这里直接给变量换名字了，方便中间代码使用
-    new_var = newNodeVar(dec_node->subtype.IDVal, var_name_gen(), var_type);
-    if (dimension == 0)
-    {
-        return new_var;
-    }
-    new_var->arrayVarType = var_type;
-    new_var->varType = D_ARRAY;
-    new_var->numdim = dimension;
-    new_var->len_of_dims = (int *)malloc(sizeof(int) * dimension);
-    for (int i = 0; i < dimension; i++)
-    {
-        new_var->len_of_dims[i] = dimensionlen[i];
-    }
-    return new_var;
-}
-
-dataNodeVar *param_dec(treeNode *para)
-{
-    int type_def = specifier(para->child);
-    if (type_def == D_STRUCT_DEF)
-    {
-        if (IF_DEBUG_PRINT)
-        {
-            printf("ERROR: Unexpected treeNode: structure definition in the parameters of the function.\n");
-        }
-        return NULL;
-    }
-
-    return var_dec(para->child->sibling, type_def);
-}
-
-//处理参数表
-dataNodeVar *var_list(treeNode *arg_list)
-{
-    arg_list = arg_list->child;
-    dataNodeVar *temp_node = param_dec(arg_list);
-    dataNodeVar *ptr = temp_node;
-    arg_list = arg_list->sibling;
-    while (arg_list != NULL)
-    {
-        arg_list = arg_list->sibling->child;
-        ptr->next = param_dec(arg_list);
-        ptr = ptr->next;
-        arg_list = arg_list->sibling;
-    }
-    ptr->next = NULL;
-
-    return temp_node;
-}
-
-//处理FunDec
-dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
-{
-    treeNode *temp_node = dec_node->child->sibling->sibling;
-    dataNodeVar *arg_list = NULL;
-    if (temp_node->nodeType == N_VAR_L)
-    {
-        arg_list = var_list(temp_node);
-    }
-    return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
-}
-
-int struct_specifier_dec(treeNode *dec_node)
-{
-    dec_node = dec_node->child->sibling->child;
-    int temp = charToInt(dec_node->subtype.IDVal, *struct_table);
-    if (temp == -1)
-    {
-        error_msg(17, dec_node->line_no, dec_node->subtype.IDVal);
-    }
-    return temp;
-}
-
-//返回对应类型的宏
-int find_type(treeNode *n)
-{
-    char *name = n->subtype.IDVal;
-    if (ifExistStruct(*struct_table, name))
-    {
-        if (IF_DEBUG_PRINT)
-            printf("Struct\n");
-        return charToInt(name, *struct_table);
-    }
-    else if (ifExistFunc(*fun_table, name))
-    {
-        return 5;
-    }
-    else
-    {
-        if (IF_DEBUG_PRINT)
-            printf("Input name is %s\n", n->subtype.IDVal);
-        if (IF_DEBUG_PRINT)
-            printf("After searching, the var name is %s\n var type is %d \n", getNodeVar(var_domain_ptr->tVar, name).varName,
-                   getNodeVar(var_domain_ptr->tVar, name).varType);
-        return getNodeVar(var_domain_ptr->tVar, name).varType;
-    }
-}
-
-//返回这个type的字符串
-char *find_type2(int t, char *name)
-{
-    char *c = "Sruct";
-    switch (t)
-    {
-    case 0:
-        return "int";
-        break;
-    case 1:
-        return "float";
-        break;
-    case 2:
-        return "array";
-        break;
-    case 5:
-        return "function";
-        break;
-    default:
-        // strcat(c, (char)(getNodeVar(var_domain_ptr->tVar, name).varType - 5));
-        c[5] = (char)(getNodeVar(var_domain_ptr->tVar, name).varType - 5);
-        break;
-    }
-    return c;
-}
-
-//检查类型是否可以赋值
-int right_type(int t1, int t2)
-{
-    if (t1 >= 6 && t2 >= 6)
-    { //看看是否是体相同结构体
-        int i = ifStructEquivalent(*struct_table, t1, t2);
-        if (IF_DEBUG_PRINT)
-        {
-            printf("比较结构体结果是%d", i);
-        }
-        return i;
-    }
-    else
-    {
-        return t1 == t2;
-    }
-}
-
-
-
-//处理Arg_s，判断实参和形参类型是否匹配（数量是否匹配已在exp中判断过）
-int Arg_s(treeNode *args, dataNodeVar *params, char *name)
-{
-    /*Args ->
-      Exp COMMA Args
-    | Exp;
-    */
-    treeNode *expnode = getchild(args, 0);
-    treeNode *tempnode = getchild(args, 1); //判断实参是否还有参数
-
-    int temptype = Exp_s(expnode); //检查函数形参和实参类型是否匹配
-
-    if (temptype != params->varType)
-    {
-        return -1;
-    }
-
-    if (tempnode != NULL)
-    { //实参还有参数，继续检查下一个实参和形参是否匹配
-        treeNode *argsnode = getchild(args, 2);
-        return Arg_s(argsnode, params->next, name);
-    }
-    return 0;
-}
-
-//返回是否报错，若只有一个参数，第二个参数写1
-int check_error(int a, int b)
-{
-    if (a == -1 || b == -1)
-    {
-        return 1;
-    }
-    return 0;
-}
-
-
-
-
-
 int tree_analys(treeNode *mytree)
 {
-    //栈初始化部分
+    // 栈初始化部分
     treeNode *temp = mytree;
     seqStack myStack;
     seqStack *stack_ptr;
-    operand *operand_to_use;
+    operand_list *operand_to_use = init_operand_list();
     stack_ptr = &myStack;
     initStack(stack_ptr);
     push(stack_ptr, mytree);
@@ -311,7 +35,7 @@ int tree_analys(treeNode *mytree)
     {
         printf("Initializing stack successfully\n");
     }
-    //表初始化部分
+    // 表初始化部分
     var_domain_ptr = domainPush(var_domain_ptr);
     fun_table = tableFuncInit();
     struct_table = tableStructInit();
@@ -320,18 +44,14 @@ int tree_analys(treeNode *mytree)
     {
         printf("Initializing tables successfully\n");
     }
-    //用于存储变量信息以及一些flag
+    // 用于存储变量信息以及一些flag
     int if_unfold = 1;
-    // int in_func_domain = 0;
     int exp_flag = EXP_DO_NOTHING;
     int now_processing = IN_GLOBAL;
     int nearest_speci_type = -1;
-    // int nearest_struct_type = -1;
     int nearestfunc_type = -1;
-    // int in_local = 0;
-    // int in_struct_def = 0;
     int exp_stmt_out = 0;
-    char *temp_ID = NULL;
+    char *temp_ir_lable = NULL;
     dataNodeVar *var_head = NULL;
     dataNodeVar *var_ptr = NULL;
     dataNodeFunc *func_ptr = NULL;
@@ -341,19 +61,36 @@ int tree_analys(treeNode *mytree)
         printf("Initializing varibles successfully\n");
     }
 
-    //这个地方需要提前的插入read()和write()两个函数，后面会有调用的。
-    //或者说exp那一层直接给我解决了？我不知道，问你刘爹
+    // 中间代码生成用到的，用于处理if-else及其嵌套结构
+    if_stack *if_stmts_lables;
+    if_stmts_lables = (if_stack *)malloc(sizeof(if_stack));
+    if_stmts_lables->len = 0;
+    for (int i = 0; i < IF_BLOCK_NUM; i++)
+    {
+        if_stmts_lables->quene[i].node_cnt = 0;
+        if_stmts_lables->quene[i].name_cnt = 0;
+        if_stmts_lables->quene[i].end_lable = NULL;
+    }
+
+    // 记录现在是否属于一串if中，用于判断if_stack是否压栈 flag0
+    int in_set_of_if = 0;
+    // 记录栈到什么位置才会完全解析else list，方便中间代码的书写 flag1
+    int when_to_end_if = -1;
+    // 扫描到else的特殊记号，这里是专门用来讨论else的 flag2
+    int last_token_is_else = 0;
+    // 这里记录还有几个if下属的stmt未处理，数着栈长度来计算 flag3
+    int if_stmt_remain = 0;
+    // 这里记录处理的到底是if还是while
+    int while_flag = -1;
+    // 这个地方需要提前的插入read()和write()两个函数，后面会有调用的。
+    // 或者说exp那一层直接给我解决了？我不知道，问你刘爹
 
     while (!isEmpty(stack_ptr))
     {
-        //根据收到的不同符号调用不同的处理函数
+        // 根据收到的不同符号调用不同的处理函数
         switch (temp->nodeType)
         {
         case N_PROGRAM:
-            if (IF_DEBUG_PRINT)
-            {
-                printf("Program detected\n");
-            }
             if_unfold = 1;
             break;
 
@@ -482,7 +219,7 @@ int tree_analys(treeNode *mytree)
                 printf("SEMI detected\n");
             }
             // SEMI在这个层次被扫描有两重功能，一个是结束变量。结束结构体
-            //一个是结束函数的声明
+            // 一个是结束函数的声明
             switch (now_processing)
             {
             case IN_FUNC_DEC:
@@ -536,18 +273,13 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_FUN_DEC:
-            //注意！这里还不知道函数有没有定义，只知道有这样一个声明
-            //这个声明暂存后，并没有提交到表中
+            // 注意！这里还不知道函数有没有定义，只知道有这样一个声明
+            // 这个声明暂存后，并没有提交到表中
             if (IF_DEBUG_PRINT)
             {
                 printf("Function declareration detected\n");
             }
             func_ptr = fun_dec(temp, nearest_speci_type);
-
-            //函数初始化之写标签
-            operand_to_use = init_operand(VARIABLE, func_ptr->funcName, 0, 0);
-            new_op(lst_of_ir, I_LABLE, operand_to_use, 1);
-
             nearestfunc_type = nearest_speci_type;
             now_processing = IN_FUNC_DEC;
             if_unfold = 0;
@@ -567,6 +299,19 @@ int tree_analys(treeNode *mytree)
                 now_processing = IN_FUNC_COMPST;
                 func_ptr->defined = 1;
                 InsertFunc(&(var_domain_ptr->tVar), fun_table, func_ptr, temp->line_no);
+                // 函数初始化之写标签
+                dataNodeVar *arg_of_func = func_ptr->args;
+                insert_lable(func_ptr->funcName);
+                // 根据师兄建议，增加了形参段
+                // 这个部分可以节约exp的工作量
+                while (arg_of_func != NULL)
+                {
+                    InsertVar(&(var_domain_ptr->tVar), fun_table, arg_of_func, temp->line_no);
+                    new_operand(operand_to_use, VARIABLE, arg_of_func->ir_name, 0, 0);
+                    new_op(lst_of_ir, I_PARAM, *operand_to_use);
+                    del_operand_content(operand_to_use);
+                    arg_of_func = arg_of_func->next;
+                }
             }
             if (now_processing == IN_FUNC_COMPST)
             {
@@ -575,17 +320,6 @@ int tree_analys(treeNode *mytree)
                     printf("Create new domain\n");
                 }
                 var_domain_ptr = domainPush(var_domain_ptr);
-                dataNodeVar *arg_of_func = func_ptr->args;
-
-                //根据师兄建议，增加了形参段
-                //这个部分可以节约exp的工作量
-                while (arg_of_func != NULL)
-                {
-                    InsertVar(&(var_domain_ptr->tVar), fun_table, arg_of_func, temp->line_no);
-                    arg_of_func = arg_of_func->next;
-                    operand_to_use = init_operand(VARIABLE, arg_of_func->ir_name, 0, 0);
-                    new_op(lst_of_ir, I_PARAM, operand_to_use, 1);
-                }
             }
             if_unfold = 0;
             break;
@@ -635,21 +369,34 @@ int tree_analys(treeNode *mytree)
                 {
                     printf("EXP_DO_NOTHING\n");
                 }
-                Exp_s(temp);
-                if (IF_DEBUG_PRINT)
-                {
-                    printf("EXP_DONE\n");
-                }
+                // 清除一下最后一个返回值占用的内存
+                free(Exp_s(temp));
                 break;
 
             case EXP_LOOP:
-                all_lable_names[2] = insert_lable();
-                //exp_o(temp);
-                goto_idx[stmt_cnt++] = lst_of_ir->length - 1;
-                operand_to_use = init_operand(VARIABLE, NULL, 0, 0);
-                new_op(lst_of_ir, I_GOTO, operand_to_use, 1);
-                goto_idx[stmt_cnt++] = lst_of_ir->length - 1;
-                all_lable_names[0] = insert_lable();
+                // while 的前置标签
+                temp_ir_lable = gen_lable();
+                new_operand(operand_to_use, VARIABLE, temp_ir_lable, 0, 0);
+                new_op(lst_of_ir, I_LABLE, *operand_to_use);
+                del_operand_content(operand_to_use);
+                add_lable(if_stmts_lables, temp_ir_lable);
+
+                // while的IF相关语句
+                temp_ir_lable = gen_lable();
+                Exp_o(temp, temp_ir_lable);
+                add_lable(if_stmts_lables, temp_ir_lable);
+                pop(stack_ptr);
+                pop(stack_ptr);
+                add_stmt(if_stmts_lables, top(stack_ptr));
+
+                // 设置一下相关的控制信号
+                // while语句固定只有一个stmt，所以这里可以直接跳到步骤2
+                while_flag = 1;
+                // 这两个数值设置直接引起stmt全部push入栈
+                in_set_of_if = 2;
+                when_to_end_if = stack_ptr->top - 1;
+                // GOTO跳出循环的位置，这个必须写
+                last_token_is_else = 0;
 
                 if (IF_DEBUG_PRINT)
                 {
@@ -662,35 +409,28 @@ int tree_analys(treeNode *mytree)
                 {
                     printf("EXP_LOOP\n");
                 }
+                temp_ir_lable = gen_lable();
+                Exp_o(temp, temp_ir_lable);
+                add_lable(if_stmts_lables, temp_ir_lable);
+                pop(stack_ptr);
+                pop(stack_ptr);
+                add_stmt(if_stmts_lables, top(stack_ptr));
                 break;
 
             case EXP_INIT_VAR:
-                if (IF_DEBUG_PRINT)
-                {
-                    printf("EXP_INIT_VAR\n");
-                }
-                if (Exp_s(temp) != nearest_speci_type)
-                {
-                    if (IF_DEBUG_PRINT)
-                    {
-                        printf("EXP_DONE\n");
-                    }
-                    error_msg(5, temp->line_no, NULL);
-                }
+                new_operand(operand_to_use, VARIABLE, var_ptr->ir_name, 0, 0);
+                add_operand(operand_to_use, Exp_s(temp));
+                new_op(lst_of_ir, I_ASSIGN, *operand_to_use);
+                del_operand_content(operand_to_use);
                 break;
             case EXP_RETURN:
                 if (IF_DEBUG_PRINT)
                 {
                     printf("EXP_RETURN\n");
                 }
-                if (Exp_s(temp) != nearestfunc_type)
-                {
-                    if (IF_DEBUG_PRINT)
-                    {
-                        printf("EXP_DONE\n");
-                    }
-                    error_msg(8, temp->line_no, NULL);
-                }
+                add_operand(operand_to_use, Exp_s(temp));
+                new_op(lst_of_ir, I_RETURN, *operand_to_use);
+                del_operand_content(operand_to_use);
                 break;
 
             default:
@@ -700,6 +440,11 @@ int tree_analys(treeNode *mytree)
                 }
                 break;
             }
+            // if(exp_flag == EXP_BRANCH){
+            // exp_flag = EXP_DO_NOTHING;
+            // if_unfold = 1;
+            // break;
+            // }
 
             exp_flag = EXP_DO_NOTHING;
             if_unfold = 0;
@@ -718,8 +463,35 @@ int tree_analys(treeNode *mytree)
             {
                 printf("stmt detected\n");
             }
-            
 
+            // 遇到了else句子
+            if (last_token_is_else)
+            {
+                // last_token_is_else = 0;
+                if (temp->child->nodeType == N_IF)
+                {
+                    if_unfold = 1;
+                    if (in_set_of_if == 1)
+                    {
+                        in_set_of_if++;
+                        when_to_end_if = stack_ptr->top - 1;
+                    }
+                    break;
+                }
+                else
+                {
+                    temp_ir_lable = gen_lable();
+                    add_lable(if_stmts_lables, temp_ir_lable);
+                    add_stmt(if_stmts_lables, temp);
+                    new_operand(operand_to_use, VARIABLE, temp_ir_lable, 0, 0);
+                    new_op(lst_of_ir, I_GOTO, *operand_to_use);
+                    del_operand_content(operand_to_use);
+                    if_unfold = 0;
+                }
+                // 这些是确定了这个句子和else if没关系才做的事
+
+                break;
+            }
             if_unfold = 1;
             break;
 
@@ -736,6 +508,15 @@ int tree_analys(treeNode *mytree)
             {
                 printf("IF detected\n");
             }
+            if (in_set_of_if == 0 || in_set_of_if == 3)
+            {
+                new_if(if_stmts_lables, in_set_of_if, when_to_end_if,
+                       last_token_is_else, if_stmt_remain, while_flag);
+                in_set_of_if = 1;
+                if_stmt_remain = 0;
+                while_flag = 0;
+            }
+            last_token_is_else = 0;
             exp_flag = EXP_BRANCH;
             if_unfold = 0;
             break;
@@ -745,13 +526,23 @@ int tree_analys(treeNode *mytree)
             {
                 printf("WHILE detected\n");
             }
+
+            if (in_set_of_if == 0 || in_set_of_if == 3)
+            {
+                new_if(if_stmts_lables, in_set_of_if, when_to_end_if,
+                       last_token_is_else, if_stmt_remain, while_flag);
+                in_set_of_if = 1;
+                if_stmt_remain = 0;
+                // while_flag = 1;
+            }
             exp_flag = EXP_LOOP;
             if_unfold = 0;
             break;
 
+        case N_ELSE:
+            last_token_is_else = 1;
         case N_LP:
         case N_RP:
-        case N_ELSE:
             if_unfold = 0;
             break;
 
@@ -774,13 +565,18 @@ int tree_analys(treeNode *mytree)
             if_unfold = 0;
             break;
 
-        case N_ELSE_L:
-            if (IF_DEBUG_PRINT)
-            {
-                printf("ElseList detected\n");
-            }
-            if_unfold = 1;
-            break;
+            // case N_ELSE_L:
+            //     if (IF_DEBUG_PRINT)
+            //     {
+            //         printf("ElseList detected\n");
+            //     }
+            //     if (in_set_of_if == 1)
+            //     {
+            //         in_set_of_if++;
+            //         when_to_end_if = stack_ptr->top - 1;
+            //     }
+            //     if_unfold = 1;
+            //     break;
 
         default:
             // 这些非终结符，理论上应该在函数中被处理掉
@@ -789,12 +585,11 @@ int tree_analys(treeNode *mytree)
             {
                 printf("ERROR: Unexpected node token with character %s\n", temp->character);
             }
-            // pop(stack_ptr);
             if_unfold = 1;
             break;
         }
 
-        //节点处理完了，下一个
+        // 节点处理完了，下一个
 
         pop(stack_ptr);
         if (if_unfold)
@@ -802,6 +597,77 @@ int tree_analys(treeNode *mytree)
             reversed_insert(stack_ptr, temp);
         }
 
+        // if(while_flag == 1){
+
+        // }
+
+        if (in_set_of_if == 2 && stack_ptr->top == when_to_end_if)
+        {
+            if_stmt_remain = push_all_stmt(if_stmts_lables, stack_ptr);
+            in_set_of_if++;
+            if (!last_token_is_else)
+            {
+                // 写上一个goto到终末位置
+                new_operand(operand_to_use, VARIABLE,
+                            if_stmts_lables->quene[if_stmts_lables->len - 1].end_lable, 0, 0);
+                new_op(lst_of_ir, I_GOTO, *operand_to_use);
+                del_operand_content(operand_to_use);
+            }
+            if (while_flag)
+            {
+                new_operand(operand_to_use, VARIABLE,
+                            if_stmts_lables->quene[if_stmts_lables->len - 1].lable_names[1], 0, 0);
+            }
+            else
+            {
+                new_operand(operand_to_use, VARIABLE,
+                            if_stmts_lables->quene[if_stmts_lables->len - 1].lable_names[0], 0, 0);
+            }
+
+            new_op(lst_of_ir, I_LABLE, *operand_to_use);
+            del_operand_content(operand_to_use);
+            last_token_is_else = 0;
+        }
+        if (in_set_of_if == 3 && !while_flag &&
+            stack_ptr->top == when_to_end_if + if_stmt_remain - 1)
+        {
+            if_block_lst *block_now = &(if_stmts_lables->quene[if_stmts_lables->len - 1]);
+            if_stmt_remain--;
+            if (if_stmt_remain)
+            {
+                new_operand(operand_to_use, VARIABLE, block_now->end_lable, 0, 0);
+                new_op(lst_of_ir, I_GOTO, *operand_to_use);
+                del_operand_content(operand_to_use);
+            }
+
+            new_operand(operand_to_use, VARIABLE,
+                        block_now->lable_names[block_now->node_cnt - if_stmt_remain], 0, 0);
+            new_op(lst_of_ir, I_LABLE, *operand_to_use);
+            del_operand_content(operand_to_use);
+            last_token_is_else = 0;
+            if (!if_stmt_remain)
+            {
+                // 走到这里就是真的完结了，需要用一些办法来进行几个控制变量的恢复以及内存空间的释放
+                end_if(if_stmts_lables, &in_set_of_if,
+                       &when_to_end_if, &last_token_is_else, &if_stmt_remain, &while_flag);
+            }
+        }
+
+        if (in_set_of_if == 3 && while_flag &&
+            stack_ptr->top == when_to_end_if + if_stmt_remain - 1)
+        {
+            if_block_lst *block_now = &(if_stmts_lables->quene[if_stmts_lables->len - 1]);
+            new_operand(operand_to_use, VARIABLE, block_now->lable_names[0], 0, 0);
+            new_op(lst_of_ir, I_GOTO, *operand_to_use);
+            del_operand_content(operand_to_use);
+
+            new_operand(operand_to_use, VARIABLE,
+                        block_now->end_lable, 0, 0);
+            new_op(lst_of_ir, I_LABLE, *operand_to_use);
+            del_operand_content(operand_to_use);
+            end_if(if_stmts_lables, &in_set_of_if,
+                   &when_to_end_if, &last_token_is_else, &if_stmt_remain, &while_flag);
+        }
         temp = top(stack_ptr);
     }
 
