@@ -454,8 +454,21 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_WRITE:
-        //fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
-        fprintf(F, "WRITE %d\n", op->opers[0].o_value.im_value);
+        switch (op->opers[0].o_type)
+        {
+        case VARIABLE:
+            //变量
+            fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
+            break;
+        case IMMEDIATE:
+            //立即数
+            fprintf(F, "WRITE %d\n", op->opers[0].o_value.im_value);
+            break;
+        default:
+            printf("Operand type error!\n");
+            exit(1);
+            break;
+        }
         break;
     
     case I_BOOL:
