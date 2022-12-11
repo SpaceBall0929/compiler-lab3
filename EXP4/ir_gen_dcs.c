@@ -44,9 +44,22 @@ char* gen_lable(){
 
 //便捷的插入标签
 int insert_lable(char* lable_name){
-    operand_list* myop = init_operand_list();  
-    new_operand(myop, VARIABLE, lable_name, 0, 0);
+    // IR_list* my = lst_of_ir;
+    operand_list* myop = init_operand_list();
+    char* deep_copy_str = malloc(sizeof(char) * strlen(lable_name));
+    strcpy(deep_copy_str, lable_name);  
+    new_operand(myop, VARIABLE, deep_copy_str, 0, 0);
     new_op(lst_of_ir, I_LABLE, *myop);
+    return 0;
+}
+
+int insert_func(char* lable_name){
+    IR_list* my = lst_of_ir;
+    operand_list* myop = init_operand_list();
+    char* deep_copy_str = malloc(sizeof(char) * strlen(lable_name));
+    strcpy(deep_copy_str, lable_name);  
+    new_operand(myop, VARIABLE, deep_copy_str, 0, 0);
+    new_op(lst_of_ir, I_FUNC, *myop);
     return 0;
 }
 
@@ -126,6 +139,8 @@ int end_if(if_stack* lst, int* flag0, int* flag1, int* flag2, int* flag3, int* f
     *flag3 = loc_now->flags[3];
     *flag4 = loc_now->flags[4];
     lst->len--;
+    loc_now->name_cnt = 0;
+    loc_now->node_cnt = 0;
     for(int i = 0; i < loc_now->name_cnt; i++){
         free(loc_now->lable_names[i]);
     }

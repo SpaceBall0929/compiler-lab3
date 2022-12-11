@@ -454,8 +454,8 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_WRITE:
-        //fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
-        fprintf(F, "WRITE %d\n", op->opers[0].o_value.im_value);
+        fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
+        //fprintf(F, "WRITE %d\n", op->opers[0].o_value.im_value);
         break;
     
     case I_BOOL:
