@@ -460,7 +460,7 @@ Exp : Exp ASSIGNOP Exp{
         myTree = $$;
     }
     | IO{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
+        $$ =  upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
 
     | ID{
