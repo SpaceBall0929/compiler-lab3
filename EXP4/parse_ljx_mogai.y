@@ -28,7 +28,7 @@
 %token IF                          /* if */
 %token ELSE                        /* else */
 %token WHILE                       /* while */
-%token IO                        /* IO read/write */
+
 
 // 定义结合性和优先级次序
 %right ASSIGNOP
@@ -51,7 +51,7 @@ Program : ExtDefList{
 };
 
 ExtDefList : %empty{
-        //修改$$ = insertNode(NULL, "ExtDefList", yylineno, NONTERMINAL);
+        //修改$$ = insertNode(NULL, "ExtDefList", yylineno, N_STMT);
         $$ = upConstruct(NULL, "ExtDefList", yylineno, N_EXT_DEF_L);
         myTree = $$;
     }
@@ -244,13 +244,14 @@ Stmt : Exp SEMI{
         $4->sibling = $5;
         myTree = $$;
     }
-    | IF LP Exp RP Stmt ELseList{
+    | IF LP Exp RP Stmt ELSE Stmt{
         $$ = upConstruct($1, "Stmt", @1.first_line, N_STMT);
         $1->sibling = $2;
         $2->sibling = $3;
         $3->sibling = $4;
         $4->sibling = $5;
         $5->sibling = $6;
+        $6->sibling = $7;
         myTree = $$;
     }
     | WHILE LP Exp RP Stmt{
@@ -271,20 +272,24 @@ Stmt : Exp SEMI{
     }
 ;
 
-ElseList : ELSE IF LP Exp RP Stmt  ElseList{
-            $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
-            $1->sibling = $2;
-            $2->sibling = $3;
-            $3->sibling = $4;
-            $4->sibling = $5;
-            $5->sibling = $6;
-            $6->sibling = $7;
-            myTree = $$;
-        }
-        | ELSE Stmt{
-            $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
-            $1->sibling = $2;
-        }
+
+// ElseList : ELSE IF LP Exp RP Stmt  ElseList{
+//             $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
+//             $1->sibling = $2;
+//             $2->sibling = $3;
+//             $3->sibling = $4;
+//             $4->sibling = $5;
+//             $5->sibling = $6;
+//             $6->sibling = $7;
+//             myTree = $$;
+//         }
+//         | ELSE Stmt{
+//             $$ = upConstruct($1, "ElseList", @1.first_line, N_ELSE_L);
+//             $1->sibling = $2;
+//         }
+//         | %empty{
+//             $$ = upConstruct(NULL, "ElseList", yylineno, N_ELSE_L);
+//         }
 
 
 
@@ -414,24 +419,11 @@ Exp : Exp ASSIGNOP Exp{
         $1->sibling = $2;
         myTree = $$;
     }
-    | IO LP Args RP{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
-        $1->sibling = $2;
-        $2->sibling = $3;
-        $3->sibling = $4;
-        myTree = $$;
-    }
     | ID LP Args RP{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
         $1->sibling = $2;
         $2->sibling = $3;
         $3->sibling = $4;
-        myTree = $$;
-    }
-    | IO LP RP{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
-        $1->sibling = $2;
-        $2->sibling = $3;
         myTree = $$;
     }
     | ID LP RP{
@@ -453,6 +445,7 @@ Exp : Exp ASSIGNOP Exp{
         $2->sibling = $3;
         myTree = $$;
     }
+
     | ID{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
@@ -512,24 +505,25 @@ Args : Exp COMMA Args{
 
 #include "lex.yy.c"
 
-int main(int argc, char** argv)
+int main(/*int argc, char** argv*/)
 {
-	if(argc <= 1) return 1;
-	FILE* f = fopen(argv[1], "r");
+	// if(argc <= 1) return 1;
+	FILE* f = fopen("test1.cmm", "r");
 	if(!f){
-		perror(argv[1]);
+		perror("test1.cmm");
 		return 1;
 	}
     /*yylineno=1??*/
 	yyrestart(f);
 	yyparse();
     printf("Built the tree successfully\n");
-    
+
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
-        
+    FILE* F = fopen("test.txt", "w");
+    print_IR(lst_of_ir, F);
         
 	return 0;
 }

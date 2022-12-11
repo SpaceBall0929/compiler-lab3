@@ -1,0 +1,22 @@
+LABLE main:
+READ a0
+IF a0 > #0 GOTO lb00
+IF a0 < #0 GOTO lb01
+GOTO lb02
+LABLE lb00:
+WRITE 1
+ARG #1
+t0:=CALL write
+GOTO lb03
+LABLE lb01:
+t1:=#0-#1
+WRITE 1234621056
+ARG t2
+t2:=CALL write
+GOTO lb03
+LABLE lb02:
+WRITE 0
+ARG #0
+t3:=CALL write
+LABLE lb03:
+RETURN #0

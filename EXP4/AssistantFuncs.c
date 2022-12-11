@@ -1,5 +1,6 @@
 # include <math.h>
 
+
 int IsPrime(int num)
 {
 	if (num == 1)

@@ -25,16 +25,16 @@ operand* Exp_s(treeNode *exp);
     operand* id_int_float(treeNode *tn1);
 
     //2-处理 exp <operator> exp
-    operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3);
+    operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp);
         //处理二元运算，输入树的节点，输出生成的operation指针
         operation* binary(treeNode *t);
         //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
-        operand_list bool(treeNode *t, int opnum);
+        operand_list* bool_(treeNode *t, int opnum);
         //处理and or not这三种情况
-        operation* and_or_not(treeNode*t, int type);
+        //operation* and_or_not(treeNode*t, int type);
 
     //3-处理MINUS Exp，NOT Exp,lp exp rp直接在exp里处理
-    operand* o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3);
+    operand* o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp);
         //处理单元运算，输入树的节点，输出生成的operation指针
         operation* unary(treeNode *t);
     //4-处理函数 无参&有参
@@ -58,5 +58,7 @@ int op_type(int c);
 int byte_len(int type);
 
 //处理if和while条件里的exp节点,返回这个的index值
-int Exp_o(treeNode *exp);
+int Exp_o(treeNode *exp, char* label);
+//生成变量名字的函数
+char *var_name_gen();
 #endif

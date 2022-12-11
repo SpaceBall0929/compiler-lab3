@@ -18,7 +18,6 @@ ILLEGALINT8 0[0-7]*[8-9]+[0-9]*
 ILLEGALINT16 0[xX][0-9A-Fa-f]*[g-zG-Z]+[0-9a-zA-Z]*
 FLOAT ([0-9]+{DOT}[0-9]*|{DOT}[0-9]+)|(([0-9]+{DOT}[0-9]*|{DOT}[0-9]+)[eE][+-]?[0-9]+)
 ILLEGALFLOAT (([0-9]*)*(([eE][+-]?[0-9]*\.[0-9]*)|([eE][a-zA-Z]*)))|({FLOAT}(([eE][+-]?[0-9]*\.[0-9]*)|([eE][a-zA-Z]*)))|(([0-9]*)*[eE][+-]?[0-9]+)
-IO read|write;
 SEMI ;
 COMMA ,
 ASSIGNOP =
@@ -303,4 +302,3 @@ ID [_a-zA-Z][_0-9a-zA-Z]*
 	yyparse();
 	return 0;
 }*/
-		

@@ -1,3 +1,5 @@
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
 # include "tree.c"
 # include "AssistantFuncs.c"
 # include <math.h>
@@ -273,6 +275,8 @@ void deepcopyVar(dataNodeVar* varnode1, dataNodeVar* varnode2){
     varnode1->next = NULL;
     varnode1->varName = (char*)malloc(sizeof(char) * strlen(varnode2->varName));
     strcpy(varnode1->varName, varnode2->varName);
+    varnode1->ir_name = (char*)malloc(sizeof(char) * strlen(varnode2->ir_name));
+    strcpy(varnode1->ir_name, varnode2->ir_name);
     if(varnode2->len_of_dims != NULL){
         varnode1->len_of_dims = (int*)malloc(sizeof(int) * varnode2->numdim);
         for(int i = 0;i < varnode2->numdim;i++)
@@ -488,5 +492,5 @@ int ifStructEquivalent(SymbolTableStruct st, int struct1, int struct2){
     }
     return 1;
 }
-
+#endif
 

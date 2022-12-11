@@ -56,7 +56,8 @@ typedef enum node_type
     N_RETURN,
     N_IF,
     N_ELSE,
-    N_WHILE
+    N_WHILE,
+    N_IO
 } node_type;
 
 typedef struct node
