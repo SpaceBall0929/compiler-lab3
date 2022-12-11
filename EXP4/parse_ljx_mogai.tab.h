@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -30,6 +31,9 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 #ifndef YY_YY_PARSE_LJX_MOGAI_TAB_H_INCLUDED
 # define YY_YY_PARSE_LJX_MOGAI_TAB_H_INCLUDED
 /* Debug traces.  */
@@ -46,34 +50,34 @@ extern int yydebug;
   enum yytokentype
   {
     INT = 258,
-    FLOAT = 259,
-    TYPE = 260,
-    LF = 261,
-    ID = 262,
-    SEMI = 263,
-    COMMA = 264,
-    DOT = 265,
-    ASSIGNOP = 266,
-    RELOP = 267,
-    PLUS = 268,
-    MINUS = 269,
-    STAR = 270,
-    DIV = 271,
-    AND = 272,
-    OR = 273,
-    NOT = 274,
-    LP = 275,
-    RP = 276,
-    LB = 277,
-    RB = 278,
-    LC = 279,
-    RC = 280,
-    STRUCT = 281,
-    RETURN = 282,
-    IF = 283,
-    ELSE = 284,
-    WHILE = 285,
-    IO = 286,
+    IO = 259,
+    FLOAT = 260,
+    TYPE = 261,
+    LF = 262,
+    ID = 263,
+    SEMI = 264,
+    COMMA = 265,
+    DOT = 266,
+    ASSIGNOP = 267,
+    RELOP = 268,
+    PLUS = 269,
+    MINUS = 270,
+    STAR = 271,
+    DIV = 272,
+    AND = 273,
+    OR = 274,
+    NOT = 275,
+    LP = 276,
+    RP = 277,
+    LB = 278,
+    RB = 279,
+    LC = 280,
+    RC = 281,
+    STRUCT = 282,
+    RETURN = 283,
+    IF = 284,
+    ELSE = 285,
+    WHILE = 286,
     LOWER_THAN_ELSE = 287
   };
 #endif

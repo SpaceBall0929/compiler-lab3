@@ -14,6 +14,7 @@
     Tree* myTree;
 %}
 %token INT                         /* int 类型 */
+%token IO                        /* IO read/write */
 %token FLOAT                       /* float 类型 */
 %token TYPE                        /* TYPE 终结符 */
 %token LF                          /* 换行符 \n */
@@ -28,7 +29,7 @@
 %token IF                          /* if */
 %token ELSE                        /* else */
 %token WHILE                       /* while */
-%token IO                        /* IO read/write */
+
 
 // 定义结合性和优先级次序
 %right ASSIGNOP
@@ -461,6 +462,7 @@ Exp : Exp ASSIGNOP Exp{
     | IO{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
+
     | ID{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
@@ -470,7 +472,6 @@ Exp : Exp ASSIGNOP Exp{
     | FLOAT{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
-    
     | LP error RP {
         if(line_check[@2.first_line-1]==0){
         line_check[@2.first_line-1]=1;
@@ -521,12 +522,12 @@ Args : Exp COMMA Args{
 
 #include "lex.yy.c"
 
-int main(int argc, char** argv)
+int main(/*int argc, char** argv*/)
 {
-	if(argc <= 1) return 1;
-	FILE* f = fopen(argv[1], "r");
+	// if(argc <= 1) return 1;
+	FILE* f = fopen("test1.cmm", "r");
 	if(!f){
-		perror(argv[1]);
+		perror("test1.cmm");
 		return 1;
 	}
     /*yylineno=1??*/

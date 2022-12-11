@@ -1,3 +1,5 @@
+#ifndef SYMBOL_TABLE_H
+#define SYMBOL_TABLE_H
 # include "tree.c"
 # include "AssistantFuncs.c"
 # include <math.h>
@@ -488,5 +490,5 @@ int ifStructEquivalent(SymbolTableStruct st, int struct1, int struct2){
     }
     return 1;
 }
-
+#endif
 

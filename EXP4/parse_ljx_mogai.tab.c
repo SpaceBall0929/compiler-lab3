@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.5.1.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,11 +41,14 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.5.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -61,8 +65,8 @@
 
 
 
-/* Copy the first part of user declarations.  */
-#line 1 "parse_ljx_mogai.y" /* yacc.c:339  */
+/* First part of user prologue.  */
+#line 1 "parse_ljx_mogai.y"
 
     #include <stdio.h>
     #include <stdlib.h>
@@ -78,13 +82,26 @@
     int error_count = 0;
     Tree* myTree;
 
-#line 82 "parse_ljx_mogai.tab.c" /* yacc.c:339  */
+#line 86 "parse_ljx_mogai.tab.c"
 
-# ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+# ifndef YY_CAST
+#  ifdef __cplusplus
+#   define YY_CAST(Type, Val) static_cast<Type> (Val)
+#   define YY_REINTERPRET_CAST(Type, Val) reinterpret_cast<Type> (Val)
 #  else
-#   define YY_NULLPTR 0
+#   define YY_CAST(Type, Val) ((Type) (Val))
+#   define YY_REINTERPRET_CAST(Type, Val) ((Type) (Val))
+#  endif
+# endif
+# ifndef YY_NULLPTR
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
+#  else
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -96,8 +113,8 @@
 # define YYERROR_VERBOSE 0
 #endif
 
-/* In a future release of Bison, this section will be replaced
-   by #include "parse_ljx_mogai.tab.h".  */
+/* Use api.header.include to #include this header
+   instead of duplicating it here.  */
 #ifndef YY_YY_PARSE_LJX_MOGAI_TAB_H_INCLUDED
 # define YY_YY_PARSE_LJX_MOGAI_TAB_H_INCLUDED
 /* Debug traces.  */
@@ -114,34 +131,34 @@ extern int yydebug;
   enum yytokentype
   {
     INT = 258,
-    FLOAT = 259,
-    TYPE = 260,
-    LF = 261,
-    ID = 262,
-    SEMI = 263,
-    COMMA = 264,
-    DOT = 265,
-    ASSIGNOP = 266,
-    RELOP = 267,
-    PLUS = 268,
-    MINUS = 269,
-    STAR = 270,
-    DIV = 271,
-    AND = 272,
-    OR = 273,
-    NOT = 274,
-    LP = 275,
-    RP = 276,
-    LB = 277,
-    RB = 278,
-    LC = 279,
-    RC = 280,
-    STRUCT = 281,
-    RETURN = 282,
-    IF = 283,
-    ELSE = 284,
-    WHILE = 285,
-    IO = 286,
+    IO = 259,
+    FLOAT = 260,
+    TYPE = 261,
+    LF = 262,
+    ID = 263,
+    SEMI = 264,
+    COMMA = 265,
+    DOT = 266,
+    ASSIGNOP = 267,
+    RELOP = 268,
+    PLUS = 269,
+    MINUS = 270,
+    STAR = 271,
+    DIV = 272,
+    AND = 273,
+    OR = 274,
+    NOT = 275,
+    LP = 276,
+    RP = 277,
+    LB = 278,
+    RB = 279,
+    LC = 280,
+    RC = 281,
+    STRUCT = 282,
+    RETURN = 283,
+    IF = 284,
+    ELSE = 285,
+    WHILE = 286,
     LOWER_THAN_ELSE = 287
   };
 #endif
@@ -174,36 +191,81 @@ int yyparse (void);
 
 #endif /* !YY_YY_PARSE_LJX_MOGAI_TAB_H_INCLUDED  */
 
-/* Copy the second part of user declarations.  */
 
-#line 180 "parse_ljx_mogai.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
 #endif
 
-#ifdef YYTYPE_UINT8
-typedef YYTYPE_UINT8 yytype_uint8;
-#else
-typedef unsigned char yytype_uint8;
+/* On compilers that do not define __PTRDIFF_MAX__ etc., make sure
+   <limits.h> and (if available) <stdint.h> are included
+   so that the code can choose integer types of a good width.  */
+
+#ifndef __PTRDIFF_MAX__
+# include <limits.h> /* INFRINGES ON USER NAME SPACE */
+# if defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
+#  include <stdint.h> /* INFRINGES ON USER NAME SPACE */
+#  define YY_STDINT_H
+# endif
 #endif
 
-#ifdef YYTYPE_INT8
-typedef YYTYPE_INT8 yytype_int8;
+/* Narrow types that promote to a signed type and that can represent a
+   signed or unsigned integer of at least N bits.  In tables they can
+   save space and decrease cache pressure.  Promoting to a signed type
+   helps avoid bugs in integer arithmetic.  */
+
+#ifdef __INT_LEAST8_MAX__
+typedef __INT_LEAST8_TYPE__ yytype_int8;
+#elif defined YY_STDINT_H
+typedef int_least8_t yytype_int8;
 #else
 typedef signed char yytype_int8;
 #endif
 
-#ifdef YYTYPE_UINT16
-typedef YYTYPE_UINT16 yytype_uint16;
+#ifdef __INT_LEAST16_MAX__
+typedef __INT_LEAST16_TYPE__ yytype_int16;
+#elif defined YY_STDINT_H
+typedef int_least16_t yytype_int16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef short yytype_int16;
 #endif
 
-#ifdef YYTYPE_INT16
-typedef YYTYPE_INT16 yytype_int16;
+#if defined __UINT_LEAST8_MAX__ && __UINT_LEAST8_MAX__ <= __INT_MAX__
+typedef __UINT_LEAST8_TYPE__ yytype_uint8;
+#elif (!defined __UINT_LEAST8_MAX__ && defined YY_STDINT_H \
+       && UINT_LEAST8_MAX <= INT_MAX)
+typedef uint_least8_t yytype_uint8;
+#elif !defined __UINT_LEAST8_MAX__ && UCHAR_MAX <= INT_MAX
+typedef unsigned char yytype_uint8;
 #else
-typedef short int yytype_int16;
+typedef short yytype_uint8;
+#endif
+
+#if defined __UINT_LEAST16_MAX__ && __UINT_LEAST16_MAX__ <= __INT_MAX__
+typedef __UINT_LEAST16_TYPE__ yytype_uint16;
+#elif (!defined __UINT_LEAST16_MAX__ && defined YY_STDINT_H \
+       && UINT_LEAST16_MAX <= INT_MAX)
+typedef uint_least16_t yytype_uint16;
+#elif !defined __UINT_LEAST16_MAX__ && USHRT_MAX <= INT_MAX
+typedef unsigned short yytype_uint16;
+#else
+typedef int yytype_uint16;
+#endif
+
+#ifndef YYPTRDIFF_T
+# if defined __PTRDIFF_TYPE__ && defined __PTRDIFF_MAX__
+#  define YYPTRDIFF_T __PTRDIFF_TYPE__
+#  define YYPTRDIFF_MAXIMUM __PTRDIFF_MAX__
+# elif defined PTRDIFF_MAX
+#  ifndef ptrdiff_t
+#   include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+#  endif
+#  define YYPTRDIFF_T ptrdiff_t
+#  define YYPTRDIFF_MAXIMUM PTRDIFF_MAX
+# else
+#  define YYPTRDIFF_T long
+#  define YYPTRDIFF_MAXIMUM LONG_MAX
+# endif
 #endif
 
 #ifndef YYSIZE_T
@@ -211,15 +273,27 @@ typedef short int yytype_int16;
 #  define YYSIZE_T __SIZE_TYPE__
 # elif defined size_t
 #  define YYSIZE_T size_t
-# elif ! defined YYSIZE_T
+# elif defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
-#define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
+#define YYSIZE_MAXIMUM                                  \
+  YY_CAST (YYPTRDIFF_T,                                 \
+           (YYPTRDIFF_MAXIMUM < YY_CAST (YYSIZE_T, -1)  \
+            ? YYPTRDIFF_MAXIMUM                         \
+            : YY_CAST (YYSIZE_T, -1)))
+
+#define YYSIZEOF(X) YY_CAST (YYPTRDIFF_T, sizeof (X))
+
+/* Stored state numbers (used for stacks). */
+typedef yytype_int8 yy_state_t;
+
+/* State numbers in computations.  */
+typedef int yy_state_fast_t;
 
 #ifndef YY_
 # if defined YYENABLE_NLS && YYENABLE_NLS
@@ -233,30 +307,19 @@ typedef short int yytype_int16;
 # endif
 #endif
 
-#ifndef YY_ATTRIBUTE
-# if (defined __GNUC__                                               \
-      && (2 < __GNUC__ || (__GNUC__ == 2 && 96 <= __GNUC_MINOR__)))  \
-     || defined __SUNPRO_C && 0x5110 <= __SUNPRO_C
-#  define YY_ATTRIBUTE(Spec) __attribute__(Spec)
+#ifndef YY_ATTRIBUTE_PURE
+# if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
+#  define YY_ATTRIBUTE_PURE __attribute__ ((__pure__))
 # else
-#  define YY_ATTRIBUTE(Spec) /* empty */
+#  define YY_ATTRIBUTE_PURE
 # endif
 #endif
 
-#ifndef YY_ATTRIBUTE_PURE
-# define YY_ATTRIBUTE_PURE   YY_ATTRIBUTE ((__pure__))
-#endif
-
 #ifndef YY_ATTRIBUTE_UNUSED
-# define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
-#endif
-
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
+# if defined __GNUC__ && 2 < __GNUC__ + (7 <= __GNUC_MINOR__)
+#  define YY_ATTRIBUTE_UNUSED __attribute__ ((__unused__))
 # else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
+#  define YY_ATTRIBUTE_UNUSED
 # endif
 #endif
 
@@ -267,13 +330,13 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
-# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
-    _Pragma ("GCC diagnostic push") \
-    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")\
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN                            \
+    _Pragma ("GCC diagnostic push")                                     \
+    _Pragma ("GCC diagnostic ignored \"-Wuninitialized\"")              \
     _Pragma ("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
-# define YY_IGNORE_MAYBE_UNINITIALIZED_END \
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END      \
     _Pragma ("GCC diagnostic pop")
 #else
 # define YY_INITIAL_VALUE(Value) Value
@@ -286,6 +349,20 @@ typedef short int yytype_int16;
 # define YY_INITIAL_VALUE(Value) /* Nothing. */
 #endif
 
+#if defined __cplusplus && defined __GNUC__ && ! defined __ICC && 6 <= __GNUC__
+# define YY_IGNORE_USELESS_CAST_BEGIN                          \
+    _Pragma ("GCC diagnostic push")                            \
+    _Pragma ("GCC diagnostic ignored \"-Wuseless-cast\"")
+# define YY_IGNORE_USELESS_CAST_END            \
+    _Pragma ("GCC diagnostic pop")
+#endif
+#ifndef YY_IGNORE_USELESS_CAST_BEGIN
+# define YY_IGNORE_USELESS_CAST_BEGIN
+# define YY_IGNORE_USELESS_CAST_END
+#endif
+
+
+#define YY_ASSERT(E) ((void) (0 && (E)))
 
 #if ! defined yyoverflow || YYERROR_VERBOSE
 
@@ -363,18 +440,19 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss_alloc;
+  yy_state_t yyss_alloc;
   YYSTYPE yyvs_alloc;
   YYLTYPE yyls_alloc;
 };
 
 /* The size of the maximum gap between one aligned stack and the next.  */
-# define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
+# define YYSTACK_GAP_MAXIMUM (YYSIZEOF (union yyalloc) - 1)
 
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE) + sizeof (YYLTYPE)) \
+     ((N) * (YYSIZEOF (yy_state_t) + YYSIZEOF (YYSTYPE) \
+             + YYSIZEOF (YYLTYPE)) \
       + 2 * YYSTACK_GAP_MAXIMUM)
 
 # define YYCOPY_NEEDED 1
@@ -387,11 +465,11 @@ union yyalloc
 # define YYSTACK_RELOCATE(Stack_alloc, Stack)                           \
     do                                                                  \
       {                                                                 \
-        YYSIZE_T yynewbytes;                                            \
+        YYPTRDIFF_T yynewbytes;                                         \
         YYCOPY (&yyptr->Stack_alloc, Stack, yysize);                    \
         Stack = &yyptr->Stack_alloc;                                    \
-        yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
-        yyptr += yynewbytes / sizeof (*yyptr);                          \
+        yynewbytes = yystacksize * YYSIZEOF (*Stack) + YYSTACK_GAP_MAXIMUM; \
+        yyptr += yynewbytes / YYSIZEOF (*yyptr);                        \
       }                                                                 \
     while (0)
 
@@ -403,12 +481,12 @@ union yyalloc
 # ifndef YYCOPY
 #  if defined __GNUC__ && 1 < __GNUC__
 #   define YYCOPY(Dst, Src, Count) \
-      __builtin_memcpy (Dst, Src, (Count) * sizeof (*(Src)))
+      __builtin_memcpy (Dst, Src, YY_CAST (YYSIZE_T, (Count)) * sizeof (*(Src)))
 #  else
 #   define YYCOPY(Dst, Src, Count)              \
       do                                        \
         {                                       \
-          YYSIZE_T yyi;                         \
+          YYPTRDIFF_T yyi;                      \
           for (yyi = 0; yyi < (Count); yyi++)   \
             (Dst)[yyi] = (Src)[yyi];            \
         }                                       \
@@ -420,28 +498,29 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  11
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   316
+#define YYLAST   319
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  33
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  22
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  68
+#define YYNRULES  69
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  128
 
-/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
-   by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   287
 
+
+/* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
+   as returned by yylex, with out-of-bounds checking.  */
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  (0 <= (YYX) && (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
-   as returned by yylex, without out-of-bounds checking.  */
-static const yytype_uint8 yytranslate[] =
+   as returned by yylex.  */
+static const yytype_int8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -476,15 +555,15 @@ static const yytype_uint8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint16 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    48,    48,    53,    58,    66,    72,    77,    83,    91,
-      95,   113,   117,   123,   131,   138,   142,   149,   156,   160,
-     169,   176,   184,   190,   196,   204,   213,   218,   224,   229,
-     233,   239,   247,   257,   265,   297,   302,   308,   314,   325,
-     329,   337,   341,   358,   364,   370,   376,   382,   388,   394,
-     400,   406,   412,   417,   422,   429,   436,   442,   448,   455,
-     461,   464,   467,   470,   478,   486,   494,   505,   511
+       0,    49,    49,    54,    59,    67,    73,    78,    84,    92,
+      96,   114,   118,   124,   132,   139,   143,   150,   157,   161,
+     170,   177,   185,   191,   197,   205,   214,   219,   225,   230,
+     234,   240,   248,   258,   266,   298,   303,   309,   315,   326,
+     330,   338,   342,   359,   365,   371,   377,   383,   389,   395,
+     401,   407,   413,   418,   423,   430,   437,   443,   449,   456,
+     462,   466,   469,   472,   475,   483,   491,   499,   510,   516
 };
 #endif
 
@@ -493,21 +572,20 @@ static const yytype_uint16 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "INT", "FLOAT", "TYPE", "LF", "ID",
+  "$end", "error", "$undefined", "INT", "IO", "FLOAT", "TYPE", "LF", "ID",
   "SEMI", "COMMA", "DOT", "ASSIGNOP", "RELOP", "PLUS", "MINUS", "STAR",
   "DIV", "AND", "OR", "NOT", "LP", "RP", "LB", "RB", "LC", "RC", "STRUCT",
-  "RETURN", "IF", "ELSE", "WHILE", "IO", "LOWER_THAN_ELSE", "$accept",
-  "Program", "ExtDefList", "ExtDef", "ExtDecList", "Specifier",
-  "StructSpecifier", "OptTag", "Tag", "VarDec", "FunDec", "VarList",
-  "ParamDec", "CompSt", "StmtList", "Stmt", "DefList", "Def", "DecList",
-  "Dec", "Exp", "Args", YY_NULLPTR
+  "RETURN", "IF", "ELSE", "WHILE", "LOWER_THAN_ELSE", "$accept", "Program",
+  "ExtDefList", "ExtDef", "ExtDecList", "Specifier", "StructSpecifier",
+  "OptTag", "Tag", "VarDec", "FunDec", "VarList", "ParamDec", "CompSt",
+  "StmtList", "Stmt", "DefList", "Def", "DecList", "Dec", "Exp", "Args", YY_NULLPTR
 };
 #endif
 
 # ifdef YYPRINT
 /* YYTOKNUM[NUM] -- (External) token number corresponding to the
    (internal) symbol number NUM (which must be that of a token).  */
-static const yytype_uint16 yytoknum[] =
+static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
@@ -516,61 +594,61 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -102
+#define YYPACT_NINF (-101)
 
-#define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-102)))
+#define yypact_value_is_default(Yyn) \
+  ((Yyn) == YYPACT_NINF)
 
-#define YYTABLE_NINF -37
+#define YYTABLE_NINF (-37)
 
-#define yytable_value_is_error(Yytable_value) \
-  (!!((Yytable_value) == (-37)))
+#define yytable_value_is_error(Yyn) \
+  ((Yyn) == YYTABLE_NINF)
 
   /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-       1,  -102,     3,    28,  -102,     1,    44,  -102,   -10,    34,
-    -102,  -102,  -102,    56,  -102,    72,    -1,     5,    14,    38,
-    -102,    75,    84,  -102,    43,  -102,    75,    75,    65,    43,
-    -102,    75,    70,    83,  -102,  -102,    81,   114,    -2,    90,
-      98,   103,  -102,  -102,    92,  -102,     1,  -102,  -102,  -102,
-     100,   144,   144,    82,   144,   102,   106,   109,  -102,   107,
-     114,   168,   144,  -102,    75,  -102,  -102,    74,    39,    50,
-     110,   222,   181,   144,   144,   136,  -102,  -102,  -102,  -102,
-     116,    96,   144,   144,   144,   144,   144,   144,   144,   105,
-     261,  -102,   125,  -102,   195,   128,  -102,  -102,  -102,   235,
-     248,  -102,   131,  -102,  -102,   261,   283,    39,    39,    50,
-      50,   294,   272,   112,   208,  -102,   144,  -102,   114,   114,
-    -102,  -102,  -102,  -102,   101,  -102,   114,  -102
+       1,  -101,    32,    54,  -101,     1,    41,  -101,    28,    31,
+    -101,  -101,  -101,    36,  -101,    55,     4,    -1,    12,    53,
+    -101,    70,    59,  -101,    40,  -101,    70,    70,    57,    40,
+    -101,    70,    71,    76,  -101,  -101,    63,    69,    35,    83,
+      86,   101,  -101,  -101,    56,  -101,     1,  -101,  -101,    96,
+    -101,    97,   170,   170,   119,   170,   100,   104,  -101,    85,
+      69,    90,   170,  -101,    70,  -101,  -101,   162,   111,    65,
+      -2,   106,   224,   183,   170,   170,  -101,  -101,  -101,  -101,
+     121,   140,   170,   170,   170,   170,   170,   170,   170,   148,
+     263,  -101,  -101,   197,   108,   113,  -101,   114,  -101,  -101,
+    -101,   237,   250,  -101,  -101,   263,   285,    65,    65,    -2,
+      -2,   296,   274,   118,   210,   170,  -101,  -101,  -101,    69,
+      69,  -101,  -101,  -101,   107,  -101,    69,  -101
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
      Performed when YYTABLE does not specify something else to do.  Zero
      means the default is an error.  */
-static const yytype_uint8 yydefact[] =
+static const yytype_int8 yydefact[] =
 {
        3,    11,    15,     0,     2,     3,     0,    12,    17,     0,
       14,     1,     4,    18,     6,     0,     9,     0,     0,     0,
        5,     0,     0,     8,     0,     7,     0,     0,     0,     0,
       21,     0,     0,    23,    18,    10,     0,    27,    41,     0,
-      39,     0,    13,    35,    24,    20,     0,    19,    61,    62,
-      60,     0,     0,     0,     0,     0,     0,     0,    29,     0,
-      27,     0,     0,    38,     0,    37,    22,     0,    52,    53,
-       0,     0,     0,     0,     0,     0,    25,    26,    34,    28,
+      39,     0,    13,    35,    24,    20,     0,    19,    62,    60,
+      63,    61,     0,     0,     0,     0,     0,     0,    29,     0,
+      27,     0,     0,    38,     0,    37,    22,     0,     0,    52,
+      53,     0,     0,     0,     0,     0,    25,    26,    34,    28,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      42,    40,     0,    57,    68,     0,    63,    51,    30,     0,
-       0,    56,     0,    59,    66,    43,    46,    47,    48,    49,
-      50,    44,    45,     0,     0,    64,     0,    55,     0,     0,
-      54,    65,    58,    67,    31,    33,     0,    32
+      42,    40,    56,    69,     0,     0,    57,     0,    64,    51,
+      30,     0,     0,    59,    67,    43,    46,    47,    48,    49,
+      50,    44,    45,     0,     0,     0,    54,    65,    55,     0,
+       0,    66,    58,    68,    31,    33,     0,    32
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -102,  -102,   132,  -102,   133,     7,  -102,  -102,  -102,    35,
-    -102,   113,  -102,   143,    93,  -101,    55,  -102,   -22,  -102,
-     -51,   -71
+    -101,  -101,   133,  -101,   125,     6,  -101,  -101,  -101,    64,
+    -101,   112,  -101,   130,    94,  -100,   -12,  -101,   -22,  -101,
+     -52,   -64
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -578,7 +656,7 @@ static const yytype_int8 yydefgoto[] =
 {
       -1,     3,     4,     5,    15,    27,     7,     9,    10,    38,
       17,    32,    33,    58,    59,    60,    28,    29,    39,    40,
-      61,    95
+      61,    94
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -586,97 +664,97 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      68,    69,    71,    72,   102,    41,     1,     6,    21,    62,
-       8,    90,     6,    23,   -16,    26,    94,   124,   125,     1,
-      22,    22,    99,   100,    94,   127,    31,     2,    11,    24,
-     105,   106,   107,   108,   109,   110,   111,   112,   114,   -36,
-       2,    16,    91,     1,    26,   123,   -36,   -36,     1,    80,
-     -36,    13,    14,    31,    85,    86,    16,   -36,    18,    30,
-      80,    89,   -36,   -36,     2,    94,    44,   -36,   -36,     2,
-     -36,   -36,    89,   -36,   -36,    92,    19,    48,    49,    37,
-      20,    50,    34,    70,    43,    48,    49,    36,    51,    50,
-      42,    45,    46,    52,    53,    93,    51,   104,    63,    48,
-      49,    52,    53,    50,    47,    57,   113,    64,    48,    49,
-      51,    65,    50,    57,    22,    52,    53,    48,    49,    51,
-      67,    50,    73,   103,    52,    53,    74,    57,    51,    75,
-     126,    96,    76,    52,    53,   121,    57,    12,    24,    48,
-      49,    54,    55,    50,    56,    57,   115,    48,    49,   117,
-      51,    50,   120,    77,    35,    52,    53,   101,    51,    66,
-      25,     0,     0,    52,    53,     0,     0,    57,     0,    78,
-       0,     0,     0,     0,     0,    57,    79,     0,    80,    81,
-      82,    83,    84,    85,    86,    87,    88,     0,     0,    98,
-      89,    80,    81,    82,    83,    84,    85,    86,    87,    88,
-       0,     0,     0,    89,   116,    80,    81,    82,    83,    84,
-      85,    86,    87,    88,     0,     0,     0,    89,    80,    81,
+      69,    70,    72,    73,    97,    41,     6,     1,    23,    80,
+      90,     6,    37,    26,    21,    93,    93,    43,     1,   124,
+     125,    89,   101,   102,    24,    31,   127,    22,     2,   105,
+     106,   107,   108,   109,   110,   111,   112,   114,   -36,     2,
+       8,    26,    91,   -36,   -36,   -36,     1,    62,   -36,    13,
+      14,   123,    31,   -16,    11,   -36,    18,    19,    22,     1,
+     -36,   -36,    36,    93,    20,   -36,   -36,     2,   -36,   -36,
+      16,   -36,    48,    49,    50,    30,    80,    51,    34,    22,
+       2,    85,    86,    42,    52,    16,    46,    47,    89,    53,
+      54,    78,    63,    45,    24,    44,    64,    55,    56,    79,
+      57,    80,    81,    82,    83,    84,    85,    86,    87,    88,
+      65,    76,    95,    89,    48,    49,    50,    67,    68,    51,
+      71,    74,    48,    49,    50,    75,    52,    51,    98,   103,
+     116,    53,    54,    96,    52,   117,   118,   126,    12,    53,
+      54,   104,   121,    48,    49,    50,    35,    25,    51,   113,
+       0,    48,    49,    50,    77,    52,    51,     0,    66,     0,
+      53,    54,     0,    52,     0,    48,    49,    50,    53,    54,
+      51,     0,     0,    48,    49,    50,     0,    52,    51,     0,
+       0,     0,    53,    54,    92,    52,     0,     0,     0,     0,
+      53,    54,   100,     0,    80,    81,    82,    83,    84,    85,
+      86,    87,    88,     0,     0,     0,    89,   115,    80,    81,
       82,    83,    84,    85,    86,    87,    88,     0,     0,     0,
-      89,   122,    80,    81,    82,    83,    84,    85,    86,    87,
-      88,     0,     0,    97,    89,    80,    81,    82,    83,    84,
-      85,    86,    87,    88,     0,     0,   118,    89,    80,    81,
+      89,    80,    81,    82,    83,    84,    85,    86,    87,    88,
+       0,     0,     0,    89,   122,    80,    81,    82,    83,    84,
+      85,    86,    87,    88,     0,     0,    99,    89,    80,    81,
       82,    83,    84,    85,    86,    87,    88,     0,     0,   119,
       89,    80,    81,    82,    83,    84,    85,    86,    87,    88,
-       0,     0,    80,    89,    82,    83,    84,    85,    86,    87,
-       0,     0,     0,    80,    89,   -37,    83,    84,    85,    86,
-       0,     0,     0,     0,    80,    89,    82,    83,    84,    85,
-      86,     0,     0,     0,     0,     0,    89
+       0,     0,   120,    89,    80,    81,    82,    83,    84,    85,
+      86,    87,    88,     0,     0,    80,    89,    82,    83,    84,
+      85,    86,    87,     0,     0,     0,    80,    89,   -37,    83,
+      84,    85,    86,     0,     0,     0,     0,    80,    89,    82,
+      83,    84,    85,    86,     0,     0,     0,     0,     0,    89
 };
 
 static const yytype_int8 yycheck[] =
 {
-      51,    52,    53,    54,    75,    27,     5,     0,     9,    11,
-       7,    62,     5,     8,    24,     1,    67,   118,   119,     5,
-      22,    22,    73,    74,    75,   126,    19,    26,     0,    24,
-      81,    82,    83,    84,    85,    86,    87,    88,    89,    25,
-      26,     6,    64,     5,     1,   116,     3,     4,     5,    10,
-       7,     7,     8,    46,    15,    16,    21,    14,    24,    21,
-      10,    22,    19,    20,    26,   116,    31,    24,    25,    26,
-      27,    28,    22,    30,    31,     1,    20,     3,     4,    24,
-       8,     7,     7,     1,    29,     3,     4,     3,    14,     7,
-      25,    21,     9,    19,    20,    21,    14,     1,     8,     3,
-       4,    19,    20,     7,    23,    31,     1,     9,     3,     4,
-      14,     8,     7,    31,    22,    19,    20,     3,     4,    14,
-      20,     7,    20,     7,    19,    20,    20,    31,    14,    20,
-      29,    21,    25,    19,    20,    23,    31,     5,    24,     3,
-       4,    27,    28,     7,    30,    31,    21,     3,     4,    21,
-      14,     7,    21,    60,    21,    19,    20,    21,    14,    46,
-      17,    -1,    -1,    19,    20,    -1,    -1,    31,    -1,     1,
-      -1,    -1,    -1,    -1,    -1,    31,     8,    -1,    10,    11,
-      12,    13,    14,    15,    16,    17,    18,    -1,    -1,     8,
-      22,    10,    11,    12,    13,    14,    15,    16,    17,    18,
-      -1,    -1,    -1,    22,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    -1,    -1,    -1,    22,    10,    11,
-      12,    13,    14,    15,    16,    17,    18,    -1,    -1,    -1,
-      22,    23,    10,    11,    12,    13,    14,    15,    16,    17,
-      18,    -1,    -1,    21,    22,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    -1,    -1,    21,    22,    10,    11,
-      12,    13,    14,    15,    16,    17,    18,    -1,    -1,    21,
-      22,    10,    11,    12,    13,    14,    15,    16,    17,    18,
-      -1,    -1,    10,    22,    12,    13,    14,    15,    16,    17,
-      -1,    -1,    -1,    10,    22,    12,    13,    14,    15,    16,
-      -1,    -1,    -1,    -1,    10,    22,    12,    13,    14,    15,
-      16,    -1,    -1,    -1,    -1,    -1,    22
+      52,    53,    54,    55,    68,    27,     0,     6,     9,    11,
+      62,     5,    24,     1,    10,    67,    68,    29,     6,   119,
+     120,    23,    74,    75,    25,    19,   126,    23,    27,    81,
+      82,    83,    84,    85,    86,    87,    88,    89,    26,    27,
+       8,     1,    64,     3,     4,     5,     6,    12,     8,     8,
+       9,   115,    46,    25,     0,    15,    25,    21,    23,     6,
+      20,    21,     3,   115,     9,    25,    26,    27,    28,    29,
+       6,    31,     3,     4,     5,    22,    11,     8,     8,    23,
+      27,    16,    17,    26,    15,    21,    10,    24,    23,    20,
+      21,     1,     9,    22,    25,    31,    10,    28,    29,     9,
+      31,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+       9,    26,     1,    23,     3,     4,     5,    21,    21,     8,
+       1,    21,     3,     4,     5,    21,    15,     8,    22,     8,
+      22,    20,    21,    22,    15,    22,    22,    30,     5,    20,
+      21,     1,    24,     3,     4,     5,    21,    17,     8,     1,
+      -1,     3,     4,     5,    60,    15,     8,    -1,    46,    -1,
+      20,    21,    -1,    15,    -1,     3,     4,     5,    20,    21,
+       8,    -1,    -1,     3,     4,     5,    -1,    15,     8,    -1,
+      -1,    -1,    20,    21,    22,    15,    -1,    -1,    -1,    -1,
+      20,    21,     9,    -1,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    -1,    -1,    -1,    23,    10,    11,    12,
+      13,    14,    15,    16,    17,    18,    19,    -1,    -1,    -1,
+      23,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+      -1,    -1,    -1,    23,    24,    11,    12,    13,    14,    15,
+      16,    17,    18,    19,    -1,    -1,    22,    23,    11,    12,
+      13,    14,    15,    16,    17,    18,    19,    -1,    -1,    22,
+      23,    11,    12,    13,    14,    15,    16,    17,    18,    19,
+      -1,    -1,    22,    23,    11,    12,    13,    14,    15,    16,
+      17,    18,    19,    -1,    -1,    11,    23,    13,    14,    15,
+      16,    17,    18,    -1,    -1,    -1,    11,    23,    13,    14,
+      15,    16,    17,    -1,    -1,    -1,    -1,    11,    23,    13,
+      14,    15,    16,    17,    -1,    -1,    -1,    -1,    -1,    23
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
-static const yytype_uint8 yystos[] =
+static const yytype_int8 yystos[] =
 {
-       0,     5,    26,    34,    35,    36,    38,    39,     7,    40,
-      41,     0,    35,     7,     8,    37,    42,    43,    24,    20,
-       8,     9,    22,     8,    24,    46,     1,    38,    49,    50,
-      21,    38,    44,    45,     7,    37,     3,    49,    42,    51,
-      52,    51,    25,    49,    42,    21,     9,    23,     3,     4,
-       7,    14,    19,    20,    27,    28,    30,    31,    46,    47,
-      48,    53,    11,     8,     9,     8,    44,    20,    53,    53,
-       1,    53,    53,    20,    20,    20,    25,    47,     1,     8,
-      10,    11,    12,    13,    14,    15,    16,    17,    18,    22,
-      53,    51,     1,    21,    53,    54,    21,    21,     8,    53,
-      53,    21,    54,     7,     1,    53,    53,    53,    53,    53,
-      53,    53,    53,     1,    53,    21,     9,    21,    21,    21,
-      21,    23,    23,    54,    48,    48,    29,    48
+       0,     6,    27,    34,    35,    36,    38,    39,     8,    40,
+      41,     0,    35,     8,     9,    37,    42,    43,    25,    21,
+       9,    10,    23,     9,    25,    46,     1,    38,    49,    50,
+      22,    38,    44,    45,     8,    37,     3,    49,    42,    51,
+      52,    51,    26,    49,    42,    22,    10,    24,     3,     4,
+       5,     8,    15,    20,    21,    28,    29,    31,    46,    47,
+      48,    53,    12,     9,    10,     9,    44,    21,    21,    53,
+      53,     1,    53,    53,    21,    21,    26,    47,     1,     9,
+      11,    12,    13,    14,    15,    16,    17,    18,    19,    23,
+      53,    51,    22,    53,    54,     1,    22,    54,    22,    22,
+       9,    53,    53,     8,     1,    53,    53,    53,    53,    53,
+      53,    53,    53,     1,    53,    10,    22,    22,    22,    22,
+      22,    24,    24,    54,    48,    48,    30,    48
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-static const yytype_uint8 yyr1[] =
+static const yytype_int8 yyr1[] =
 {
        0,    33,    34,    35,    35,    36,    36,    36,    36,    37,
       37,    38,    38,    39,    39,    40,    40,    41,    42,    42,
@@ -684,11 +762,11 @@ static const yytype_uint8 yyr1[] =
       48,    48,    48,    48,    48,    49,    49,    50,    50,    51,
       51,    52,    52,    53,    53,    53,    53,    53,    53,    53,
       53,    53,    53,    53,    53,    53,    53,    53,    53,    53,
-      53,    53,    53,    53,    53,    53,    53,    54,    54
+      53,    53,    53,    53,    53,    53,    53,    53,    54,    54
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
-static const yytype_uint8 yyr2[] =
+static const yytype_int8 yyr2[] =
 {
        0,     2,     1,     0,     2,     3,     2,     3,     3,     1,
        3,     1,     1,     5,     2,     0,     1,     1,     1,     4,
@@ -696,7 +774,7 @@ static const yytype_uint8 yyr2[] =
        3,     5,     7,     5,     2,     2,     0,     3,     3,     1,
        3,     1,     3,     3,     3,     3,     3,     3,     3,     3,
        3,     3,     2,     2,     4,     4,     3,     3,     4,     3,
-       1,     1,     1,     3,     4,     4,     3,     3,     1
+       1,     1,     1,     1,     3,     4,     4,     3,     3,     1
 };
 
 
@@ -712,22 +790,22 @@ static const yytype_uint8 yyr2[] =
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                                  \
-do                                                              \
-  if (yychar == YYEMPTY)                                        \
-    {                                                           \
-      yychar = (Token);                                         \
-      yylval = (Value);                                         \
-      YYPOPSTACK (yylen);                                       \
-      yystate = *yyssp;                                         \
-      goto yybackup;                                            \
-    }                                                           \
-  else                                                          \
-    {                                                           \
-      yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;                                                  \
-    }                                                           \
-while (0)
+#define YYBACKUP(Token, Value)                                    \
+  do                                                              \
+    if (yychar == YYEMPTY)                                        \
+      {                                                           \
+        yychar = (Token);                                         \
+        yylval = (Value);                                         \
+        YYPOPSTACK (yylen);                                       \
+        yystate = *yyssp;                                         \
+        goto yybackup;                                            \
+      }                                                           \
+    else                                                          \
+      {                                                           \
+        yyerror (YY_("syntax error: cannot back up")); \
+        YYERROR;                                                  \
+      }                                                           \
+  while (0)
 
 /* Error token number */
 #define YYTERROR        1
@@ -786,10 +864,10 @@ do {                                            \
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
 YY_ATTRIBUTE_UNUSED
-static unsigned
+static int
 yy_location_print_ (FILE *yyo, YYLTYPE const * const yylocp)
 {
-  unsigned res = 0;
+  int res = 0;
   int end_col = 0 != yylocp->last_column ? yylocp->last_column - 1 : 0;
   if (0 <= yylocp->first_line)
     {
@@ -832,40 +910,42 @@ do {                                                                      \
 } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   YYUSE (yylocationp);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
 # endif
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   YYUSE (yytype);
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep, YYLTYPE const * const yylocationp)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  YY_LOCATION_PRINT (yyoutput, *yylocationp);
-  YYFPRINTF (yyoutput, ": ");
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yylocationp);
-  YYFPRINTF (yyoutput, ")");
+  YY_LOCATION_PRINT (yyo, *yylocationp);
+  YYFPRINTF (yyo, ": ");
+  yy_symbol_value_print (yyo, yytype, yyvaluep, yylocationp);
+  YYFPRINTF (yyo, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -874,7 +954,7 @@ yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, YYL
 `------------------------------------------------------------------*/
 
 static void
-yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
+yy_stack_print (yy_state_t *yybottom, yy_state_t *yytop)
 {
   YYFPRINTF (stderr, "Stack now");
   for (; yybottom <= yytop; yybottom++)
@@ -897,20 +977,20 @@ do {                                                            \
 `------------------------------------------------*/
 
 static void
-yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
+yy_reduce_print (yy_state_t *yyssp, YYSTYPE *yyvsp, YYLTYPE *yylsp, int yyrule)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  int yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
-  YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
+  YYFPRINTF (stderr, "Reducing stack by rule %d (line %d):\n",
              yyrule - 1, yylno);
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
-                       yystos[yyssp[yyi + 1 - yynrhs]],
-                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                       yystos[+yyssp[yyi + 1 - yynrhs]],
+                       &yyvsp[(yyi + 1) - (yynrhs)]
                        , &(yylsp[(yyi + 1) - (yynrhs)])                       );
       YYFPRINTF (stderr, "\n");
     }
@@ -954,13 +1034,13 @@ int yydebug;
 
 # ifndef yystrlen
 #  if defined __GLIBC__ && defined _STRING_H
-#   define yystrlen strlen
+#   define yystrlen(S) (YY_CAST (YYPTRDIFF_T, strlen (S)))
 #  else
 /* Return the length of YYSTR.  */
-static YYSIZE_T
+static YYPTRDIFF_T
 yystrlen (const char *yystr)
 {
-  YYSIZE_T yylen;
+  YYPTRDIFF_T yylen;
   for (yylen = 0; yystr[yylen]; yylen++)
     continue;
   return yylen;
@@ -996,12 +1076,12 @@ yystpcpy (char *yydest, const char *yysrc)
    backslash-backslash).  YYSTR is taken from yytname.  If YYRES is
    null, do not copy; instead, return the length of what the result
    would have been.  */
-static YYSIZE_T
+static YYPTRDIFF_T
 yytnamerr (char *yyres, const char *yystr)
 {
   if (*yystr == '"')
     {
-      YYSIZE_T yyn = 0;
+      YYPTRDIFF_T yyn = 0;
       char const *yyp = yystr;
 
       for (;;)
@@ -1014,7 +1094,10 @@ yytnamerr (char *yyres, const char *yystr)
           case '\\':
             if (*++yyp != '\\')
               goto do_not_strip_quotes;
-            /* Fall through.  */
+            else
+              goto append;
+
+          append:
           default:
             if (yyres)
               yyres[yyn] = *yyp;
@@ -1029,10 +1112,10 @@ yytnamerr (char *yyres, const char *yystr)
     do_not_strip_quotes: ;
     }
 
-  if (! yyres)
+  if (yyres)
+    return yystpcpy (yyres, yystr) - yyres;
+  else
     return yystrlen (yystr);
-
-  return yystpcpy (yyres, yystr) - yyres;
 }
 # endif
 
@@ -1045,19 +1128,19 @@ yytnamerr (char *yyres, const char *yystr)
    *YYMSG_ALLOC to the required number of bytes.  Return 2 if the
    required number of bytes is too large to store.  */
 static int
-yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
-                yytype_int16 *yyssp, int yytoken)
+yysyntax_error (YYPTRDIFF_T *yymsg_alloc, char **yymsg,
+                yy_state_t *yyssp, int yytoken)
 {
-  YYSIZE_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
-  YYSIZE_T yysize = yysize0;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
   const char *yyformat = YY_NULLPTR;
-  /* Arguments of yyformat. */
+  /* Arguments of yyformat: reported tokens (one for the "unexpected",
+     one per "expected"). */
   char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-  /* Number of reported tokens (one for the "unexpected", one per
-     "expected"). */
+  /* Actual size of YYARG. */
   int yycount = 0;
+  /* Cumulated lengths of YYARG.  */
+  YYPTRDIFF_T yysize = 0;
 
   /* There are many possibilities here to consider:
      - If this state is a consistent state with a default action, then
@@ -1084,7 +1167,9 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
   */
   if (yytoken != YYEMPTY)
     {
-      int yyn = yypact[*yyssp];
+      int yyn = yypact[+*yyssp];
+      YYPTRDIFF_T yysize0 = yytnamerr (YY_NULLPTR, yytname[yytoken]);
+      yysize = yysize0;
       yyarg[yycount++] = yytname[yytoken];
       if (!yypact_value_is_default (yyn))
         {
@@ -1109,11 +1194,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                   }
                 yyarg[yycount++] = yytname[yyx];
                 {
-                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
-                  if (! (yysize <= yysize1
-                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                  YYPTRDIFF_T yysize1
+                    = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
+                  if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+                    yysize = yysize1;
+                  else
                     return 2;
-                  yysize = yysize1;
                 }
               }
         }
@@ -1125,6 +1211,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -1135,10 +1222,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
     }
 
   {
-    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
-    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+    /* Don't count the "%s"s in the final size, but reserve room for
+       the terminator.  */
+    YYPTRDIFF_T yysize1 = yysize + (yystrlen (yyformat) - 2 * yycount) + 1;
+    if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+      yysize = yysize1;
+    else
       return 2;
-    yysize = yysize1;
   }
 
   if (*yymsg_alloc < yysize)
@@ -1164,8 +1254,8 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
         }
       else
         {
-          yyp++;
-          yyformat++;
+          ++yyp;
+          ++yyformat;
         }
   }
   return 0;
@@ -1215,7 +1305,7 @@ int yynerrs;
 int
 yyparse (void)
 {
-    int yystate;
+    yy_state_fast_t yystate;
     /* Number of tokens to shift before error messages enabled.  */
     int yyerrstatus;
 
@@ -1228,9 +1318,9 @@ yyparse (void)
        to reallocate them elsewhere.  */
 
     /* The state stack.  */
-    yytype_int16 yyssa[YYINITDEPTH];
-    yytype_int16 *yyss;
-    yytype_int16 *yyssp;
+    yy_state_t yyssa[YYINITDEPTH];
+    yy_state_t *yyss;
+    yy_state_t *yyssp;
 
     /* The semantic value stack.  */
     YYSTYPE yyvsa[YYINITDEPTH];
@@ -1245,7 +1335,7 @@ yyparse (void)
     /* The locations where the error started and ended.  */
     YYLTYPE yyerror_range[3];
 
-    YYSIZE_T yystacksize;
+    YYPTRDIFF_T yystacksize;
 
   int yyn;
   int yyresult;
@@ -1260,7 +1350,7 @@ yyparse (void)
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
   char *yymsg = yymsgbuf;
-  YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
+  YYPTRDIFF_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N), yylsp -= (N))
@@ -1283,29 +1373,41 @@ yyparse (void)
   yylsp[0] = yylloc;
   goto yysetstate;
 
+
 /*------------------------------------------------------------.
-| yynewstate -- Push a new state, which is found in yystate.  |
+| yynewstate -- push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
- yynewstate:
+yynewstate:
   /* In all cases, when you get here, the value and location stacks
      have just been pushed.  So pushing a state here evens the stacks.  */
   yyssp++;
 
- yysetstate:
-  *yyssp = yystate;
+
+/*--------------------------------------------------------------------.
+| yysetstate -- set current state (the top of the stack) to yystate.  |
+`--------------------------------------------------------------------*/
+yysetstate:
+  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+  YY_ASSERT (0 <= yystate && yystate < YYNSTATES);
+  YY_IGNORE_USELESS_CAST_BEGIN
+  *yyssp = YY_CAST (yy_state_t, yystate);
+  YY_IGNORE_USELESS_CAST_END
 
   if (yyss + yystacksize - 1 <= yyssp)
+#if !defined yyoverflow && !defined YYSTACK_RELOCATE
+    goto yyexhaustedlab;
+#else
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      YYPTRDIFF_T yysize = yyssp - yyss + 1;
 
-#ifdef yyoverflow
+# if defined yyoverflow
       {
         /* Give user a chance to reallocate the stack.  Use copies of
            these so that the &'s don't force the real ones into
            memory.  */
+        yy_state_t *yyss1 = yyss;
         YYSTYPE *yyvs1 = yyvs;
-        yytype_int16 *yyss1 = yyss;
         YYLTYPE *yyls1 = yyls;
 
         /* Each stack pointer address is followed by the size of the
@@ -1313,19 +1415,15 @@ yyparse (void)
            conditional around just the two extra args, but that might
            be undefined if yyoverflow is a macro.  */
         yyoverflow (YY_("memory exhausted"),
-                    &yyss1, yysize * sizeof (*yyssp),
-                    &yyvs1, yysize * sizeof (*yyvsp),
-                    &yyls1, yysize * sizeof (*yylsp),
+                    &yyss1, yysize * YYSIZEOF (*yyssp),
+                    &yyvs1, yysize * YYSIZEOF (*yyvsp),
+                    &yyls1, yysize * YYSIZEOF (*yylsp),
                     &yystacksize);
-
-        yyls = yyls1;
         yyss = yyss1;
         yyvs = yyvs1;
+        yyls = yyls1;
       }
-#else /* no yyoverflow */
-# ifndef YYSTACK_RELOCATE
-      goto yyexhaustedlab;
-# else
+# else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
         goto yyexhaustedlab;
@@ -1334,44 +1432,45 @@ yyparse (void)
         yystacksize = YYMAXDEPTH;
 
       {
-        yytype_int16 *yyss1 = yyss;
+        yy_state_t *yyss1 = yyss;
         union yyalloc *yyptr =
-          (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
+          YY_CAST (union yyalloc *,
+                   YYSTACK_ALLOC (YY_CAST (YYSIZE_T, YYSTACK_BYTES (yystacksize))));
         if (! yyptr)
           goto yyexhaustedlab;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
         YYSTACK_RELOCATE (yyls_alloc, yyls);
-#  undef YYSTACK_RELOCATE
+# undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
       }
 # endif
-#endif /* no yyoverflow */
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
       yylsp = yyls + yysize - 1;
 
-      YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+      YY_IGNORE_USELESS_CAST_BEGIN
+      YYDPRINTF ((stderr, "Stack size increased to %ld\n",
+                  YY_CAST (long, yystacksize)));
+      YY_IGNORE_USELESS_CAST_END
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
     }
-
-  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+#endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
 
   if (yystate == YYFINAL)
     YYACCEPT;
 
   goto yybackup;
 
+
 /*-----------.
 | yybackup.  |
 `-----------*/
 yybackup:
-
   /* Do appropriate processing given the current state.  Read a
      lookahead token if we need one and don't already have one.  */
 
@@ -1421,15 +1520,14 @@ yybackup:
 
   /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
-
-  /* Discard the shifted token.  */
-  yychar = YYEMPTY;
-
   yystate = yyn;
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
   *++yylsp = yylloc;
+
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
   goto yynewstate;
 
 
@@ -1444,7 +1542,7 @@ yydefault:
 
 
 /*-----------------------------.
-| yyreduce -- Do a reduction.  |
+| yyreduce -- do a reduction.  |
 `-----------------------------*/
 yyreduce:
   /* yyn is the number of a rule to reduce with.  */
@@ -1460,350 +1558,351 @@ yyreduce:
      GCC warning that YYVAL may be used uninitialized.  */
   yyval = yyvsp[1-yylen];
 
-  /* Default location.  */
+  /* Default location. */
   YYLLOC_DEFAULT (yyloc, (yylsp - yylen), yylen);
+  yyerror_range[1] = yyloc;
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 2:
-#line 48 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-    (yyval) = upConstruct((yyvsp[0]), "Program", (yylsp[0]).first_line, N_PROGRAM);
-    myTree = (yyval);
+  case 2:
+#line 49 "parse_ljx_mogai.y"
+                    {
+    yyval = upConstruct(yyvsp[0], "Program", (yylsp[0]).first_line, N_PROGRAM);
+    myTree = yyval;
 }
-#line 1475 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1574 "parse_ljx_mogai.tab.c"
     break;
 
   case 3:
-#line 53 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+#line 54 "parse_ljx_mogai.y"
+                   {
         //修改$$ = insertNode(NULL, "ExtDefList", yylineno, N_STMT);
-        (yyval) = upConstruct(NULL, "ExtDefList", yylineno, N_EXT_DEF_L);
-        myTree = (yyval);
+        yyval = upConstruct(NULL, "ExtDefList", yylineno, N_EXT_DEF_L);
+        myTree = yyval;
     }
-#line 1485 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1584 "parse_ljx_mogai.tab.c"
     break;
 
   case 4:
-#line 58 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "ExtDefList", (yylsp[-1]).first_line, N_EXT_DEF_L);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 59 "parse_ljx_mogai.y"
+                      {
+        yyval = upConstruct(yyvsp[-1], "ExtDefList", (yylsp[-1]).first_line, N_EXT_DEF_L);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1495 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1594 "parse_ljx_mogai.tab.c"
     break;
 
   case 5:
-#line 66 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 67 "parse_ljx_mogai.y"
+                                  {
+        yyval = upConstruct(yyvsp[-2], "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1506 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1605 "parse_ljx_mogai.tab.c"
     break;
 
   case 6:
-#line 72 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "ExtDef", (yylsp[-1]).first_line, N_EXT_DEF);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 73 "parse_ljx_mogai.y"
+                    {
+        yyval = upConstruct(yyvsp[-1], "ExtDef", (yylsp[-1]).first_line, N_EXT_DEF);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1516 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1615 "parse_ljx_mogai.tab.c"
     break;
 
   case 7:
-#line 77 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 78 "parse_ljx_mogai.y"
+                             {
+        yyval = upConstruct(yyvsp[-2], "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1527 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1626 "parse_ljx_mogai.tab.c"
     break;
 
   case 8:
-#line 83 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 84 "parse_ljx_mogai.y"
+                           {
+        yyval = upConstruct(yyvsp[-2], "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1538 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1637 "parse_ljx_mogai.tab.c"
     break;
 
   case 9:
-#line 91 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "ExtDecList", (yylsp[0]).first_line, N_EXT_DEC_L);
-        myTree = (yyval);
+#line 92 "parse_ljx_mogai.y"
+                   {
+        yyval = upConstruct(yyvsp[0], "ExtDecList", (yylsp[0]).first_line, N_EXT_DEC_L);
+        myTree = yyval;
     }
-#line 1547 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1646 "parse_ljx_mogai.tab.c"
     break;
 
   case 10:
-#line 95 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "ExtDecList", (yylsp[-2]).first_line, N_EXT_DEC_L);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 96 "parse_ljx_mogai.y"
+                             {
+        yyval = upConstruct(yyvsp[-2], "ExtDecList", (yylsp[-2]).first_line, N_EXT_DEC_L);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1558 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1657 "parse_ljx_mogai.tab.c"
     break;
 
   case 11:
-#line 113 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Specifier", (yylsp[0]).first_line, N_SPECI);
-        myTree = (yyval);
+#line 114 "parse_ljx_mogai.y"
+                {
+        yyval = upConstruct(yyvsp[0], "Specifier", (yylsp[0]).first_line, N_SPECI);
+        myTree = yyval;
     }
-#line 1567 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1666 "parse_ljx_mogai.tab.c"
     break;
 
   case 12:
-#line 117 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Specifier", (yylsp[0]).first_line, N_SPECI);
-        myTree = (yyval);
+#line 118 "parse_ljx_mogai.y"
+                     {
+        yyval = upConstruct(yyvsp[0], "Specifier", (yylsp[0]).first_line, N_SPECI);
+        myTree = yyval;
     }
-#line 1576 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1675 "parse_ljx_mogai.tab.c"
     break;
 
   case 13:
-#line 123 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-4]), "StructSpecifier", (yylsp[-4]).first_line, N_STRUCT_SPECI);
-        (yyvsp[-4])->sibling = (yyvsp[-3]);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 124 "parse_ljx_mogai.y"
+                                             {
+        yyval = upConstruct(yyvsp[-4], "StructSpecifier", (yylsp[-4]).first_line, N_STRUCT_SPECI);
+        yyvsp[-4]->sibling = yyvsp[-3];
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1589 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1688 "parse_ljx_mogai.tab.c"
     break;
 
   case 14:
-#line 131 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "StructSpecifier", (yylsp[-1]).first_line, N_STRUCT_SPECI);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 132 "parse_ljx_mogai.y"
+                {
+        yyval = upConstruct(yyvsp[-1], "StructSpecifier", (yylsp[-1]).first_line, N_STRUCT_SPECI);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1599 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1698 "parse_ljx_mogai.tab.c"
     break;
 
   case 15:
-#line 138 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct(NULL, "OptTag", yylineno, N_OPT_TAG);
-        myTree = (yyval);
+#line 139 "parse_ljx_mogai.y"
+                {
+        yyval = upConstruct(NULL, "OptTag", yylineno, N_OPT_TAG);
+        myTree = yyval;
     }
-#line 1608 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1707 "parse_ljx_mogai.tab.c"
     break;
 
   case 16:
-#line 142 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "OptTag", (yylsp[0]).first_line, N_OPT_TAG);
-        myTree = (yyval);
+#line 143 "parse_ljx_mogai.y"
+       {
+        yyval = upConstruct(yyvsp[0], "OptTag", (yylsp[0]).first_line, N_OPT_TAG);
+        myTree = yyval;
     }
-#line 1617 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1716 "parse_ljx_mogai.tab.c"
     break;
 
   case 17:
-#line 149 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Tag", (yylsp[0]).first_line, N_TAG);
-        myTree = (yyval);
+#line 150 "parse_ljx_mogai.y"
+        {
+        yyval = upConstruct(yyvsp[0], "Tag", (yylsp[0]).first_line, N_TAG);
+        myTree = yyval;
 }
-#line 1626 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1725 "parse_ljx_mogai.tab.c"
     break;
 
   case 18:
-#line 156 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "VarDec", (yylsp[0]).first_line, N_VAR_DEC);
-        myTree = (yyval);
+#line 157 "parse_ljx_mogai.y"
+           {
+        yyval = upConstruct(yyvsp[0], "VarDec", (yylsp[0]).first_line, N_VAR_DEC);
+        myTree = yyval;
     }
-#line 1635 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1734 "parse_ljx_mogai.tab.c"
     break;
 
   case 19:
-#line 160 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-3]), "VarDec", (yylsp[-3]).first_line, N_VAR_DEC);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 161 "parse_ljx_mogai.y"
+                      {
+        yyval = upConstruct(yyvsp[-3], "VarDec", (yylsp[-3]).first_line, N_VAR_DEC);
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1647 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1746 "parse_ljx_mogai.tab.c"
     break;
 
   case 20:
-#line 169 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-3]), "FunDec", (yylsp[-3]).first_line, N_FUN_DEC);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 170 "parse_ljx_mogai.y"
+                         {
+        yyval = upConstruct(yyvsp[-3], "FunDec", (yylsp[-3]).first_line, N_FUN_DEC);
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1659 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1758 "parse_ljx_mogai.tab.c"
     break;
 
   case 21:
-#line 176 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "FunDec", (yylsp[-2]).first_line, N_FUN_DEC);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 177 "parse_ljx_mogai.y"
+              {
+        yyval = upConstruct(yyvsp[-2], "FunDec", (yylsp[-2]).first_line, N_FUN_DEC);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1670 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1769 "parse_ljx_mogai.tab.c"
     break;
 
   case 22:
-#line 184 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "VarList", (yylsp[-2]).first_line, N_VAR_L);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 185 "parse_ljx_mogai.y"
+                                {
+        yyval = upConstruct(yyvsp[-2], "VarList", (yylsp[-2]).first_line, N_VAR_L);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1681 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1780 "parse_ljx_mogai.tab.c"
     break;
 
   case 23:
-#line 190 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "VarList", (yylsp[0]).first_line, N_VAR_L);
-        myTree = (yyval);
+#line 191 "parse_ljx_mogai.y"
+              {
+        yyval = upConstruct(yyvsp[0], "VarList", (yylsp[0]).first_line, N_VAR_L);
+        myTree = yyval;
     }
-#line 1690 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1789 "parse_ljx_mogai.tab.c"
     break;
 
   case 24:
-#line 196 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "ParamDec", (yylsp[-1]).first_line, N_PARAM_DEC);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 197 "parse_ljx_mogai.y"
+                           {
+        yyval = upConstruct(yyvsp[-1], "ParamDec", (yylsp[-1]).first_line, N_PARAM_DEC);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1700 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1799 "parse_ljx_mogai.tab.c"
     break;
 
   case 25:
-#line 204 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-3]), "CompSt", (yylsp[-3]).first_line, N_COMPST);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 205 "parse_ljx_mogai.y"
+                               {
+        yyval = upConstruct(yyvsp[-3], "CompSt", (yylsp[-3]).first_line, N_COMPST);
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
    }
-#line 1712 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1811 "parse_ljx_mogai.tab.c"
     break;
 
   case 26:
-#line 213 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "StmtList", (yylsp[-1]).first_line, N_STMT_L);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 214 "parse_ljx_mogai.y"
+                        {
+        yyval = upConstruct(yyvsp[-1], "StmtList", (yylsp[-1]).first_line, N_STMT_L);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1722 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1821 "parse_ljx_mogai.tab.c"
     break;
 
   case 27:
-#line 218 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct(NULL, "StmtList", yylineno, N_STMT_L);
-        myTree = (yyval);
+#line 219 "parse_ljx_mogai.y"
+            {
+        yyval = upConstruct(NULL, "StmtList", yylineno, N_STMT_L);
+        myTree = yyval;
     }
-#line 1731 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1830 "parse_ljx_mogai.tab.c"
     break;
 
   case 28:
-#line 224 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "Stmt", (yylsp[-1]).first_line, N_STMT);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 225 "parse_ljx_mogai.y"
+               {
+        yyval = upConstruct(yyvsp[-1], "Stmt", (yylsp[-1]).first_line, N_STMT);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1741 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1840 "parse_ljx_mogai.tab.c"
     break;
 
   case 29:
-#line 229 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Stmt", (yylsp[0]).first_line, N_STMT);
-        myTree = (yyval);
+#line 230 "parse_ljx_mogai.y"
+            {
+        yyval = upConstruct(yyvsp[0], "Stmt", (yylsp[0]).first_line, N_STMT);
+        myTree = yyval;
     }
-#line 1750 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1849 "parse_ljx_mogai.tab.c"
     break;
 
   case 30:
-#line 233 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Stmt", (yylsp[-2]).first_line, N_STMT);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 234 "parse_ljx_mogai.y"
+                     {
+        yyval = upConstruct(yyvsp[-2], "Stmt", (yylsp[-2]).first_line, N_STMT);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1761 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1860 "parse_ljx_mogai.tab.c"
     break;
 
   case 31:
-#line 239 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-4]), "Stmt", (yylsp[-4]).first_line, N_STMT);
-        (yyvsp[-4])->sibling = (yyvsp[-3]);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 240 "parse_ljx_mogai.y"
+                       {
+        yyval = upConstruct(yyvsp[-4], "Stmt", (yylsp[-4]).first_line, N_STMT);
+        yyvsp[-4]->sibling = yyvsp[-3];
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1774 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1873 "parse_ljx_mogai.tab.c"
     break;
 
   case 32:
-#line 247 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-6]), "Stmt", (yylsp[-6]).first_line, N_STMT);
-        (yyvsp[-6])->sibling = (yyvsp[-5]);
-        (yyvsp[-5])->sibling = (yyvsp[-4]);
-        (yyvsp[-4])->sibling = (yyvsp[-3]);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 248 "parse_ljx_mogai.y"
+                                 {
+        yyval = upConstruct(yyvsp[-6], "Stmt", (yylsp[-6]).first_line, N_STMT);
+        yyvsp[-6]->sibling = yyvsp[-5];
+        yyvsp[-5]->sibling = yyvsp[-4];
+        yyvsp[-4]->sibling = yyvsp[-3];
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1789 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1888 "parse_ljx_mogai.tab.c"
     break;
 
   case 33:
-#line 257 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-4]), "Stmt", (yylsp[-4]).first_line, N_STMT);
-        (yyvsp[-4])->sibling = (yyvsp[-3]);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 258 "parse_ljx_mogai.y"
+                          {
+        yyval = upConstruct(yyvsp[-4], "Stmt", (yylsp[-4]).first_line, N_STMT);
+        yyvsp[-4]->sibling = yyvsp[-3];
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1802 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1901 "parse_ljx_mogai.tab.c"
     break;
 
   case 34:
-#line 265 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+#line 266 "parse_ljx_mogai.y"
+               {
         if(line_check[(yylsp[0]).first_line-1]==0){
         line_check[(yylsp[0]).first_line-1]=1;
    }
@@ -1811,42 +1910,42 @@ yyreduce:
         sprintf( msg, "Stmt Missing \";\"");
         myerror( msg );
     }
-#line 1815 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1914 "parse_ljx_mogai.tab.c"
     break;
 
   case 35:
-#line 297 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "DefList", (yylsp[-1]).first_line, N_DEF_L);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 298 "parse_ljx_mogai.y"
+                     {
+        yyval = upConstruct(yyvsp[-1], "DefList", (yylsp[-1]).first_line, N_DEF_L);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1825 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1924 "parse_ljx_mogai.tab.c"
     break;
 
   case 36:
-#line 302 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct(NULL, "DefList", yylineno, N_DEF_L);
-        myTree = (yyval);
+#line 303 "parse_ljx_mogai.y"
+            {
+        yyval = upConstruct(NULL, "DefList", yylineno, N_DEF_L);
+        myTree = yyval;
     }
-#line 1834 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1933 "parse_ljx_mogai.tab.c"
     break;
 
   case 37:
-#line 308 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Def", (yylsp[-2]).first_line, N_DEF);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 309 "parse_ljx_mogai.y"
+                            {
+        yyval = upConstruct(yyvsp[-2], "Def", (yylsp[-2]).first_line, N_DEF);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
 }
-#line 1845 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1944 "parse_ljx_mogai.tab.c"
     break;
 
   case 38:
-#line 314 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+#line 315 "parse_ljx_mogai.y"
+                       {
         if(line_check[(yylsp[-2]).first_line-1]==0){
             line_check[(yylsp[-2]).first_line-1]=1;
         }
@@ -1854,264 +1953,272 @@ yyreduce:
         sprintf( msg, "Def syntax error");
         myerror( msg );
 }
-#line 1858 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1957 "parse_ljx_mogai.tab.c"
     break;
 
   case 39:
-#line 325 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "DecList", (yylsp[0]).first_line, N_DEC_L);
-        myTree = (yyval);
+#line 326 "parse_ljx_mogai.y"
+             {
+        yyval = upConstruct(yyvsp[0], "DecList", (yylsp[0]).first_line, N_DEC_L);
+        myTree = yyval;
     }
-#line 1867 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1966 "parse_ljx_mogai.tab.c"
     break;
 
   case 40:
-#line 329 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "DecList", (yylsp[-2]).first_line, N_DEC_L);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 330 "parse_ljx_mogai.y"
+                       {
+        yyval = upConstruct(yyvsp[-2], "DecList", (yylsp[-2]).first_line, N_DEC_L);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1878 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1977 "parse_ljx_mogai.tab.c"
     break;
 
   case 41:
-#line 337 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Dec", (yylsp[0]).first_line, N_DEC);
-        myTree = (yyval);
+#line 338 "parse_ljx_mogai.y"
+            {
+        yyval = upConstruct(yyvsp[0], "Dec", (yylsp[0]).first_line, N_DEC);
+        myTree = yyval;
     }
-#line 1887 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1986 "parse_ljx_mogai.tab.c"
     break;
 
   case 42:
-#line 341 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Dec", (yylsp[-2]).first_line, N_DEC);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 342 "parse_ljx_mogai.y"
+                         {
+        yyval = upConstruct(yyvsp[-2], "Dec", (yylsp[-2]).first_line, N_DEC);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1898 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 1997 "parse_ljx_mogai.tab.c"
     break;
 
   case 43:
-#line 358 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 359 "parse_ljx_mogai.y"
+                      {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1909 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2008 "parse_ljx_mogai.tab.c"
     break;
 
   case 44:
-#line 364 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 365 "parse_ljx_mogai.y"
+                 {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1920 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2019 "parse_ljx_mogai.tab.c"
     break;
 
   case 45:
-#line 370 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 371 "parse_ljx_mogai.y"
+                {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1931 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2030 "parse_ljx_mogai.tab.c"
     break;
 
   case 46:
-#line 376 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 377 "parse_ljx_mogai.y"
+                   {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1942 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2041 "parse_ljx_mogai.tab.c"
     break;
 
   case 47:
-#line 382 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 383 "parse_ljx_mogai.y"
+                  {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1953 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2052 "parse_ljx_mogai.tab.c"
     break;
 
   case 48:
-#line 388 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 389 "parse_ljx_mogai.y"
+                   {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1964 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2063 "parse_ljx_mogai.tab.c"
     break;
 
   case 49:
-#line 394 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 395 "parse_ljx_mogai.y"
+                  {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1975 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2074 "parse_ljx_mogai.tab.c"
     break;
 
   case 50:
-#line 400 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 401 "parse_ljx_mogai.y"
+                 {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1986 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2085 "parse_ljx_mogai.tab.c"
     break;
 
   case 51:
-#line 406 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 407 "parse_ljx_mogai.y"
+               {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 1997 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2096 "parse_ljx_mogai.tab.c"
     break;
 
   case 52:
-#line 412 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "Exp", (yylsp[-1]).first_line, N_EXP);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 413 "parse_ljx_mogai.y"
+               {
+        yyval = upConstruct(yyvsp[-1], "Exp", (yylsp[-1]).first_line, N_EXP);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2007 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2106 "parse_ljx_mogai.tab.c"
     break;
 
   case 53:
-#line 417 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-1]), "Exp", (yylsp[-1]).first_line, N_EXP);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 418 "parse_ljx_mogai.y"
+             {
+        yyval = upConstruct(yyvsp[-1], "Exp", (yylsp[-1]).first_line, N_EXP);
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2017 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2116 "parse_ljx_mogai.tab.c"
     break;
 
   case 54:
-#line 422 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-3]), "Exp", (yylsp[-3]).first_line, N_EXP);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 423 "parse_ljx_mogai.y"
+                   {
+        yyval = upConstruct(yyvsp[-3], "Exp", (yylsp[-3]).first_line, N_EXP);
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2029 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2128 "parse_ljx_mogai.tab.c"
     break;
 
   case 55:
-#line 429 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-3]), "Exp", (yylsp[-3]).first_line, N_EXP);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 430 "parse_ljx_mogai.y"
+                   {
+        yyval = upConstruct(yyvsp[-3], "Exp", (yylsp[-3]).first_line, N_EXP);
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2041 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2140 "parse_ljx_mogai.tab.c"
     break;
 
   case 56:
-#line 436 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 437 "parse_ljx_mogai.y"
+              {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2052 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2151 "parse_ljx_mogai.tab.c"
     break;
 
   case 57:
-#line 442 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 443 "parse_ljx_mogai.y"
+              {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2063 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2162 "parse_ljx_mogai.tab.c"
     break;
 
   case 58:
-#line 448 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-3]), "Exp", (yylsp[-3]).first_line, N_EXP);
-        (yyvsp[-3])->sibling = (yyvsp[-2]);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 449 "parse_ljx_mogai.y"
+                   {
+        yyval = upConstruct(yyvsp[-3], "Exp", (yylsp[-3]).first_line, N_EXP);
+        yyvsp[-3]->sibling = yyvsp[-2];
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2075 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2174 "parse_ljx_mogai.tab.c"
     break;
 
   case 59:
-#line 455 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Exp", (yylsp[-2]).first_line, N_EXP);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
+#line 456 "parse_ljx_mogai.y"
+                {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2086 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2185 "parse_ljx_mogai.tab.c"
     break;
 
   case 60:
-#line 461 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Exp", (yylsp[0]).first_line, N_EXP);
+#line 462 "parse_ljx_mogai.y"
+        {
+        yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
     }
-#line 2094 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2193 "parse_ljx_mogai.tab.c"
     break;
 
   case 61:
-#line 464 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Exp", (yylsp[0]).first_line, N_EXP);
+#line 466 "parse_ljx_mogai.y"
+        {
+        yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
     }
-#line 2102 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2201 "parse_ljx_mogai.tab.c"
     break;
 
   case 62:
-#line 467 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Exp", (yylsp[0]).first_line, N_EXP);
+#line 469 "parse_ljx_mogai.y"
+         {
+        yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
     }
-#line 2110 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2209 "parse_ljx_mogai.tab.c"
     break;
 
   case 63:
-#line 470 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+#line 472 "parse_ljx_mogai.y"
+           {
+        yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
+    }
+#line 2217 "parse_ljx_mogai.tab.c"
+    break;
+
+  case 64:
+#line 475 "parse_ljx_mogai.y"
+                  {
         if(line_check[(yylsp[-1]).first_line-1]==0){
         line_check[(yylsp[-1]).first_line-1]=1;
    }
@@ -2119,12 +2226,12 @@ yyreduce:
         sprintf( msg, "Exp Syntax error");
         myerror( msg );
     }
-#line 2123 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2230 "parse_ljx_mogai.tab.c"
     break;
 
-  case 64:
-#line 478 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+  case 65:
+#line 483 "parse_ljx_mogai.y"
+                     {
         if(line_check[(yylsp[-2]).first_line-1]==0){
         line_check[(yylsp[-2]).first_line-1]=1;
    }
@@ -2132,12 +2239,12 @@ yyreduce:
         sprintf( msg, "Exp Syntax error");
         myerror( msg );
     }
-#line 2136 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2243 "parse_ljx_mogai.tab.c"
     break;
 
-  case 65:
-#line 486 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+  case 66:
+#line 491 "parse_ljx_mogai.y"
+                      {
         if(line_check[(yylsp[-2]).first_line-1]==0){
         line_check[(yylsp[-2]).first_line-1]=1;
    }
@@ -2145,12 +2252,12 @@ yyreduce:
         sprintf( msg, "Exp Missing \"]\"");
         myerror( msg );
     }
-#line 2149 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2256 "parse_ljx_mogai.tab.c"
     break;
 
-  case 66:
-#line 494 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
+  case 67:
+#line 499 "parse_ljx_mogai.y"
+                        {
        if(line_check[(yylsp[-1]).first_line-1]==0){
         line_check[(yylsp[-1]).first_line-1]=1;
    }
@@ -2158,30 +2265,31 @@ yyreduce:
         sprintf( msg, "Exp syntax error");
         myerror( msg );
     }
-#line 2162 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 67:
-#line 505 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[-2]), "Args", (yylsp[-2]).first_line, N_ARGS);
-        (yyvsp[-2])->sibling = (yyvsp[-1]);
-        (yyvsp[-1])->sibling = (yyvsp[0]);
-        myTree = (yyval);
-    }
-#line 2173 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2269 "parse_ljx_mogai.tab.c"
     break;
 
   case 68:
-#line 511 "parse_ljx_mogai.y" /* yacc.c:1646  */
-    {
-        (yyval) = upConstruct((yyvsp[0]), "Exp", (yylsp[0]).first_line, N_ARGS);
+#line 510 "parse_ljx_mogai.y"
+                     {
+        yyval = upConstruct(yyvsp[-2], "Args", (yylsp[-2]).first_line, N_ARGS);
+        yyvsp[-2]->sibling = yyvsp[-1];
+        yyvsp[-1]->sibling = yyvsp[0];
+        myTree = yyval;
     }
-#line 2181 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2280 "parse_ljx_mogai.tab.c"
+    break;
+
+  case 69:
+#line 516 "parse_ljx_mogai.y"
+         {
+        yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_ARGS);
+    }
+#line 2288 "parse_ljx_mogai.tab.c"
     break;
 
 
-#line 2185 "parse_ljx_mogai.tab.c" /* yacc.c:1646  */
+#line 2292 "parse_ljx_mogai.tab.c"
+
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2207,14 +2315,13 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-
-  yyn = yyr1[yyn];
-
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
-    yystate = yytable[yystate];
-  else
-    yystate = yydefgoto[yyn - YYNTOKENS];
+  {
+    const int yylhs = yyr1[yyn] - YYNTOKENS;
+    const int yyi = yypgoto[yylhs] + *yyssp;
+    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
+               ? yytable[yyi]
+               : yydefgoto[yylhs]);
+  }
 
   goto yynewstate;
 
@@ -2246,7 +2353,7 @@ yyerrlab:
           {
             if (yymsg != yymsgbuf)
               YYSTACK_FREE (yymsg);
-            yymsg = (char *) YYSTACK_ALLOC (yymsg_alloc);
+            yymsg = YY_CAST (char *, YYSTACK_ALLOC (YY_CAST (YYSIZE_T, yymsg_alloc)));
             if (!yymsg)
               {
                 yymsg = yymsgbuf;
@@ -2297,14 +2404,11 @@ yyerrlab:
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
 yyerrorlab:
+  /* Pacify compilers when the user code never invokes YYERROR and the
+     label yyerrorlab therefore never appears in user code.  */
+  if (0)
+    YYERROR;
 
-  /* Pacify compilers like GCC when the user code never invokes
-     YYERROR and the label yyerrorlab therefore never appears in user
-     code.  */
-  if (/*CONSTCOND*/ 0)
-     goto yyerrorlab;
-
-  yyerror_range[1] = yylsp[1-yylen];
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
   YYPOPSTACK (yylen);
@@ -2370,12 +2474,14 @@ yyacceptlab:
   yyresult = 0;
   goto yyreturn;
 
+
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
   goto yyreturn;
+
 
 #if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
@@ -2387,6 +2493,10 @@ yyexhaustedlab:
   /* Fall through.  */
 #endif
 
+
+/*-----------------------------------------------------.
+| yyreturn -- parsing is finished, return the result.  |
+`-----------------------------------------------------*/
 yyreturn:
   if (yychar != YYEMPTY)
     {
@@ -2403,7 +2513,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-                  yystos[*yyssp], yyvsp, yylsp);
+                  yystos[+*yyssp], yyvsp, yylsp);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -2416,17 +2526,17 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 516 "parse_ljx_mogai.y" /* yacc.c:1906  */
+#line 521 "parse_ljx_mogai.y"
 
 
 #include "lex.yy.c"
 
-int main(int argc, char** argv)
+int main(/*int argc, char** argv*/)
 {
-	if(argc <= 1) return 1;
-	FILE* f = fopen(argv[1], "r");
+	// if(argc <= 1) return 1;
+	FILE* f = fopen("test1.cmm", "r");
 	if(!f){
-		perror(argv[1]);
+		perror("test1.cmm");
 		return 1;
 	}
     /*yylineno=1??*/

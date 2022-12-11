@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "SymbolTable.c"
+#include "SymbolTable.c"
 #define MAX_TEMP_OP_NUM 5
 #define INT_LEN 4
 #define FLOAT_LEN 8
