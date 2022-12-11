@@ -14,7 +14,6 @@
     Tree* myTree;
 %}
 %token INT                         /* int 类型 */
-%token IO                        /* IO read/write */
 %token FLOAT                       /* float 类型 */
 %token TYPE                        /* TYPE 终结符 */
 %token LF                          /* 换行符 \n */
@@ -420,24 +419,11 @@ Exp : Exp ASSIGNOP Exp{
         $1->sibling = $2;
         myTree = $$;
     }
-    | IO LP Args RP{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
-        $1->sibling = $2;
-        $2->sibling = $3;
-        $3->sibling = $4;
-        myTree = $$;
-    }
     | ID LP Args RP{
         $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
         $1->sibling = $2;
         $2->sibling = $3;
         $3->sibling = $4;
-        myTree = $$;
-    }
-    | IO LP RP{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
-        $1->sibling = $2;
-        $2->sibling = $3;
         myTree = $$;
     }
     | ID LP RP{
@@ -458,9 +444,6 @@ Exp : Exp ASSIGNOP Exp{
         $1->sibling = $2;
         $2->sibling = $3;
         myTree = $$;
-    }
-    | IO{
-        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
 
     | ID{

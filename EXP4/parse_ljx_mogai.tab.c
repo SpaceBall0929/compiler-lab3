@@ -131,35 +131,34 @@ extern int yydebug;
   enum yytokentype
   {
     INT = 258,
-    IO = 259,
-    FLOAT = 260,
-    TYPE = 261,
-    LF = 262,
-    ID = 263,
-    SEMI = 264,
-    COMMA = 265,
-    DOT = 266,
-    ASSIGNOP = 267,
-    RELOP = 268,
-    PLUS = 269,
-    MINUS = 270,
-    STAR = 271,
-    DIV = 272,
-    AND = 273,
-    OR = 274,
-    NOT = 275,
-    LP = 276,
-    RP = 277,
-    LB = 278,
-    RB = 279,
-    LC = 280,
-    RC = 281,
-    STRUCT = 282,
-    RETURN = 283,
-    IF = 284,
-    ELSE = 285,
-    WHILE = 286,
-    LOWER_THAN_ELSE = 287
+    FLOAT = 259,
+    TYPE = 260,
+    LF = 261,
+    ID = 262,
+    SEMI = 263,
+    COMMA = 264,
+    DOT = 265,
+    ASSIGNOP = 266,
+    RELOP = 267,
+    PLUS = 268,
+    MINUS = 269,
+    STAR = 270,
+    DIV = 271,
+    AND = 272,
+    OR = 273,
+    NOT = 274,
+    LP = 275,
+    RP = 276,
+    LB = 277,
+    RB = 278,
+    LC = 279,
+    RC = 280,
+    STRUCT = 281,
+    RETURN = 282,
+    IF = 283,
+    ELSE = 284,
+    WHILE = 285,
+    LOWER_THAN_ELSE = 286
   };
 #endif
 
@@ -498,19 +497,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  11
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   319
+#define YYLAST   300
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  33
+#define YYNTOKENS  32
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  22
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  69
+#define YYNRULES  66
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  128
+#define YYNSTATES  123
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   287
+#define YYMAXUTOK   286
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -550,20 +549,20 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30,    31,    32
+      25,    26,    27,    28,    29,    30,    31
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    49,    49,    54,    59,    67,    73,    78,    84,    92,
-      96,   114,   118,   124,   132,   139,   143,   150,   157,   161,
-     170,   177,   185,   191,   197,   205,   214,   219,   225,   230,
-     234,   240,   248,   258,   266,   298,   303,   309,   315,   326,
-     330,   338,   342,   359,   365,   371,   377,   383,   389,   395,
-     401,   407,   413,   418,   423,   430,   437,   443,   449,   456,
-     462,   466,   469,   472,   475,   483,   491,   499,   510,   516
+       0,    48,    48,    53,    58,    66,    72,    77,    83,    91,
+      95,   113,   117,   123,   131,   138,   142,   149,   156,   160,
+     169,   176,   184,   190,   196,   204,   213,   218,   224,   229,
+     233,   239,   247,   257,   265,   297,   302,   308,   314,   325,
+     329,   337,   341,   358,   364,   370,   376,   382,   388,   394,
+     400,   406,   412,   417,   422,   429,   435,   442,   449,   452,
+     455,   458,   466,   474,   482,   493,   499
 };
 #endif
 
@@ -572,7 +571,7 @@ static const yytype_int16 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "INT", "IO", "FLOAT", "TYPE", "LF", "ID",
+  "$end", "error", "$undefined", "INT", "FLOAT", "TYPE", "LF", "ID",
   "SEMI", "COMMA", "DOT", "ASSIGNOP", "RELOP", "PLUS", "MINUS", "STAR",
   "DIV", "AND", "OR", "NOT", "LP", "RP", "LB", "RB", "LC", "RC", "STRUCT",
   "RETURN", "IF", "ELSE", "WHILE", "LOWER_THAN_ELSE", "$accept", "Program",
@@ -590,11 +589,11 @@ static const yytype_int16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285,   286,   287
+     285,   286
 };
 # endif
 
-#define YYPACT_NINF (-101)
+#define YYPACT_NINF (-104)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -608,19 +607,19 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-       1,  -101,    32,    54,  -101,     1,    41,  -101,    28,    31,
-    -101,  -101,  -101,    36,  -101,    55,     4,    -1,    12,    53,
-    -101,    70,    59,  -101,    40,  -101,    70,    70,    57,    40,
-    -101,    70,    71,    76,  -101,  -101,    63,    69,    35,    83,
-      86,   101,  -101,  -101,    56,  -101,     1,  -101,  -101,    96,
-    -101,    97,   170,   170,   119,   170,   100,   104,  -101,    85,
-      69,    90,   170,  -101,    70,  -101,  -101,   162,   111,    65,
-      -2,   106,   224,   183,   170,   170,  -101,  -101,  -101,  -101,
-     121,   140,   170,   170,   170,   170,   170,   170,   170,   148,
-     263,  -101,  -101,   197,   108,   113,  -101,   114,  -101,  -101,
-    -101,   237,   250,  -101,  -101,   263,   285,    65,    65,    -2,
-      -2,   296,   274,   118,   210,   170,  -101,  -101,  -101,    69,
-      69,  -101,  -101,  -101,   107,  -101,    69,  -101
+       1,  -104,     7,    16,  -104,     1,    40,  -104,     2,    27,
+    -104,  -104,  -104,     5,  -104,    46,    -2,    48,    12,    47,
+    -104,    55,    72,  -104,    39,  -104,    55,    55,    51,    39,
+    -104,    55,    56,    70,  -104,  -104,    57,    67,    -3,    74,
+      76,    80,  -104,  -104,    71,  -104,     1,  -104,  -104,  -104,
+      87,   152,   152,   116,   152,    93,    94,  -104,    83,    67,
+      88,   152,  -104,    55,  -104,  -104,   108,    68,    35,    95,
+     206,   165,   152,   152,  -104,  -104,  -104,  -104,    85,   130,
+     152,   152,   152,   152,   152,   152,   152,   138,   245,  -104,
+      97,  -104,   179,   100,  -104,  -104,  -104,   219,   232,  -104,
+    -104,   245,   267,    68,    68,    35,    35,   278,   256,   101,
+     192,  -104,   152,  -104,    67,    67,  -104,  -104,  -104,    96,
+    -104,    67,  -104
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -632,31 +631,31 @@ static const yytype_int8 yydefact[] =
       14,     1,     4,    18,     6,     0,     9,     0,     0,     0,
        5,     0,     0,     8,     0,     7,     0,     0,     0,     0,
       21,     0,     0,    23,    18,    10,     0,    27,    41,     0,
-      39,     0,    13,    35,    24,    20,     0,    19,    62,    60,
-      63,    61,     0,     0,     0,     0,     0,     0,    29,     0,
-      27,     0,     0,    38,     0,    37,    22,     0,     0,    52,
-      53,     0,     0,     0,     0,     0,    25,    26,    34,    28,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-      42,    40,    56,    69,     0,     0,    57,     0,    64,    51,
-      30,     0,     0,    59,    67,    43,    46,    47,    48,    49,
-      50,    44,    45,     0,     0,     0,    54,    65,    55,     0,
-       0,    66,    58,    68,    31,    33,     0,    32
+      39,     0,    13,    35,    24,    20,     0,    19,    59,    60,
+      58,     0,     0,     0,     0,     0,     0,    29,     0,    27,
+       0,     0,    38,     0,    37,    22,     0,    52,    53,     0,
+       0,     0,     0,     0,    25,    26,    34,    28,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    42,    40,
+       0,    55,    66,     0,    61,    51,    30,     0,     0,    57,
+      64,    43,    46,    47,    48,    49,    50,    44,    45,     0,
+       0,    62,     0,    54,     0,     0,    63,    56,    65,    31,
+      33,     0,    32
 };
 
   /* YYPGOTO[NTERM-NUM].  */
-static const yytype_int16 yypgoto[] =
+static const yytype_int8 yypgoto[] =
 {
-    -101,  -101,   133,  -101,   125,     6,  -101,  -101,  -101,    64,
-    -101,   112,  -101,   130,    94,  -100,   -12,  -101,   -22,  -101,
-     -52,   -64
+    -104,  -104,   121,  -104,   111,     4,  -104,  -104,  -104,    18,
+    -104,    92,  -104,   123,    84,  -103,    31,  -104,   -22,  -104,
+     -51,    34
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
       -1,     3,     4,     5,    15,    27,     7,     9,    10,    38,
-      17,    32,    33,    58,    59,    60,    28,    29,    39,    40,
-      61,    94
+      17,    32,    33,    57,    58,    59,    28,    29,    39,    40,
+      60,    93
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -664,105 +663,103 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      69,    70,    72,    73,    97,    41,     6,     1,    23,    80,
-      90,     6,    37,    26,    21,    93,    93,    43,     1,   124,
-     125,    89,   101,   102,    24,    31,   127,    22,     2,   105,
-     106,   107,   108,   109,   110,   111,   112,   114,   -36,     2,
-       8,    26,    91,   -36,   -36,   -36,     1,    62,   -36,    13,
-      14,   123,    31,   -16,    11,   -36,    18,    19,    22,     1,
-     -36,   -36,    36,    93,    20,   -36,   -36,     2,   -36,   -36,
-      16,   -36,    48,    49,    50,    30,    80,    51,    34,    22,
-       2,    85,    86,    42,    52,    16,    46,    47,    89,    53,
-      54,    78,    63,    45,    24,    44,    64,    55,    56,    79,
-      57,    80,    81,    82,    83,    84,    85,    86,    87,    88,
-      65,    76,    95,    89,    48,    49,    50,    67,    68,    51,
-      71,    74,    48,    49,    50,    75,    52,    51,    98,   103,
-     116,    53,    54,    96,    52,   117,   118,   126,    12,    53,
-      54,   104,   121,    48,    49,    50,    35,    25,    51,   113,
-       0,    48,    49,    50,    77,    52,    51,     0,    66,     0,
-      53,    54,     0,    52,     0,    48,    49,    50,    53,    54,
-      51,     0,     0,    48,    49,    50,     0,    52,    51,     0,
-       0,     0,    53,    54,    92,    52,     0,     0,     0,     0,
-      53,    54,   100,     0,    80,    81,    82,    83,    84,    85,
-      86,    87,    88,     0,     0,     0,    89,   115,    80,    81,
-      82,    83,    84,    85,    86,    87,    88,     0,     0,     0,
-      89,    80,    81,    82,    83,    84,    85,    86,    87,    88,
-       0,     0,     0,    89,   122,    80,    81,    82,    83,    84,
-      85,    86,    87,    88,     0,     0,    99,    89,    80,    81,
-      82,    83,    84,    85,    86,    87,    88,     0,     0,   119,
-      89,    80,    81,    82,    83,    84,    85,    86,    87,    88,
-       0,     0,   120,    89,    80,    81,    82,    83,    84,    85,
-      86,    87,    88,     0,     0,    80,    89,    82,    83,    84,
-      85,    86,    87,     0,     0,     0,    80,    89,   -37,    83,
-      84,    85,    86,     0,     0,     0,     0,    80,    89,    82,
-      83,    84,    85,    86,     0,     0,     0,     0,     0,    89
+      67,    68,    70,    71,     6,    41,     1,    21,    61,     6,
+      88,   119,   120,    26,     8,    92,    11,     1,   122,    22,
+      22,    97,    98,    31,    16,    19,   -16,     2,   101,   102,
+     103,   104,   105,   106,   107,   108,   110,   -36,     2,    16,
+      26,    89,   -36,   -36,     1,    78,   -36,    13,    14,    44,
+      31,    18,     1,   -36,    20,    37,    23,    87,   -36,   -36,
+      43,    92,    34,   -36,   -36,     2,   -36,   -36,    30,   -36,
+      48,    49,    24,     2,    50,    36,    42,    45,    78,    46,
+      47,    51,    62,    83,    84,    63,    52,    53,    64,    76,
+      87,    24,    99,    22,    54,    55,    77,    56,    78,    79,
+      80,    81,    82,    83,    84,    85,    86,    66,    74,    90,
+      87,    48,    49,    72,    73,    50,    94,    69,   111,    48,
+      49,   113,    51,    50,   116,   121,    12,    52,    53,    91,
+      51,   100,    35,    48,    49,    52,    53,    50,    65,   109,
+      25,    48,    49,    75,    51,    50,   118,     0,     0,    52,
+      53,     0,    51,     0,     0,    48,    49,    52,    53,    50,
+       0,     0,     0,     0,     0,     0,    51,     0,     0,     0,
+       0,    52,    53,    96,     0,    78,    79,    80,    81,    82,
+      83,    84,    85,    86,     0,     0,     0,    87,   112,    78,
+      79,    80,    81,    82,    83,    84,    85,    86,     0,     0,
+       0,    87,    78,    79,    80,    81,    82,    83,    84,    85,
+      86,     0,     0,     0,    87,   117,    78,    79,    80,    81,
+      82,    83,    84,    85,    86,     0,     0,    95,    87,    78,
+      79,    80,    81,    82,    83,    84,    85,    86,     0,     0,
+     114,    87,    78,    79,    80,    81,    82,    83,    84,    85,
+      86,     0,     0,   115,    87,    78,    79,    80,    81,    82,
+      83,    84,    85,    86,     0,     0,    78,    87,    80,    81,
+      82,    83,    84,    85,     0,     0,     0,    78,    87,   -37,
+      81,    82,    83,    84,     0,     0,     0,     0,    78,    87,
+      80,    81,    82,    83,    84,     0,     0,     0,     0,     0,
+      87
 };
 
 static const yytype_int8 yycheck[] =
 {
-      52,    53,    54,    55,    68,    27,     0,     6,     9,    11,
-      62,     5,    24,     1,    10,    67,    68,    29,     6,   119,
-     120,    23,    74,    75,    25,    19,   126,    23,    27,    81,
-      82,    83,    84,    85,    86,    87,    88,    89,    26,    27,
-       8,     1,    64,     3,     4,     5,     6,    12,     8,     8,
-       9,   115,    46,    25,     0,    15,    25,    21,    23,     6,
-      20,    21,     3,   115,     9,    25,    26,    27,    28,    29,
-       6,    31,     3,     4,     5,    22,    11,     8,     8,    23,
-      27,    16,    17,    26,    15,    21,    10,    24,    23,    20,
-      21,     1,     9,    22,    25,    31,    10,    28,    29,     9,
-      31,    11,    12,    13,    14,    15,    16,    17,    18,    19,
-       9,    26,     1,    23,     3,     4,     5,    21,    21,     8,
-       1,    21,     3,     4,     5,    21,    15,     8,    22,     8,
-      22,    20,    21,    22,    15,    22,    22,    30,     5,    20,
-      21,     1,    24,     3,     4,     5,    21,    17,     8,     1,
-      -1,     3,     4,     5,    60,    15,     8,    -1,    46,    -1,
-      20,    21,    -1,    15,    -1,     3,     4,     5,    20,    21,
-       8,    -1,    -1,     3,     4,     5,    -1,    15,     8,    -1,
-      -1,    -1,    20,    21,    22,    15,    -1,    -1,    -1,    -1,
-      20,    21,     9,    -1,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    -1,    -1,    -1,    23,    10,    11,    12,
-      13,    14,    15,    16,    17,    18,    19,    -1,    -1,    -1,
-      23,    11,    12,    13,    14,    15,    16,    17,    18,    19,
-      -1,    -1,    -1,    23,    24,    11,    12,    13,    14,    15,
-      16,    17,    18,    19,    -1,    -1,    22,    23,    11,    12,
-      13,    14,    15,    16,    17,    18,    19,    -1,    -1,    22,
-      23,    11,    12,    13,    14,    15,    16,    17,    18,    19,
-      -1,    -1,    22,    23,    11,    12,    13,    14,    15,    16,
-      17,    18,    19,    -1,    -1,    11,    23,    13,    14,    15,
-      16,    17,    18,    -1,    -1,    -1,    11,    23,    13,    14,
-      15,    16,    17,    -1,    -1,    -1,    -1,    11,    23,    13,
-      14,    15,    16,    17,    -1,    -1,    -1,    -1,    -1,    23
+      51,    52,    53,    54,     0,    27,     5,     9,    11,     5,
+      61,   114,   115,     1,     7,    66,     0,     5,   121,    22,
+      22,    72,    73,    19,     6,    20,    24,    26,    79,    80,
+      81,    82,    83,    84,    85,    86,    87,    25,    26,    21,
+       1,    63,     3,     4,     5,    10,     7,     7,     8,    31,
+      46,    24,     5,    14,     8,    24,     8,    22,    19,    20,
+      29,   112,     7,    24,    25,    26,    27,    28,    21,    30,
+       3,     4,    24,    26,     7,     3,    25,    21,    10,     9,
+      23,    14,     8,    15,    16,     9,    19,    20,     8,     1,
+      22,    24,     7,    22,    27,    28,     8,    30,    10,    11,
+      12,    13,    14,    15,    16,    17,    18,    20,    25,     1,
+      22,     3,     4,    20,    20,     7,    21,     1,    21,     3,
+       4,    21,    14,     7,    23,    29,     5,    19,    20,    21,
+      14,     1,    21,     3,     4,    19,    20,     7,    46,     1,
+      17,     3,     4,    59,    14,     7,   112,    -1,    -1,    19,
+      20,    -1,    14,    -1,    -1,     3,     4,    19,    20,     7,
+      -1,    -1,    -1,    -1,    -1,    -1,    14,    -1,    -1,    -1,
+      -1,    19,    20,     8,    -1,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    -1,    -1,    -1,    22,     9,    10,
+      11,    12,    13,    14,    15,    16,    17,    18,    -1,    -1,
+      -1,    22,    10,    11,    12,    13,    14,    15,    16,    17,
+      18,    -1,    -1,    -1,    22,    23,    10,    11,    12,    13,
+      14,    15,    16,    17,    18,    -1,    -1,    21,    22,    10,
+      11,    12,    13,    14,    15,    16,    17,    18,    -1,    -1,
+      21,    22,    10,    11,    12,    13,    14,    15,    16,    17,
+      18,    -1,    -1,    21,    22,    10,    11,    12,    13,    14,
+      15,    16,    17,    18,    -1,    -1,    10,    22,    12,    13,
+      14,    15,    16,    17,    -1,    -1,    -1,    10,    22,    12,
+      13,    14,    15,    16,    -1,    -1,    -1,    -1,    10,    22,
+      12,    13,    14,    15,    16,    -1,    -1,    -1,    -1,    -1,
+      22
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     6,    27,    34,    35,    36,    38,    39,     8,    40,
-      41,     0,    35,     8,     9,    37,    42,    43,    25,    21,
-       9,    10,    23,     9,    25,    46,     1,    38,    49,    50,
-      22,    38,    44,    45,     8,    37,     3,    49,    42,    51,
-      52,    51,    26,    49,    42,    22,    10,    24,     3,     4,
-       5,     8,    15,    20,    21,    28,    29,    31,    46,    47,
-      48,    53,    12,     9,    10,     9,    44,    21,    21,    53,
-      53,     1,    53,    53,    21,    21,    26,    47,     1,     9,
-      11,    12,    13,    14,    15,    16,    17,    18,    19,    23,
-      53,    51,    22,    53,    54,     1,    22,    54,    22,    22,
-       9,    53,    53,     8,     1,    53,    53,    53,    53,    53,
-      53,    53,    53,     1,    53,    10,    22,    22,    22,    22,
-      22,    24,    24,    54,    48,    48,    30,    48
+       0,     5,    26,    33,    34,    35,    37,    38,     7,    39,
+      40,     0,    34,     7,     8,    36,    41,    42,    24,    20,
+       8,     9,    22,     8,    24,    45,     1,    37,    48,    49,
+      21,    37,    43,    44,     7,    36,     3,    48,    41,    50,
+      51,    50,    25,    48,    41,    21,     9,    23,     3,     4,
+       7,    14,    19,    20,    27,    28,    30,    45,    46,    47,
+      52,    11,     8,     9,     8,    43,    20,    52,    52,     1,
+      52,    52,    20,    20,    25,    46,     1,     8,    10,    11,
+      12,    13,    14,    15,    16,    17,    18,    22,    52,    50,
+       1,    21,    52,    53,    21,    21,     8,    52,    52,     7,
+       1,    52,    52,    52,    52,    52,    52,    52,    52,     1,
+      52,    21,     9,    21,    21,    21,    23,    23,    53,    47,
+      47,    29,    47
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    33,    34,    35,    35,    36,    36,    36,    36,    37,
-      37,    38,    38,    39,    39,    40,    40,    41,    42,    42,
-      43,    43,    44,    44,    45,    46,    47,    47,    48,    48,
-      48,    48,    48,    48,    48,    49,    49,    50,    50,    51,
-      51,    52,    52,    53,    53,    53,    53,    53,    53,    53,
-      53,    53,    53,    53,    53,    53,    53,    53,    53,    53,
-      53,    53,    53,    53,    53,    53,    53,    53,    54,    54
+       0,    32,    33,    34,    34,    35,    35,    35,    35,    36,
+      36,    37,    37,    38,    38,    39,    39,    40,    41,    41,
+      42,    42,    43,    43,    44,    45,    46,    46,    47,    47,
+      47,    47,    47,    47,    47,    48,    48,    49,    49,    50,
+      50,    51,    51,    52,    52,    52,    52,    52,    52,    52,
+      52,    52,    52,    52,    52,    52,    52,    52,    52,    52,
+      52,    52,    52,    52,    52,    53,    53
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -773,8 +770,8 @@ static const yytype_int8 yyr2[] =
        4,     3,     3,     1,     2,     4,     2,     0,     2,     1,
        3,     5,     7,     5,     2,     2,     0,     3,     3,     1,
        3,     1,     3,     3,     3,     3,     3,     3,     3,     3,
-       3,     3,     2,     2,     4,     4,     3,     3,     4,     3,
-       1,     1,     1,     1,     3,     4,     4,     3,     3,     1
+       3,     3,     2,     2,     4,     3,     4,     3,     1,     1,
+       1,     3,     4,     4,     3,     3,     1
 };
 
 
@@ -1565,117 +1562,117 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 49 "parse_ljx_mogai.y"
+#line 48 "parse_ljx_mogai.y"
                     {
     yyval = upConstruct(yyvsp[0], "Program", (yylsp[0]).first_line, N_PROGRAM);
     myTree = yyval;
 }
-#line 1574 "parse_ljx_mogai.tab.c"
+#line 1571 "parse_ljx_mogai.tab.c"
     break;
 
   case 3:
-#line 54 "parse_ljx_mogai.y"
+#line 53 "parse_ljx_mogai.y"
                    {
         //修改$$ = insertNode(NULL, "ExtDefList", yylineno, N_STMT);
         yyval = upConstruct(NULL, "ExtDefList", yylineno, N_EXT_DEF_L);
         myTree = yyval;
     }
-#line 1584 "parse_ljx_mogai.tab.c"
+#line 1581 "parse_ljx_mogai.tab.c"
     break;
 
   case 4:
-#line 59 "parse_ljx_mogai.y"
+#line 58 "parse_ljx_mogai.y"
                       {
         yyval = upConstruct(yyvsp[-1], "ExtDefList", (yylsp[-1]).first_line, N_EXT_DEF_L);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1594 "parse_ljx_mogai.tab.c"
+#line 1591 "parse_ljx_mogai.tab.c"
     break;
 
   case 5:
-#line 67 "parse_ljx_mogai.y"
+#line 66 "parse_ljx_mogai.y"
                                   {
         yyval = upConstruct(yyvsp[-2], "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1605 "parse_ljx_mogai.tab.c"
+#line 1602 "parse_ljx_mogai.tab.c"
     break;
 
   case 6:
-#line 73 "parse_ljx_mogai.y"
+#line 72 "parse_ljx_mogai.y"
                     {
         yyval = upConstruct(yyvsp[-1], "ExtDef", (yylsp[-1]).first_line, N_EXT_DEF);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1615 "parse_ljx_mogai.tab.c"
+#line 1612 "parse_ljx_mogai.tab.c"
     break;
 
   case 7:
-#line 78 "parse_ljx_mogai.y"
+#line 77 "parse_ljx_mogai.y"
                              {
         yyval = upConstruct(yyvsp[-2], "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1626 "parse_ljx_mogai.tab.c"
+#line 1623 "parse_ljx_mogai.tab.c"
     break;
 
   case 8:
-#line 84 "parse_ljx_mogai.y"
+#line 83 "parse_ljx_mogai.y"
                            {
         yyval = upConstruct(yyvsp[-2], "ExtDef", (yylsp[-2]).first_line, N_EXT_DEF);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1637 "parse_ljx_mogai.tab.c"
+#line 1634 "parse_ljx_mogai.tab.c"
     break;
 
   case 9:
-#line 92 "parse_ljx_mogai.y"
+#line 91 "parse_ljx_mogai.y"
                    {
         yyval = upConstruct(yyvsp[0], "ExtDecList", (yylsp[0]).first_line, N_EXT_DEC_L);
         myTree = yyval;
     }
-#line 1646 "parse_ljx_mogai.tab.c"
+#line 1643 "parse_ljx_mogai.tab.c"
     break;
 
   case 10:
-#line 96 "parse_ljx_mogai.y"
+#line 95 "parse_ljx_mogai.y"
                              {
         yyval = upConstruct(yyvsp[-2], "ExtDecList", (yylsp[-2]).first_line, N_EXT_DEC_L);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1657 "parse_ljx_mogai.tab.c"
+#line 1654 "parse_ljx_mogai.tab.c"
     break;
 
   case 11:
-#line 114 "parse_ljx_mogai.y"
+#line 113 "parse_ljx_mogai.y"
                 {
         yyval = upConstruct(yyvsp[0], "Specifier", (yylsp[0]).first_line, N_SPECI);
         myTree = yyval;
     }
-#line 1666 "parse_ljx_mogai.tab.c"
+#line 1663 "parse_ljx_mogai.tab.c"
     break;
 
   case 12:
-#line 118 "parse_ljx_mogai.y"
+#line 117 "parse_ljx_mogai.y"
                      {
         yyval = upConstruct(yyvsp[0], "Specifier", (yylsp[0]).first_line, N_SPECI);
         myTree = yyval;
     }
-#line 1675 "parse_ljx_mogai.tab.c"
+#line 1672 "parse_ljx_mogai.tab.c"
     break;
 
   case 13:
-#line 124 "parse_ljx_mogai.y"
+#line 123 "parse_ljx_mogai.y"
                                              {
         yyval = upConstruct(yyvsp[-4], "StructSpecifier", (yylsp[-4]).first_line, N_STRUCT_SPECI);
         yyvsp[-4]->sibling = yyvsp[-3];
@@ -1684,57 +1681,57 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1688 "parse_ljx_mogai.tab.c"
+#line 1685 "parse_ljx_mogai.tab.c"
     break;
 
   case 14:
-#line 132 "parse_ljx_mogai.y"
+#line 131 "parse_ljx_mogai.y"
                 {
         yyval = upConstruct(yyvsp[-1], "StructSpecifier", (yylsp[-1]).first_line, N_STRUCT_SPECI);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1698 "parse_ljx_mogai.tab.c"
+#line 1695 "parse_ljx_mogai.tab.c"
     break;
 
   case 15:
-#line 139 "parse_ljx_mogai.y"
+#line 138 "parse_ljx_mogai.y"
                 {
         yyval = upConstruct(NULL, "OptTag", yylineno, N_OPT_TAG);
         myTree = yyval;
     }
-#line 1707 "parse_ljx_mogai.tab.c"
+#line 1704 "parse_ljx_mogai.tab.c"
     break;
 
   case 16:
-#line 143 "parse_ljx_mogai.y"
+#line 142 "parse_ljx_mogai.y"
        {
         yyval = upConstruct(yyvsp[0], "OptTag", (yylsp[0]).first_line, N_OPT_TAG);
         myTree = yyval;
     }
-#line 1716 "parse_ljx_mogai.tab.c"
+#line 1713 "parse_ljx_mogai.tab.c"
     break;
 
   case 17:
-#line 150 "parse_ljx_mogai.y"
+#line 149 "parse_ljx_mogai.y"
         {
         yyval = upConstruct(yyvsp[0], "Tag", (yylsp[0]).first_line, N_TAG);
         myTree = yyval;
 }
-#line 1725 "parse_ljx_mogai.tab.c"
+#line 1722 "parse_ljx_mogai.tab.c"
     break;
 
   case 18:
-#line 157 "parse_ljx_mogai.y"
+#line 156 "parse_ljx_mogai.y"
            {
         yyval = upConstruct(yyvsp[0], "VarDec", (yylsp[0]).first_line, N_VAR_DEC);
         myTree = yyval;
     }
-#line 1734 "parse_ljx_mogai.tab.c"
+#line 1731 "parse_ljx_mogai.tab.c"
     break;
 
   case 19:
-#line 161 "parse_ljx_mogai.y"
+#line 160 "parse_ljx_mogai.y"
                       {
         yyval = upConstruct(yyvsp[-3], "VarDec", (yylsp[-3]).first_line, N_VAR_DEC);
         yyvsp[-3]->sibling = yyvsp[-2];
@@ -1742,11 +1739,11 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1746 "parse_ljx_mogai.tab.c"
+#line 1743 "parse_ljx_mogai.tab.c"
     break;
 
   case 20:
-#line 170 "parse_ljx_mogai.y"
+#line 169 "parse_ljx_mogai.y"
                          {
         yyval = upConstruct(yyvsp[-3], "FunDec", (yylsp[-3]).first_line, N_FUN_DEC);
         yyvsp[-3]->sibling = yyvsp[-2];
@@ -1754,52 +1751,52 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1758 "parse_ljx_mogai.tab.c"
+#line 1755 "parse_ljx_mogai.tab.c"
     break;
 
   case 21:
-#line 177 "parse_ljx_mogai.y"
+#line 176 "parse_ljx_mogai.y"
               {
         yyval = upConstruct(yyvsp[-2], "FunDec", (yylsp[-2]).first_line, N_FUN_DEC);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1769 "parse_ljx_mogai.tab.c"
+#line 1766 "parse_ljx_mogai.tab.c"
     break;
 
   case 22:
-#line 185 "parse_ljx_mogai.y"
+#line 184 "parse_ljx_mogai.y"
                                 {
         yyval = upConstruct(yyvsp[-2], "VarList", (yylsp[-2]).first_line, N_VAR_L);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1780 "parse_ljx_mogai.tab.c"
+#line 1777 "parse_ljx_mogai.tab.c"
     break;
 
   case 23:
-#line 191 "parse_ljx_mogai.y"
+#line 190 "parse_ljx_mogai.y"
               {
         yyval = upConstruct(yyvsp[0], "VarList", (yylsp[0]).first_line, N_VAR_L);
         myTree = yyval;
     }
-#line 1789 "parse_ljx_mogai.tab.c"
+#line 1786 "parse_ljx_mogai.tab.c"
     break;
 
   case 24:
-#line 197 "parse_ljx_mogai.y"
+#line 196 "parse_ljx_mogai.y"
                            {
         yyval = upConstruct(yyvsp[-1], "ParamDec", (yylsp[-1]).first_line, N_PARAM_DEC);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1799 "parse_ljx_mogai.tab.c"
+#line 1796 "parse_ljx_mogai.tab.c"
     break;
 
   case 25:
-#line 205 "parse_ljx_mogai.y"
+#line 204 "parse_ljx_mogai.y"
                                {
         yyval = upConstruct(yyvsp[-3], "CompSt", (yylsp[-3]).first_line, N_COMPST);
         yyvsp[-3]->sibling = yyvsp[-2];
@@ -1807,60 +1804,60 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
    }
-#line 1811 "parse_ljx_mogai.tab.c"
+#line 1808 "parse_ljx_mogai.tab.c"
     break;
 
   case 26:
-#line 214 "parse_ljx_mogai.y"
+#line 213 "parse_ljx_mogai.y"
                         {
         yyval = upConstruct(yyvsp[-1], "StmtList", (yylsp[-1]).first_line, N_STMT_L);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1821 "parse_ljx_mogai.tab.c"
+#line 1818 "parse_ljx_mogai.tab.c"
     break;
 
   case 27:
-#line 219 "parse_ljx_mogai.y"
+#line 218 "parse_ljx_mogai.y"
             {
         yyval = upConstruct(NULL, "StmtList", yylineno, N_STMT_L);
         myTree = yyval;
     }
-#line 1830 "parse_ljx_mogai.tab.c"
+#line 1827 "parse_ljx_mogai.tab.c"
     break;
 
   case 28:
-#line 225 "parse_ljx_mogai.y"
+#line 224 "parse_ljx_mogai.y"
                {
         yyval = upConstruct(yyvsp[-1], "Stmt", (yylsp[-1]).first_line, N_STMT);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1840 "parse_ljx_mogai.tab.c"
+#line 1837 "parse_ljx_mogai.tab.c"
     break;
 
   case 29:
-#line 230 "parse_ljx_mogai.y"
+#line 229 "parse_ljx_mogai.y"
             {
         yyval = upConstruct(yyvsp[0], "Stmt", (yylsp[0]).first_line, N_STMT);
         myTree = yyval;
     }
-#line 1849 "parse_ljx_mogai.tab.c"
+#line 1846 "parse_ljx_mogai.tab.c"
     break;
 
   case 30:
-#line 234 "parse_ljx_mogai.y"
+#line 233 "parse_ljx_mogai.y"
                      {
         yyval = upConstruct(yyvsp[-2], "Stmt", (yylsp[-2]).first_line, N_STMT);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1860 "parse_ljx_mogai.tab.c"
+#line 1857 "parse_ljx_mogai.tab.c"
     break;
 
   case 31:
-#line 240 "parse_ljx_mogai.y"
+#line 239 "parse_ljx_mogai.y"
                        {
         yyval = upConstruct(yyvsp[-4], "Stmt", (yylsp[-4]).first_line, N_STMT);
         yyvsp[-4]->sibling = yyvsp[-3];
@@ -1869,11 +1866,11 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1873 "parse_ljx_mogai.tab.c"
+#line 1870 "parse_ljx_mogai.tab.c"
     break;
 
   case 32:
-#line 248 "parse_ljx_mogai.y"
+#line 247 "parse_ljx_mogai.y"
                                  {
         yyval = upConstruct(yyvsp[-6], "Stmt", (yylsp[-6]).first_line, N_STMT);
         yyvsp[-6]->sibling = yyvsp[-5];
@@ -1884,11 +1881,11 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1888 "parse_ljx_mogai.tab.c"
+#line 1885 "parse_ljx_mogai.tab.c"
     break;
 
   case 33:
-#line 258 "parse_ljx_mogai.y"
+#line 257 "parse_ljx_mogai.y"
                           {
         yyval = upConstruct(yyvsp[-4], "Stmt", (yylsp[-4]).first_line, N_STMT);
         yyvsp[-4]->sibling = yyvsp[-3];
@@ -1897,11 +1894,11 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1901 "parse_ljx_mogai.tab.c"
+#line 1898 "parse_ljx_mogai.tab.c"
     break;
 
   case 34:
-#line 266 "parse_ljx_mogai.y"
+#line 265 "parse_ljx_mogai.y"
                {
         if(line_check[(yylsp[0]).first_line-1]==0){
         line_check[(yylsp[0]).first_line-1]=1;
@@ -1910,41 +1907,41 @@ yyreduce:
         sprintf( msg, "Stmt Missing \";\"");
         myerror( msg );
     }
-#line 1914 "parse_ljx_mogai.tab.c"
+#line 1911 "parse_ljx_mogai.tab.c"
     break;
 
   case 35:
-#line 298 "parse_ljx_mogai.y"
+#line 297 "parse_ljx_mogai.y"
                      {
         yyval = upConstruct(yyvsp[-1], "DefList", (yylsp[-1]).first_line, N_DEF_L);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1924 "parse_ljx_mogai.tab.c"
+#line 1921 "parse_ljx_mogai.tab.c"
     break;
 
   case 36:
-#line 303 "parse_ljx_mogai.y"
+#line 302 "parse_ljx_mogai.y"
             {
         yyval = upConstruct(NULL, "DefList", yylineno, N_DEF_L);
         myTree = yyval;
     }
-#line 1933 "parse_ljx_mogai.tab.c"
+#line 1930 "parse_ljx_mogai.tab.c"
     break;
 
   case 37:
-#line 309 "parse_ljx_mogai.y"
+#line 308 "parse_ljx_mogai.y"
                             {
         yyval = upConstruct(yyvsp[-2], "Def", (yylsp[-2]).first_line, N_DEF);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
 }
-#line 1944 "parse_ljx_mogai.tab.c"
+#line 1941 "parse_ljx_mogai.tab.c"
     break;
 
   case 38:
-#line 315 "parse_ljx_mogai.y"
+#line 314 "parse_ljx_mogai.y"
                        {
         if(line_check[(yylsp[-2]).first_line-1]==0){
             line_check[(yylsp[-2]).first_line-1]=1;
@@ -1953,170 +1950,170 @@ yyreduce:
         sprintf( msg, "Def syntax error");
         myerror( msg );
 }
-#line 1957 "parse_ljx_mogai.tab.c"
+#line 1954 "parse_ljx_mogai.tab.c"
     break;
 
   case 39:
-#line 326 "parse_ljx_mogai.y"
+#line 325 "parse_ljx_mogai.y"
              {
         yyval = upConstruct(yyvsp[0], "DecList", (yylsp[0]).first_line, N_DEC_L);
         myTree = yyval;
     }
-#line 1966 "parse_ljx_mogai.tab.c"
+#line 1963 "parse_ljx_mogai.tab.c"
     break;
 
   case 40:
-#line 330 "parse_ljx_mogai.y"
+#line 329 "parse_ljx_mogai.y"
                        {
         yyval = upConstruct(yyvsp[-2], "DecList", (yylsp[-2]).first_line, N_DEC_L);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1977 "parse_ljx_mogai.tab.c"
+#line 1974 "parse_ljx_mogai.tab.c"
     break;
 
   case 41:
-#line 338 "parse_ljx_mogai.y"
+#line 337 "parse_ljx_mogai.y"
             {
         yyval = upConstruct(yyvsp[0], "Dec", (yylsp[0]).first_line, N_DEC);
         myTree = yyval;
     }
-#line 1986 "parse_ljx_mogai.tab.c"
+#line 1983 "parse_ljx_mogai.tab.c"
     break;
 
   case 42:
-#line 342 "parse_ljx_mogai.y"
+#line 341 "parse_ljx_mogai.y"
                          {
         yyval = upConstruct(yyvsp[-2], "Dec", (yylsp[-2]).first_line, N_DEC);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 1997 "parse_ljx_mogai.tab.c"
+#line 1994 "parse_ljx_mogai.tab.c"
     break;
 
   case 43:
-#line 359 "parse_ljx_mogai.y"
+#line 358 "parse_ljx_mogai.y"
                       {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2008 "parse_ljx_mogai.tab.c"
+#line 2005 "parse_ljx_mogai.tab.c"
     break;
 
   case 44:
-#line 365 "parse_ljx_mogai.y"
+#line 364 "parse_ljx_mogai.y"
                  {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2019 "parse_ljx_mogai.tab.c"
+#line 2016 "parse_ljx_mogai.tab.c"
     break;
 
   case 45:
-#line 371 "parse_ljx_mogai.y"
+#line 370 "parse_ljx_mogai.y"
                 {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2030 "parse_ljx_mogai.tab.c"
+#line 2027 "parse_ljx_mogai.tab.c"
     break;
 
   case 46:
-#line 377 "parse_ljx_mogai.y"
+#line 376 "parse_ljx_mogai.y"
                    {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2041 "parse_ljx_mogai.tab.c"
+#line 2038 "parse_ljx_mogai.tab.c"
     break;
 
   case 47:
-#line 383 "parse_ljx_mogai.y"
+#line 382 "parse_ljx_mogai.y"
                   {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2052 "parse_ljx_mogai.tab.c"
+#line 2049 "parse_ljx_mogai.tab.c"
     break;
 
   case 48:
-#line 389 "parse_ljx_mogai.y"
+#line 388 "parse_ljx_mogai.y"
                    {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2063 "parse_ljx_mogai.tab.c"
+#line 2060 "parse_ljx_mogai.tab.c"
     break;
 
   case 49:
-#line 395 "parse_ljx_mogai.y"
+#line 394 "parse_ljx_mogai.y"
                   {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2074 "parse_ljx_mogai.tab.c"
+#line 2071 "parse_ljx_mogai.tab.c"
     break;
 
   case 50:
-#line 401 "parse_ljx_mogai.y"
+#line 400 "parse_ljx_mogai.y"
                  {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2085 "parse_ljx_mogai.tab.c"
+#line 2082 "parse_ljx_mogai.tab.c"
     break;
 
   case 51:
-#line 407 "parse_ljx_mogai.y"
+#line 406 "parse_ljx_mogai.y"
                {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2096 "parse_ljx_mogai.tab.c"
+#line 2093 "parse_ljx_mogai.tab.c"
     break;
 
   case 52:
-#line 413 "parse_ljx_mogai.y"
+#line 412 "parse_ljx_mogai.y"
                {
         yyval = upConstruct(yyvsp[-1], "Exp", (yylsp[-1]).first_line, N_EXP);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2106 "parse_ljx_mogai.tab.c"
+#line 2103 "parse_ljx_mogai.tab.c"
     break;
 
   case 53:
-#line 418 "parse_ljx_mogai.y"
+#line 417 "parse_ljx_mogai.y"
              {
         yyval = upConstruct(yyvsp[-1], "Exp", (yylsp[-1]).first_line, N_EXP);
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2116 "parse_ljx_mogai.tab.c"
+#line 2113 "parse_ljx_mogai.tab.c"
     break;
 
   case 54:
-#line 423 "parse_ljx_mogai.y"
+#line 422 "parse_ljx_mogai.y"
                    {
         yyval = upConstruct(yyvsp[-3], "Exp", (yylsp[-3]).first_line, N_EXP);
         yyvsp[-3]->sibling = yyvsp[-2];
@@ -2124,45 +2121,22 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2128 "parse_ljx_mogai.tab.c"
+#line 2125 "parse_ljx_mogai.tab.c"
     break;
 
   case 55:
-#line 430 "parse_ljx_mogai.y"
-                   {
-        yyval = upConstruct(yyvsp[-3], "Exp", (yylsp[-3]).first_line, N_EXP);
-        yyvsp[-3]->sibling = yyvsp[-2];
+#line 429 "parse_ljx_mogai.y"
+              {
+        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2140 "parse_ljx_mogai.tab.c"
+#line 2136 "parse_ljx_mogai.tab.c"
     break;
 
   case 56:
-#line 437 "parse_ljx_mogai.y"
-              {
-        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
-        yyvsp[-2]->sibling = yyvsp[-1];
-        yyvsp[-1]->sibling = yyvsp[0];
-        myTree = yyval;
-    }
-#line 2151 "parse_ljx_mogai.tab.c"
-    break;
-
-  case 57:
-#line 443 "parse_ljx_mogai.y"
-              {
-        yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
-        yyvsp[-2]->sibling = yyvsp[-1];
-        yyvsp[-1]->sibling = yyvsp[0];
-        myTree = yyval;
-    }
-#line 2162 "parse_ljx_mogai.tab.c"
-    break;
-
-  case 58:
-#line 449 "parse_ljx_mogai.y"
+#line 435 "parse_ljx_mogai.y"
                    {
         yyval = upConstruct(yyvsp[-3], "Exp", (yylsp[-3]).first_line, N_EXP);
         yyvsp[-3]->sibling = yyvsp[-2];
@@ -2170,54 +2144,46 @@ yyreduce:
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2174 "parse_ljx_mogai.tab.c"
+#line 2148 "parse_ljx_mogai.tab.c"
     break;
 
-  case 59:
-#line 456 "parse_ljx_mogai.y"
+  case 57:
+#line 442 "parse_ljx_mogai.y"
                 {
         yyval = upConstruct(yyvsp[-2], "Exp", (yylsp[-2]).first_line, N_EXP);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2185 "parse_ljx_mogai.tab.c"
+#line 2159 "parse_ljx_mogai.tab.c"
     break;
 
-  case 60:
-#line 462 "parse_ljx_mogai.y"
+  case 58:
+#line 449 "parse_ljx_mogai.y"
         {
         yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
     }
-#line 2193 "parse_ljx_mogai.tab.c"
+#line 2167 "parse_ljx_mogai.tab.c"
     break;
 
-  case 61:
-#line 466 "parse_ljx_mogai.y"
-        {
-        yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
-    }
-#line 2201 "parse_ljx_mogai.tab.c"
-    break;
-
-  case 62:
-#line 469 "parse_ljx_mogai.y"
+  case 59:
+#line 452 "parse_ljx_mogai.y"
          {
         yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
     }
-#line 2209 "parse_ljx_mogai.tab.c"
+#line 2175 "parse_ljx_mogai.tab.c"
     break;
 
-  case 63:
-#line 472 "parse_ljx_mogai.y"
+  case 60:
+#line 455 "parse_ljx_mogai.y"
            {
         yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_EXP);
     }
-#line 2217 "parse_ljx_mogai.tab.c"
+#line 2183 "parse_ljx_mogai.tab.c"
     break;
 
-  case 64:
-#line 475 "parse_ljx_mogai.y"
+  case 61:
+#line 458 "parse_ljx_mogai.y"
                   {
         if(line_check[(yylsp[-1]).first_line-1]==0){
         line_check[(yylsp[-1]).first_line-1]=1;
@@ -2226,11 +2192,11 @@ yyreduce:
         sprintf( msg, "Exp Syntax error");
         myerror( msg );
     }
-#line 2230 "parse_ljx_mogai.tab.c"
+#line 2196 "parse_ljx_mogai.tab.c"
     break;
 
-  case 65:
-#line 483 "parse_ljx_mogai.y"
+  case 62:
+#line 466 "parse_ljx_mogai.y"
                      {
         if(line_check[(yylsp[-2]).first_line-1]==0){
         line_check[(yylsp[-2]).first_line-1]=1;
@@ -2239,11 +2205,11 @@ yyreduce:
         sprintf( msg, "Exp Syntax error");
         myerror( msg );
     }
-#line 2243 "parse_ljx_mogai.tab.c"
+#line 2209 "parse_ljx_mogai.tab.c"
     break;
 
-  case 66:
-#line 491 "parse_ljx_mogai.y"
+  case 63:
+#line 474 "parse_ljx_mogai.y"
                       {
         if(line_check[(yylsp[-2]).first_line-1]==0){
         line_check[(yylsp[-2]).first_line-1]=1;
@@ -2252,11 +2218,11 @@ yyreduce:
         sprintf( msg, "Exp Missing \"]\"");
         myerror( msg );
     }
-#line 2256 "parse_ljx_mogai.tab.c"
+#line 2222 "parse_ljx_mogai.tab.c"
     break;
 
-  case 67:
-#line 499 "parse_ljx_mogai.y"
+  case 64:
+#line 482 "parse_ljx_mogai.y"
                         {
        if(line_check[(yylsp[-1]).first_line-1]==0){
         line_check[(yylsp[-1]).first_line-1]=1;
@@ -2265,30 +2231,30 @@ yyreduce:
         sprintf( msg, "Exp syntax error");
         myerror( msg );
     }
-#line 2269 "parse_ljx_mogai.tab.c"
+#line 2235 "parse_ljx_mogai.tab.c"
     break;
 
-  case 68:
-#line 510 "parse_ljx_mogai.y"
+  case 65:
+#line 493 "parse_ljx_mogai.y"
                      {
         yyval = upConstruct(yyvsp[-2], "Args", (yylsp[-2]).first_line, N_ARGS);
         yyvsp[-2]->sibling = yyvsp[-1];
         yyvsp[-1]->sibling = yyvsp[0];
         myTree = yyval;
     }
-#line 2280 "parse_ljx_mogai.tab.c"
+#line 2246 "parse_ljx_mogai.tab.c"
     break;
 
-  case 69:
-#line 516 "parse_ljx_mogai.y"
+  case 66:
+#line 499 "parse_ljx_mogai.y"
          {
         yyval = upConstruct(yyvsp[0], "Exp", (yylsp[0]).first_line, N_ARGS);
     }
-#line 2288 "parse_ljx_mogai.tab.c"
+#line 2254 "parse_ljx_mogai.tab.c"
     break;
 
 
-#line 2292 "parse_ljx_mogai.tab.c"
+#line 2258 "parse_ljx_mogai.tab.c"
 
       default: break;
     }
@@ -2526,7 +2492,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 521 "parse_ljx_mogai.y"
+#line 504 "parse_ljx_mogai.y"
 
 
 #include "lex.yy.c"
@@ -2534,7 +2500,7 @@ yyreturn:
 int main(/*int argc, char** argv*/)
 {
 	// if(argc <= 1) return 1;
-	FILE* f = fopen("test1.cmm", "r");
+	FILE* f = fopen("test2.cmm", "r");
 	if(!f){
 		perror("test1.cmm");
 		return 1;

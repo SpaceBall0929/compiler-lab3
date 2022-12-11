@@ -18,7 +18,6 @@ ILLEGALINT8 0[0-7]*[8-9]+[0-9]*
 ILLEGALINT16 0[xX][0-9A-Fa-f]*[g-zG-Z]+[0-9a-zA-Z]*
 FLOAT ([0-9]+{DOT}[0-9]*|{DOT}[0-9]+)|(([0-9]+{DOT}[0-9]*|{DOT}[0-9]+)[eE][+-]?[0-9]+)
 ILLEGALFLOAT (([0-9]*)*(([eE][+-]?[0-9]*\.[0-9]*)|([eE][a-zA-Z]*)))|({FLOAT}(([eE][+-]?[0-9]*\.[0-9]*)|([eE][a-zA-Z]*)))|(([0-9]*)*[eE][+-]?[0-9]+)
-IO read\(\)|write\(\);
 SEMI ;
 COMMA ,
 ASSIGNOP =
@@ -83,14 +82,6 @@ ID [_a-zA-Z][_0-9a-zA-Z]*
 {ILLEGALINT16} {
     error_count += 1;
     printf("ERROR TYPE A at line %d: Illegal hexadecimal number: '%s'\n",yylineno,yytext);
-    }
-    
-{IO} {
-    treeNode* node = (treeNode*)malloc(sizeof(treeNode));
-    nodeInit(node, "IO", yylineno, NULL, NULL, N_IO);
-    node->subtype.IDVal = strdup(yytext);
-    yylval = node;
-    return IO;
     }
 
 {SEMI} {

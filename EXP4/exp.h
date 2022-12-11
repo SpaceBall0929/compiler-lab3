@@ -22,7 +22,7 @@ SymbolTableStruct *struct_table;
 operand* Exp_s(treeNode *exp);
 //分别处理exp的几种情况
     //1-处理id int或者float的情况
-    operand* id_int_float_IO(treeNode *tn1);
+    operand* id_int_float(treeNode *tn1);
 
     //2-处理 exp <operator> exp
     operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp);

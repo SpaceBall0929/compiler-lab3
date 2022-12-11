@@ -3,7 +3,7 @@
 #define I_AND 198964
 #define I_OR 198965
 #define I_NOT 198966
-
+int isIO = 0;//是否为read或者write
 
 
 
@@ -90,7 +90,7 @@ operand* Exp_s(treeNode *exp)
     treeNode *tn1 = getchild(exp, 0);
 
     //1-处理变量或者数或者IO   ID，INT，FLOAT，read, write
-    if (tn2 == NULL)   return id_int_float_IO(tn1);
+    if (tn2 == NULL)   return id_int_float(tn1);
     else
     {
         treeNode *tn3 = getchild(exp, 2);
@@ -113,6 +113,7 @@ operand* Exp_s(treeNode *exp)
     //4-函数部分   ID LP Args RP 有参函数  ID LP RP 无参函数
         if (tn1->nodeType == N_ID)
         { 
+        //先处理IO，把read当普通的无参函数，write当不需要传参的有参函数看待
         //ID LP Args RP 有参函数 
             if (tn3->nodeType == N_ARGS)
                 return fun_with_args(tn1, tn2, tn3, getchild(exp, 3));
@@ -180,23 +181,18 @@ int op_type(int c){
 }
 
 //1-处理id int或者float的情况
-operand* id_int_float_IO(treeNode *tn1)
+operand* id_int_float(treeNode *tn1)
 {
     if (tn1->nodeType == N_ID)
         { 
             exp_re = find_type(tn1); //找到了,返回这个ID代表的类型
             return init_operand(VARIABLE, getNodeVarStack(var_domain_ptr, tn1->subtype.IDVal).ir_name, 0, 0);
         }
-    else if (tn1->nodeType == N_INT)
+    else 
         { //返回一个立即数类型的operand
             exp_re = D_INT;
             return init_operand(IMMEDIATE, NULL, tn1->subtype.intVal, 0);
             ;
-        }
-    else
-        {
-            exp_re = D_INT;
-            return init_operand(VARIABLE, tn1->subtype.IDVal, 0, 0);
         }
 }
 
@@ -206,8 +202,20 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
     treeNode *Expnode1 = tn1;
     treeNode *Expnode2 = tn3;
 
-    Exp_s(Expnode1);
+    if(tn3->child->nodeType == N_ID)//为read
+    {
+        if( !strcmp(tn3->child->subtype.IDVal, "read"))
+        {
+            printf("read");
+            operand_list *opl = init_operand_list();
+            add_operand(opl, Exp_s(Expnode1));
+            new_op(lst_of_ir, I_READ, *opl);
+            isIO = 0;
+            return Exp_s(Expnode1);
+        }
+    }
     Exp_s(Expnode2);//exp_re已修改
+    operand* o = Exp_s(Expnode1);
     //非关系运算  返回操作数(随便哪个exp)的类型
 
         if (check_type(tn2, N_AND) ||
@@ -353,6 +361,13 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
     treeNode *cntnode = tn3;
     int cnt = 0;    
     operand_list* opl = init_operand_list();
+    if(!strcmp(funcname, "write"))
+    {
+        printf("%s", funcname);
+        add_operand(opl, Exp_s(tn3->child));
+        new_op(lst_of_ir, I_WRITE, *opl);
+        return Exp_s(tn3->child);
+    }
     while (1)
     {   //计算所有实参的数目
         cnt += 1;
@@ -396,7 +411,7 @@ operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
         new_op(lst_of_ir, I_AS_ADDR, *oplst);
     }
     char ret_char[5] = "*";
-    strcat(ret_char, "*");
+    //strcat(ret_char, "*");
     strcat(ret_char, temp_op(flag)->o_value.name);//*ti
     flag = 1;
     return init_operand(VARIABLE, ret_char, 0, 0);
