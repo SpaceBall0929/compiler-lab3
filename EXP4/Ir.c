@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "SymbolTable.c"
+//#include "SymbolTable.c"
 #define MAX_TEMP_OP_NUM 5
 #define INT_LEN 4
 #define FLOAT_LEN 8
@@ -443,7 +443,7 @@ void print_op(operation* op, FILE* F){
     case I_BOOL:
         for(int i = 0; i < op->op_num; i++)
             fprintf(F, "%s ", op->opers[i].o_value.name);
-        fprintf("\n");
+        fprintf(F, "\n");
         break;
 
     default:
@@ -502,8 +502,8 @@ int array_size(dataNodeVar* array){
 
 //求结构体大小（单位：字节）
 int struct_size(SymbolTableStruct* st, int struct_type){
-    dataNodeStruct* node = st->data[struct_type - D_AMT];
-    dataNodeVar* p = node->structDomains;
+    dataNodeStruct node = st->data[struct_type - D_AMT];
+    dataNodeVar* p = node.structDomains;
     int i = 0;
     while(p != NULL){
         if(p->varType == D_ARRAY)      //成员为数组
@@ -536,59 +536,59 @@ int struct_offset(SymbolTableStruct* st, char* struct_type, char* domain_name){
     return 0;
 }
 
-int main(){
-    IR_list* lst = init_IR();
-    char* v1 = "x";
-    char* v2 = "y";
-    char* v3 = "z";
-    char* v4 = "<=";
+// int main(){
+//     IR_list* lst = init_IR();
+//     char* v1 = "x";
+//     char* v2 = "y";
+//     char* v3 = "z";
+//     char* v4 = "<=";
     
-    operand_list* op_lst = init_operand_list();
-    new_operand(op_lst, VARIABLE, v1, 0, 0);
+//     operand_list* op_lst = init_operand_list();
+//     new_operand(op_lst, VARIABLE, v1, 0, 0);
 
-    // operand* oper1 = init_operand(VARIABLE, v1, 0, 0);
-    // operand* oper2 = init_operand(VARIABLE, v2, 0, 0);
-    // operand* oper3 = init_operand(VARIABLE, v3, 0, 0);
-    // operand* oper4 = init_operand(IMMEDIATE, NULL, 5, 0);
-    // operand* oper5 = init_operand(IMMEDIATE, NULL, 6, 0);
-    // operand* oper6 = init_operand(VARIABLE, v4, 0, 0);
+//     // operand* oper1 = init_operand(VARIABLE, v1, 0, 0);
+//     // operand* oper2 = init_operand(VARIABLE, v2, 0, 0);
+//     // operand* oper3 = init_operand(VARIABLE, v3, 0, 0);
+//     // operand* oper4 = init_operand(IMMEDIATE, NULL, 5, 0);
+//     // operand* oper5 = init_operand(IMMEDIATE, NULL, 6, 0);
+//     // operand* oper6 = init_operand(VARIABLE, v4, 0, 0);
 
-    new_op(lst, I_LABLE, *op_lst);
-    new_op(lst, I_FUNC, *op_lst);
-    new_operand(op_lst, VARIABLE, v2, 0, 0);
-    // operand op_array1[2] = {*oper1, *oper2}; 
-    new_op(lst, I_ASSIGN, *op_lst);
-    // operand op_array2[3] = {*oper1, *oper2, *oper3};
-    // new_op(lst, I_ADD, op_array2, 3);
-    // operand op_array3[3] = {*oper1, *oper2, *oper4};
-    // new_op(lst, I_SUB, op_array3, 3);
-    // operand op_array4[3] = {*oper1, *oper4, *oper2};
-    // new_op(lst, I_MUL, op_array4, 3);
-    // operand op_array5[3] = {*oper1, *oper4, *oper5};
-    // new_op(lst, I_DIV, op_array5, 3);
-    // insert_op(lst, I_AS_ADDR, op_array1, 2, 2);
-    // insert_op(lst, I_AS_VALUE, op_array1, 2, 4);
-    // insert_op(lst, I_VALUE_ASSIGN, op_array1, 2, 6);
-    // new_op(lst, I_GOTO, oper1, 1);
-    // operand op_array6[4] = {*oper3, *oper6, *oper5, *oper2};
-    // new_op(lst, I_IF, op_array6, 4);
-    // new_op(lst, I_RETURN, oper4, 1);
-    // operand op_array7[2] = {*oper3, *oper5};
-    // new_op(lst, I_DEC, op_array7, 2);
-    // new_op(lst, I_ARG, oper1, 1);
-    // new_op(lst, I_CALL, op_array1, 2);
-    // new_op(lst, I_PARAM, oper1, 1);
-    // new_op(lst, I_READ, oper1, 1);
-    // new_op(lst, I_WRITE, oper1, 1);
+//     new_op(lst, I_LABLE, *op_lst);
+//     new_op(lst, I_FUNC, *op_lst);
+//     new_operand(op_lst, VARIABLE, v2, 0, 0);
+//     // operand op_array1[2] = {*oper1, *oper2}; 
+//     new_op(lst, I_ASSIGN, *op_lst);
+//     // operand op_array2[3] = {*oper1, *oper2, *oper3};
+//     // new_op(lst, I_ADD, op_array2, 3);
+//     // operand op_array3[3] = {*oper1, *oper2, *oper4};
+//     // new_op(lst, I_SUB, op_array3, 3);
+//     // operand op_array4[3] = {*oper1, *oper4, *oper2};
+//     // new_op(lst, I_MUL, op_array4, 3);
+//     // operand op_array5[3] = {*oper1, *oper4, *oper5};
+//     // new_op(lst, I_DIV, op_array5, 3);
+//     // insert_op(lst, I_AS_ADDR, op_array1, 2, 2);
+//     // insert_op(lst, I_AS_VALUE, op_array1, 2, 4);
+//     // insert_op(lst, I_VALUE_ASSIGN, op_array1, 2, 6);
+//     // new_op(lst, I_GOTO, oper1, 1);
+//     // operand op_array6[4] = {*oper3, *oper6, *oper5, *oper2};
+//     // new_op(lst, I_IF, op_array6, 4);
+//     // new_op(lst, I_RETURN, oper4, 1);
+//     // operand op_array7[2] = {*oper3, *oper5};
+//     // new_op(lst, I_DEC, op_array7, 2);
+//     // new_op(lst, I_ARG, oper1, 1);
+//     // new_op(lst, I_CALL, op_array1, 2);
+//     // new_op(lst, I_PARAM, oper1, 1);
+//     // new_op(lst, I_READ, oper1, 1);
+//     // new_op(lst, I_WRITE, oper1, 1);
 
-    FILE* F = fopen("test.txt", "w");
-    print_IR(lst, F);
+//     FILE* F = fopen("test.txt", "w");
+//     print_IR(lst, F);
 
-    operand* tmp = temp_op(2);
-    printf("%s\n", tmp->o_value.name);
+//     operand* tmp = temp_op(2);
+//     printf("%s\n", tmp->o_value.name);
 
-    operand* tmp2 = temp_op(-1);
-    printf("%s\n", tmp2->o_value.name);
+//     operand* tmp2 = temp_op(-1);
+//     printf("%s\n", tmp2->o_value.name);
 
-    return 0;
-}
+//     return 0;
+// }
