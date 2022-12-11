@@ -460,7 +460,7 @@ Exp : Exp ASSIGNOP Exp{
         myTree = $$;
     }
     | IO{
-        $$ =  upConstruct($1, "Exp", @1.first_line, N_EXP);
+        $$ = upConstruct($1, "Exp", @1.first_line, N_EXP);
     }
 
     | ID{
@@ -525,7 +525,7 @@ Args : Exp COMMA Args{
 int main(/*int argc, char** argv*/)
 {
 	// if(argc <= 1) return 1;
-	FILE* f = fopen("test1.cmm", "r");
+	FILE* f = fopen("test2.cmm", "r");
 	if(!f){
 		perror("test1.cmm");
 		return 1;
@@ -534,12 +534,13 @@ int main(/*int argc, char** argv*/)
 	yyrestart(f);
 	yyparse();
     printf("Built the tree successfully\n");
-    
+
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
-        
+    FILE* F = fopen("test.txt", "w");
+    print_IR(lst_of_ir, F);
         
 	return 0;
 }

@@ -262,7 +262,7 @@ operation* unary(treeNode *t)
         add_operand(oplst, opr0);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
-        return init_op((opcode)type, *oplst);   
+        return init_op(type, *oplst);   
     //}
 
 }
@@ -293,7 +293,7 @@ operation* binary(treeNode *t)
         add_operand(oplst, opr0);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
-        return init_op((opcode)type, *oplst);   
+        return init_op(type, *oplst);   
     //}
 }
 
@@ -305,7 +305,7 @@ operand_list* bool_(treeNode *t, int opnum){
     {
         operand* opr2 = Exp_s(n->sibling->sibling);
         operand* opr0 = Exp_s(n);        
-        operand* opr1 = init_operand(VARIABLE, n->subtype.IDVal, 0, 0);
+        operand* opr1 = init_operand(VARIABLE, getchild(t, 1)->subtype.IDVal, 0, 0);
         add_operand(oplst, opr0);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2);
@@ -371,8 +371,9 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
     add_operand(opl2, temp_op(flag));
     new_operand(opl2, VARIABLE, funcname, 0, 0);
     flag = 1;
-    new_op(lst_of_ir, I_CALL, *opl2);
     new_op(lst_of_ir, I_ARG, *opl);
+    new_op(lst_of_ir, I_CALL, *opl2);
+    
     exp_re = getNodeFunc(*fun_table, funcname).returnType;
     return temp_op(0);
 }

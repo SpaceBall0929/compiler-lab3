@@ -63,6 +63,7 @@ void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a)
     if(lst->head == NULL && lst->tail == NULL){
         lst->head = lst->tail = new;
         lst->length += 1;
+        printf("test\n");
         return;
     }
     lst->tail->next = new;
@@ -74,6 +75,12 @@ void new_operand(operand_list* lst, enum operand_type t, char* n, int i, long a)
 
 void add_operand(operand_list* lst, operand* new)
 {
+    if(lst->head == NULL && lst->tail == NULL){
+        lst->head = lst->tail = new;
+        lst->length += 1;
+        printf("test2\n");
+        return;
+    }
     lst->tail->next = new;
     new->next = NULL;
     lst->tail = new;
@@ -84,6 +91,11 @@ void add_operand(operand_list* lst, operand* new)
 //拼接参数表
 operand_list* add_args(operand_list* lst1, operand_list* lst2){
     operand_list* new_lst = init_operand_list();
+    if(lst1->head == NULL && lst1->tail == NULL){
+        new_lst = lst2;
+        printf("test3\n");
+        return new_lst;
+    }
     new_lst->head = lst1->head;
     new_lst->tail = lst1->tail;
     new_lst->tail->next = lst2->head;
@@ -215,6 +227,11 @@ void insert_op(IR_list* lst, enum opcode co, operand_list oplst, int index){
         exit(1);
     }
     operation* new = init_op(co, oplst);
+    if(lst->head == NULL && lst->tail == NULL){
+	lst->head = lst->tail = new;
+        lst->length += 1;
+        return;
+    }
     operation* pt = lst->head;
     for(int i = 1;i < index; i++)
         pt = pt->next;

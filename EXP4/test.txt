@@ -1,0 +1,19 @@
+LABLE main:
+t1:=a0
+IF a0 > #0 GOTO lb00
+IF a0 < #0 GOTO lb01
+GOTO lb02
+LABLE lb00:
+ARG #1
+t2:=CALL write
+GOTO lb03
+LABLE lb01:
+t3:=#0-#1
+ARG t4
+t4:=CALL write
+GOTO lb03
+LABLE lb02:
+ARG #0
+t5:=CALL write
+LABLE lb03:
+RETURN #0

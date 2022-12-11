@@ -2543,12 +2543,13 @@ int main(/*int argc, char** argv*/)
 	yyrestart(f);
 	yyparse();
     printf("Built the tree successfully\n");
-    
+
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
-        
+    FILE* F = fopen("test.txt", "w");
+    print_IR(lst_of_ir, F);
         
 	return 0;
 }
