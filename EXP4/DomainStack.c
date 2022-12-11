@@ -10,7 +10,7 @@ struct stacknode
     // SymbolTableStruct tStruct;
 };
 typedef struct stacknode stackNode;
-typedef struct stacknode *domainStack;
+typedef struct stacknode* domainStack;
 
 stackNode *createStackNode()
 {
@@ -68,8 +68,8 @@ int ifExistVarStack(domainStack ds, char *key)
 }
 
 dataNodeVar getNodeVarStack(domainStack ds, char *key){
-   domainStack *p = ds;
-   dataNodeVar* fault = newNodeVar("error", -1);
+   domainStack p = ds;
+   dataNodeVar* fault = newNodeVar("error", "error", -1);
    while (p != NULL)
    {
       if (ifExistVar(p->tVar, key))
