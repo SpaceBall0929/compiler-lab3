@@ -246,12 +246,12 @@ operation* unary(treeNode *t)
     treeNode *t0 = getchild(t, 0);
     operand_list* oplst = init_operand_list();
     int type = op_type(t0->nodeType);
-    if(type > 1989)//为not
+    /*if(type > 1989)//为not
     {
         return and_or_not(t, type);
     }
     else//不是关系运算
-    {
+    {*/
         operand* opr2 = Exp_s(getchild(t, 1));
         flag = 1;
         operand* opr1 = init_operand(IMMEDIATE, NULL, 0, 0);
@@ -262,7 +262,7 @@ operation* unary(treeNode *t)
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
         return init_op(type, *oplst);   
-    }
+    //}
 
 }
 
@@ -277,12 +277,12 @@ operation* binary(treeNode *t)
         oplst = bool(t, 3);//为关系运算，处理关系运算
         return init_op(I_BOOL, *oplst);
     }
-    else if(type > 1989)
+    /*else if(type > 1989)
     {
         return and_or_not(t, type);
     }
     else//不是关系运算
-    {
+    {*/
         operand* opr2 = Exp_s(t->child->sibling->sibling);
         flag = 1;
         operand* opr1 = Exp_s(t->child);
@@ -293,7 +293,7 @@ operation* binary(treeNode *t)
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
         return init_op(type, *oplst);   
-    }
+    //}
 }
 
 //处理关系运算，返回一个参数表（因为布尔运算的符号不算符号，而是直接当操作数来用了）
