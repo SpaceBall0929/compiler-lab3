@@ -189,10 +189,14 @@ operand* id_int_float(treeNode *tn1)
             return init_operand(VARIABLE, getNodeVarStack(var_domain_ptr, tn1->subtype.IDVal).ir_name, 0, 0);
         }
     else 
-        { //返回一个立即数类型的operand
+        { //立即数类型
             exp_re = D_INT;
-            return init_operand(IMMEDIATE, NULL, tn1->subtype.intVal, 0);
-            ;
+            operand_list * opl = init_operand_list();
+            add_operand(opl, temp_op(flag));
+            flag = 1;
+            new_operand(opl, IMMEDIATE, NULL, tn1->subtype.intVal, 0);
+            new_op(lst_of_ir, I_ASSIGN, *opl);
+            return temp_op(0);
         }
 }
 
@@ -329,17 +333,14 @@ int Exp_o(treeNode *exp, char* label)
         oplst = bool_(exp, 3);
         new_operand(oplst, VARIABLE, label, 0, 0);
         new_op(lst_of_ir, I_IF, *oplst);
+        return lst_of_ir->length;
     }
-    /*else
-    {//处理and or not//不处理了 假装没有
-        int type;
-        if(count_child(exp) == 3) type = getchild(exp, 1)->nodeType;
-        else type = I_NOT;
-        operand_list *oplst = and_or_not(exp, op_type(type));
-        new_operand(oplst, VARIABLE, label, 0, 0);
-        new_op(lst_of_ir, oplst);
-    }*/
-    return lst_of_ir->length;
+    else
+    {
+        Exp_s(exp);
+        return lst_of_ir->length;
+    }
+    
 }
 
 operand* fun_no_args(treeNode *tn1, treeNode *tn2, treeNode *tn3)
@@ -365,7 +366,7 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
         operand* o = Exp_s(tn3->child);
         add_operand(opl, o);
         new_op(lst_of_ir, I_WRITE, *opl);
-        //return Exp_s(tn3->child);
+        return o;
     }
     while (1)
     {   //计算所有实参的数目

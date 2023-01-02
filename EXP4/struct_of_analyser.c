@@ -301,7 +301,7 @@ int tree_analys(treeNode *mytree)
                 InsertFunc(&(var_domain_ptr->tVar), fun_table, func_ptr, temp->line_no);
                 // 函数初始化之写标签
                 dataNodeVar *arg_of_func = func_ptr->args;
-                insert_lable(func_ptr->funcName);
+                insert_func(func_ptr->funcName);
                 // 根据师兄建议，增加了形参段
                 // 这个部分可以节约exp的工作量
                 while (arg_of_func != NULL)
@@ -370,7 +370,9 @@ int tree_analys(treeNode *mytree)
                     printf("EXP_DO_NOTHING\n");
                 }
                 // 清除一下最后一个返回值占用的内存
+                IR_list* xxx = lst_of_ir;
                 free(Exp_s(temp));
+                xxx = lst_of_ir;
                 break;
 
             case EXP_LOOP:
@@ -492,6 +494,8 @@ int tree_analys(treeNode *mytree)
                     new_operand(operand_to_use, VARIABLE, temp_ir_lable, 0, 0);
                     new_op(lst_of_ir, I_GOTO, *operand_to_use);
                     del_operand_content(operand_to_use);
+                    in_set_of_if++;
+                    when_to_end_if = stack_ptr->top - 1;
                     if_unfold = 0;
                 }
                 // 这些是确定了这个句子和else if没关系才做的事
@@ -627,7 +631,8 @@ int tree_analys(treeNode *mytree)
             else
             {
                 new_operand(operand_to_use, VARIABLE,
-                            if_stmts_lables->quene[if_stmts_lables->len - 1].lable_names[0], 0, 0);
+                            if_stmts_lables->quene[if_stmts_lables->len - 1]\
+                            .lable_names[0], 0, 0);
             }
 
             new_op(lst_of_ir, I_LABLE, *operand_to_use);
@@ -638,6 +643,7 @@ int tree_analys(treeNode *mytree)
             stack_ptr->top == when_to_end_if + if_stmt_remain - 1)
         {
             if_block_lst *block_now = &(if_stmts_lables->quene[if_stmts_lables->len - 1]);
+            IR_list* xxx = lst_of_ir;
             if_stmt_remain--;
             if (if_stmt_remain)
             {
@@ -676,6 +682,7 @@ int tree_analys(treeNode *mytree)
         }
         temp = top(stack_ptr);
     }
-
+    FILE* F = fopen("test.txt", "w");
+    print_IR(lst_of_ir, F);
     return 0;
 }
