@@ -21,7 +21,7 @@
 
 // 识别非终结符VarDec,收集变量的名字，收集是否是数组，返回一个初始化好的dataNodeVar
 
-int tree_analys(treeNode *mytree)
+IR_list *tree_analys(treeNode *mytree)
 {
     // 栈初始化部分
     treeNode *temp = mytree;
@@ -707,7 +707,7 @@ int tree_analys(treeNode *mytree)
         }
         temp = top(stack_ptr);
     }
-    FILE *F = fopen("test.txt", "w");
-    print_IR(lst_of_ir, F);
-    return 0;
+    //FILE *F = fopen("test.txt", "w");
+    //print_IR(lst_of_ir, F);
+    return lst_of_ir;
 }
