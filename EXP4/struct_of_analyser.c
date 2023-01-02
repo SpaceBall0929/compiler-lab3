@@ -442,11 +442,6 @@ int tree_analys(treeNode *mytree)
                 }
                 break;
             }
-            // if(exp_flag == EXP_BRANCH){
-            // exp_flag = EXP_DO_NOTHING;
-            // if_unfold = 1;
-            // break;
-            // }
 
             exp_flag = EXP_DO_NOTHING;
             if_unfold = 0;
