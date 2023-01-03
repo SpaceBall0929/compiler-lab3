@@ -8,13 +8,16 @@
 // RECOVER $s0(把值恢复到指定寄存器)
 //按照栈的办法管理
 
-
+char* regs[25] = {"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", \
+"t9", "s0", "s1", "s2", "s3","s4", "s5", "s6", "s7", "s8", "v0", "v1", \
+"a0", "a1", "a2", "a3"};
 // 对全局的变量进行记录，最多64个（因为位向量最长64位）
 // 用这个数据结构开一个长64的列表
 // 变量的index就是位向量中对应的位数
 typedef struct var_info
 {
     char* var_name; //变量名字
+    char* reg_name; //分配寄存器的名字
     int var_use[64];//这个变量在那些语句用过，记录语句的index
     int var_use_cnt;//用了几次
 }var_info;
@@ -153,6 +156,15 @@ int block_divide(IR_list *ir, basic_block *block_lst, int start, int end)
     return block_cnt;
 }
 
+int init_all_vars(all_vars* vars){
+    vars->cnt = 0;
+    for(int i = 0; i < 64; i++){
+        vars->all[i].reg_name = NULL;
+        vars->all[i].var_name = NULL;
+        vars->all[i].var_use_cnt = 0;
+    }
+}
+
 // 分析活跃流，并且给出变量信息记录
 // 只用分析单个连通分量
 int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars* vars, int start, int end)
@@ -161,8 +173,32 @@ int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars* vars, int s
 }
 
 
+int insert_clean(){
+
+}
+
+int insert_recover(){
+
+}
+
+var_info* find_var_by_name(char* name, all_vars* vars){
+    for(int i = 0; i < vars->cnt; i++){
+        if(!strcmp(name, vars->all[i].var_name)){
+            return &(vars->all[i]);
+        }
+    }
+
+    printf("Unexpected ERROR: No such variable (at find_var_by_name).\n");
+    return NULL;
+}
 // 根据活跃变量分析结果分配寄存器
 // 逐语句的看，一张表记录分配关系
-int reg_alloc(IR_list *ir, basic_block *block_lst, all_vars* vars, int start, int end){
-
+int reg_alloc(IR_list *ir, basic_block *block_lst, int block_num, all_vars* vars, int start, int end){
+    
+    operation* op_ptr = find_op(ir, start);
+    operand* rand_ptr = op_ptr->opers;
+    int rand_num = op_ptr->op_num;
+    while(start <= end){
+        
+    }
 }
