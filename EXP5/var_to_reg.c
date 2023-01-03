@@ -2,26 +2,47 @@
 #include <stdlib.h>
 #include "exp.c"
 
-// 溢出和恢复，以及函数的相关处理需要增加指令
-// 由于这里分块是定值，所以我们先用一些表记录下来这些增加的内容
-// 不然的话，动态分块实在太麻烦
+//把这一大堆破函数汇总成一个针对单个连通分量的函数就好啦~
+//注意寄存器溢出，可以增设两条IR指令:
+// CLEAN $s0(把指定寄存器的值存入内存)
+// RECOVER $s0(把值恢复到指定寄存器)
+//按照栈的办法管理
 
+
+// 对全局的变量进行记录，最多64个（因为位向量最长64位）
+// 用这个数据结构开一个长64的列表
+// 变量的index就是位向量中对应的位数
+typedef struct var_info
+{
+    char* var_name; //变量名字
+    int var_use[64];//这个变量在那些语句用过，记录语句的index
+    int var_use_cnt;//用了几次
+}var_info;
+
+//一个全局使用的变量记录器
+typedef struct all_vars
+{
+    var_info all[64];
+    int cnt;
+}all_vars;
+
+
+// 基本块的内容
 typedef struct basic_block
 {
     int pros[30]; // 前驱
     int pros_cnt; // 前驱个数
     int subs[2];  // 后继(后继理论上的最大个数就俩)
-    int start;    // 语句块开始的位置
-    int end;      // 语句块结束的位置
-    int in[30];   // 计算活性分析的集合
-    int out[30];  // 计算活性分析的集合
-    int def[30];  // 计算活性分析的集合
-    int use[30];  // 计算活性分析的集合
-    int in_cnt;   // 对相关集合的计数
-    int out_cnt;  // 对相关集合的计数
-    int def_cnt;  // 对相关集合的计数
-    int use_cnt;  // 对相关集合的计数
+    int start;    // 语句块第一句话的index
+    int end;      // 语句块最后一句的index
+    unsigned long long in;   // 计算活性分析的集合，用64bit位向量记录
+    unsigned long long out;  // 计算活性分析的集合，用64bit位向量记录
+    unsigned long long def;  // 计算活性分析的集合，用64bit位向量记录
+    unsigned long long use;  // 计算活性分析的集合，用64bit位向量记录
 } basic_block;
+
+
+
 
 // 初始化一个basic_block序列，来方便后面的操作
 int init_block_lst(basic_block *block_lst, int lst_len)
@@ -33,10 +54,10 @@ int init_block_lst(basic_block *block_lst, int lst_len)
         block_lst->subs[0] = -1;
         block_lst->subs[1] = -1;
         block_lst->pros_cnt = 0;
-        block_lst->def_cnt = 0;
-        block_lst->use_cnt = 0;
-        block_lst->in_cnt = 0;
-        block_lst->out_cnt = 0;
+        block_lst->in = 0;
+        block_lst->out = 0;
+        block_lst->def = 0;
+        block_lst->use = 0;
     }
 }
 
@@ -47,7 +68,11 @@ int init_block_lst(basic_block *block_lst, int lst_len)
 // }
 
 // 划分基本快
-int block_divide(IR_list *ir, basic_block *block_lst, int lst_len)
+// 注意，由于多函数情况的存在，整个程序很可能出现多个联通分量...
+// 必须一个一个连通分量的处理才可以，这个函数只支持处理单个连通分量
+// 返回一共划分出几个基本快，十分重要捏
+// start应当是FUNCTION标签后一句，end应当是整个函数最后一句
+int block_divide(IR_list *ir, basic_block *block_lst, int start, int end)
 {
     block_lst[0].start = 0;
     int block_cnt = 0;
@@ -66,9 +91,9 @@ int block_divide(IR_list *ir, basic_block *block_lst, int lst_len)
     int already_cut = 1;
 
     // 遍历用临时变量
-    operation *ptr = ir->head;
+    operation *ptr = find_op(ir, start);
     // 找到入口，按照入口分割
-    for (int i = 0; i < ir->length; i++)
+    for (int i = 0; i < end - start + 1; i++)
     {
         switch (ptr->code)
         {
@@ -124,12 +149,20 @@ int block_divide(IR_list *ir, basic_block *block_lst, int lst_len)
             }
         }
     }
+
+    return block_cnt;
 }
 
-//变量记录器：变量名和index对应，然后
-
-int live_var_analyser(IR_list *ir, basic_block *block_lst)
+// 分析活跃流，并且给出变量信息记录
+// 只用分析单个连通分量
+int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars* vars, int start, int end)
 {
-    //初始化def和use
+
+}
+
+
+// 根据活跃变量分析结果分配寄存器
+// 逐语句的看，一张表记录分配关系
+int reg_alloc(IR_list *ir, basic_block *block_lst, all_vars* vars, int start, int end){
 
 }
