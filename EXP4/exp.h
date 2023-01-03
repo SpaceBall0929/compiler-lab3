@@ -46,8 +46,7 @@ operand* Exp_s(treeNode *exp);
     operand* exp_ar(treeNode *tn1, treeNode *exp);
         //获取数组的ir名
         char* get_ar_name(treeNode *tn1);
-        //计算偏移量(要手动乘byte_len)
-        int arr_offset(int *dimlen, treeNode* t, int n, int);
+        char* get_arir_name(treeNode *tn1);
 //返回是不是这个type
 int check_type(treeNode* t, int i);
 

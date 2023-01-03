@@ -99,7 +99,7 @@ operand* Exp_s(treeNode *exp)
         {
             treeNode *tn4 = getchild(exp, 3);
             if (tn4 == NULL &&tn3->nodeType == N_EXP && tn2->nodeType != N_LB)  
-                exp_o_exp(tn1, tn2, tn3, exp);
+                return exp_o_exp(tn1, tn2, tn3, exp);
         }
 
     //3- LP exp RP 调用一次exp，返回这个exp的东西,不做别的处理
@@ -113,10 +113,11 @@ operand* Exp_s(treeNode *exp)
     //4-函数部分   ID LP Args RP 有参函数  ID LP RP 无参函数
         if (tn1->nodeType == N_ID)
         { 
-        //先处理IO，把read当普通的无参函数，write当不需要传参的有参函数看待
         //ID LP Args RP 有参函数 
             if (tn3->nodeType == N_ARGS)
+            {
                 return fun_with_args(tn1, tn2, tn3, getchild(exp, 3));
+            }
         //无参函数
             else
             {
@@ -188,15 +189,16 @@ operand* id_int_float(treeNode *tn1)
             exp_re = find_type(tn1); //找到了,返回这个ID代表的类型
             return init_operand(VARIABLE, getNodeVarStack(var_domain_ptr, tn1->subtype.IDVal).ir_name, 0, 0);
         }
-    else 
+    else if(tn1->nodeType == N_INT)
         { //立即数类型
             exp_re = D_INT;
-            operand_list * opl = init_operand_list();
+            /*operand_list * opl = init_operand_list();
             add_operand(opl, temp_op(flag));
             flag = 1;
             new_operand(opl, IMMEDIATE, NULL, tn1->subtype.intVal, 0);
             new_op(lst_of_ir, I_ASSIGN, *opl);
-            return temp_op(0);
+            return temp_op(0);*/
+            return init_operand(IMMEDIATE, NULL, tn1->subtype.intVal, 0);
         }
 }
 
@@ -230,10 +232,9 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
         //处理运算
         operation* op = binary(exp);
         add_op(lst_of_ir, op);//加入这个运算
-        if(op->code == I_ASSIGN) return op->opers;
-        operand* opr = temp_op(flag);
-        flag = 0;//生成但是暂时没有用到，置于0
-        return opr;
+        //op = find_op(lst_of_ir, lst_of_ir->length-1);
+        //printf("%s:=%s <op> %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+        return &op->opers[0];
 }
 
 
@@ -302,6 +303,7 @@ operation* binary(treeNode *t)
         operand* opr0 = temp_op(flag);
         flag = 1;    
         add_operand(oplst, opr0);
+        //printf("%s", opr0->o_value.name);
         add_operand(oplst, opr1);
         add_operand(oplst, opr2); 
         return init_op(type, *oplst);   
@@ -370,15 +372,13 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
     }
     while (1)
     {   //计算所有实参的数目
-        cnt += 1;
+        add_operand(opl, Exp_s(getchild(cntnode, 0)));
         treeNode *tempcntnode = getchild(cntnode, 2);
-
         if (tempcntnode == NULL)
         {
             break;
         }
         //获取实参
-        add_operand(opl, Exp_s(getchild(cntnode, 0)));
         cntnode = getchild(cntnode, 2);
     }
     operand_list *opl2 = init_operand_list();
@@ -420,20 +420,53 @@ operand* exp_ar(treeNode *tn1, treeNode *exp)
 {
     //返回元素的类型
     exp_re = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).arrayVarType;
+    //printf("%s", get_ar_name(tn1));
     operand_list *opl = init_operand_list();
     add_operand(opl, temp_op(flag));
     flag = 1;
-    new_operand(opl, VARIABLE, get_ar_name(tn1), 0, 0); 
     int* dimlen = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).len_of_dims;
-    if(dimlen)printf("ok");
-    new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*arr_offset(dimlen, exp, 0, 0), 0);
-    new_op(lst_of_ir, I_AS_ADDR, *opl);
-    
+    //if(dimlen)printf("%d", dimlen[0]);
+    int dim = getNodeVarStack(var_domain_ptr, get_ar_name(tn1)).numdim;
+    if(dim == 1){
+        new_operand(opl, VARIABLE, get_arir_name(tn1), 0, 0); 
+        if(getchild(exp, 2)->child->nodeType == N_INT)
+            new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*getchild(exp, 2)->child->subtype.intVal, 0);
+        else new_operand(opl, VARIABLE, getNodeVarStack(var_domain_ptr, getchild(exp, 2)->child->subtype.IDVal).ir_name, 0, 0);
+        new_op(lst_of_ir, I_AS_ADDR, *opl);
+        char ret_char[5] = "*";
+        strcat(ret_char, temp_op(0)->o_value.name);//*ti
+        flag = 1;
+        return init_operand(VARIABLE, ret_char, 0, 0);
+    }
+    else
+    {
+        int offset = 0;
+        if(getchild(tn1, 2)->child->nodeType == N_INT)
+            new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*getchild(tn1, 2)->child->subtype.intVal, 0);
+        else new_operand(opl, VARIABLE, getNodeVarStack(var_domain_ptr, getchild(tn1, 2)->child->subtype.IDVal).ir_name, 0, 0);
+        new_operand(opl, IMMEDIATE, NULL, dimlen[0], 0);
+        new_op(lst_of_ir, I_MUL, *opl);
 
-    char ret_char[5] = "*";
-    strcat(ret_char, temp_op(0)->o_value.name);//*ti
-    flag = 1;
-    return init_operand(VARIABLE, ret_char, 0, 0);
+        operand_list *opl1 = init_operand_list();
+        add_operand(opl1, temp_op(1));
+        if(getchild(exp, 2)->child->nodeType == N_INT)
+            new_operand(opl1, IMMEDIATE, NULL, byte_len(exp_re)*getchild(exp, 2)->child->subtype.intVal, 0);
+        else new_operand(opl1, VARIABLE, getNodeVarStack(var_domain_ptr, getchild(exp, 2)->child->subtype.IDVal).ir_name, 0, 0);
+        add_operand(opl1, temp_op(-1));
+        new_op(lst_of_ir, I_ADD, *opl1);
+
+        operand_list *opl2 = init_operand_list();
+        add_operand(opl2, temp_op(2));
+        new_operand(opl2, VARIABLE, get_arir_name(tn1), 0, 0); 
+        add_operand(opl2, temp_op(-1));
+        new_op(lst_of_ir, I_AS_ADDR, *opl2);
+        char ret_char[5] = "*";
+        strcat(ret_char, temp_op(1)->o_value.name);//*ti
+        flag = 1;
+        return init_operand(VARIABLE, ret_char, 0, 0);
+    }
+
+
 }
 
 int byte_len(int type)
@@ -448,24 +481,20 @@ char* get_ar_name(treeNode *tn1)
     {
         t = t->child;
     }
-    return get_ir(t, &(var_domain_ptr->tVar));
+    //printf("%s\n", t->subtype.IDVal);
+    //if(getNodeVarStack(var_domain_ptr, t->subtype.IDVal).ir_name) printf("%s\n",getNodeVarStack(var_domain_ptr, t->subtype.IDVal).ir_name);
+    return getNodeVarStack(var_domain_ptr, t->subtype.IDVal).varName;
+    //return get_ir(t, &(var_domain_ptr->tVar));
 }
-
-int arr_offset(int *dimlen, treeNode* t, int n, int tag)
+char* get_arir_name(treeNode *tn1)
 {
-    if(getchild(t, 0)->nodeType == N_ID)//base case
+    treeNode *t = tn1;
+    while(t->child != NULL)
     {
-        return dimlen[n]*getchild(t, 2)->subtype.intVal;
+        t = t->child;
     }
-    else
-    {
-        if(!tag)
-        {
-            return getchild(t, 2)->child->subtype.intVal + arr_offset(dimlen, t->child, n, 1);
-        }
-        else
-        {
-            return dimlen[n]*(getchild(t, 2)->child->subtype.intVal) + arr_offset(dimlen, t->child, n + 1, 1);
-        }
-    }
+    //printf("%s\n", t->subtype.IDVal);
+    //if(getNodeVarStack(var_domain_ptr, t->subtype.IDVal).ir_name) printf("%s\n",getNodeVarStack(var_domain_ptr, t->subtype.IDVal).ir_name);
+    return getNodeVarStack(var_domain_ptr, t->subtype.IDVal).ir_name;
+    //return get_ir(t, &(var_domain_ptr->tVar));
 }

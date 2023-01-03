@@ -4,7 +4,7 @@
 #include "SymbolTable.c"
 #define MAX_TEMP_OP_NUM 5
 #define INT_LEN 4
-#define FLOAT_LEN 8
+#define FLOAT_LEN 4
 
 //基本数据类型长度（单位：字节）
 int data_len[2] = {INT_LEN, FLOAT_LEN};
@@ -347,7 +347,10 @@ void print_op(operation* op, FILE* F){
         if(op->op_num == 2)
             fprintf(F, "%s:=&%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
         else
-            fprintf(F, "%s:=&%s+#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            if(op->opers[2].o_type == IMMEDIATE)
+             fprintf(F, "%s:=&%s+#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            else if(op->opers[2].o_type == VARIABLE)
+                fprintf(F, "%s:=&%s+%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
         break;
 
     case I_AS_VALUE:
@@ -454,7 +457,21 @@ void print_op(operation* op, FILE* F){
         break;
 
     case I_WRITE:
-        fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
+        switch (op->opers[0].o_type)
+        {
+        case VARIABLE:
+            //变量
+            fprintf(F, "WRITE %s\n", op->opers[0].o_value.name);
+            break;
+        case IMMEDIATE:
+            //立即数
+            fprintf(F, "WRITE %d\n", op->opers[0].o_value.im_value);
+            break;
+        default:
+            printf("Operand type error!\n");
+            exit(1);
+            break;
+        }
         break;
     
     case I_BOOL:

@@ -89,15 +89,7 @@ typedef struct if_stack{
     int len;
 }if_stack;
 
-// int push(if_stack* mystack){
 
-// }
-
-// int pop(){
-
-// }
-
-//
 int new_if(if_stack* lst, int flag0, int flag1, int flag2, int flag3, int flag4){
     lst->quene[lst->len].flags[0] = flag0;
     lst->quene[lst->len].flags[1] = flag1;

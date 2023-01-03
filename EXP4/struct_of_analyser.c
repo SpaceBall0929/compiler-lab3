@@ -85,6 +85,8 @@ int tree_analys(treeNode *mytree)
     // 这个地方需要提前的插入read()和write()两个函数，后面会有调用的。
     // 或者说exp那一层直接给我解决了？我不知道，问你刘爹
 
+    // 记录一下最近的结构体的大小
+    //  int struct_size = 0;
     while (!isEmpty(stack_ptr))
     {
         // 根据收到的不同符号调用不同的处理函数
@@ -202,6 +204,7 @@ int tree_analys(treeNode *mytree)
                 printf("VarDec detected, processing with the outer functions...\n");
             }
             if_unfold = 0;
+
             if (var_head == NULL)
             {
                 var_head = var_dec(temp, nearest_speci_type);
@@ -241,6 +244,21 @@ int tree_analys(treeNode *mytree)
                     do
                     {
                         InsertVar(&(var_domain_ptr->tVar), fun_table, var_ptr, temp->line_no);
+                        if (var_ptr->varType >= D_AMT)
+                        {
+                            new_operand(operand_to_use, VARIABLE, var_ptr->ir_name, 0, 0);
+                            new_operand(operand_to_use, IMMEDIATE, NULL,
+                                        struct_size(struct_table, var_ptr->varType), 0);
+                            new_op(lst_of_ir, I_DEC, *operand_to_use);
+                            del_operand_content(operand_to_use);
+                        }
+                        else if (var_ptr->varType == D_ARRAY)
+                        {
+                            new_operand(operand_to_use, VARIABLE, var_ptr->ir_name, 0, 0);
+                            new_operand(operand_to_use, IMMEDIATE, NULL, array_size(var_ptr), 0);
+                            new_op(lst_of_ir, I_DEC, *operand_to_use);
+                            del_operand_content(operand_to_use);
+                        }
                         var_ptr = var_ptr->next;
                     } while (var_ptr != NULL);
                     free_var(var_head);
@@ -294,14 +312,28 @@ int tree_analys(treeNode *mytree)
             break;
 
         case N_LC:
+        {
+            // stackNode* test = var_domain_ptr;
             if (now_processing == IN_FUNC_DEC)
             {
+
                 now_processing = IN_FUNC_COMPST;
                 func_ptr->defined = 1;
                 InsertFunc(&(var_domain_ptr->tVar), fun_table, func_ptr, temp->line_no);
                 // 函数初始化之写标签
-                dataNodeVar *arg_of_func = func_ptr->args;
+               
                 insert_func(func_ptr->funcName);
+
+            }
+            if (now_processing == IN_FUNC_COMPST)
+            {
+                stackNode *test = var_domain_ptr;
+                if (IF_DEBUG_PRINT)
+                {
+                    printf("Create new domain\n");
+                }
+                var_domain_ptr = domainPush(var_domain_ptr);
+                dataNodeVar *arg_of_func = func_ptr->args;
                 // 根据师兄建议，增加了形参段
                 // 这个部分可以节约exp的工作量
                 while (arg_of_func != NULL)
@@ -313,16 +345,9 @@ int tree_analys(treeNode *mytree)
                     arg_of_func = arg_of_func->next;
                 }
             }
-            if (now_processing == IN_FUNC_COMPST)
-            {
-                if (IF_DEBUG_PRINT)
-                {
-                    printf("Create new domain\n");
-                }
-                var_domain_ptr = domainPush(var_domain_ptr);
-            }
             if_unfold = 0;
-            break;
+        }
+        break;
 
         case N_DEF_L:
             if (IF_DEBUG_PRINT)
@@ -370,9 +395,7 @@ int tree_analys(treeNode *mytree)
                     printf("EXP_DO_NOTHING\n");
                 }
                 // 清除一下最后一个返回值占用的内存
-                IR_list* xxx = lst_of_ir;
-                free(Exp_s(temp));
-                xxx = lst_of_ir;
+                Exp_s(temp);
                 break;
 
             case EXP_LOOP:
@@ -426,6 +449,8 @@ int tree_analys(treeNode *mytree)
                 del_operand_content(operand_to_use);
                 break;
             case EXP_RETURN:
+            {
+                stackNode* ttt = var_domain_ptr;
                 if (IF_DEBUG_PRINT)
                 {
                     printf("EXP_RETURN\n");
@@ -433,7 +458,9 @@ int tree_analys(treeNode *mytree)
                 add_operand(operand_to_use, Exp_s(temp));
                 new_op(lst_of_ir, I_RETURN, *operand_to_use);
                 del_operand_content(operand_to_use);
-                break;
+            }
+
+            break;
 
             default:
                 if (IF_DEBUG_PRINT)
@@ -488,7 +515,10 @@ int tree_analys(treeNode *mytree)
                     new_operand(operand_to_use, VARIABLE, temp_ir_lable, 0, 0);
                     new_op(lst_of_ir, I_GOTO, *operand_to_use);
                     del_operand_content(operand_to_use);
-                    in_set_of_if++;
+                    if (in_set_of_if == 1)
+                    {
+                        in_set_of_if++;
+                    }
                     when_to_end_if = stack_ptr->top - 1;
                     if_unfold = 0;
                 }
@@ -625,8 +655,9 @@ int tree_analys(treeNode *mytree)
             else
             {
                 new_operand(operand_to_use, VARIABLE,
-                            if_stmts_lables->quene[if_stmts_lables->len - 1]\
-                            .lable_names[0], 0, 0);
+                            if_stmts_lables->quene[if_stmts_lables->len - 1]
+                                .lable_names[0],
+                            0, 0);
             }
 
             new_op(lst_of_ir, I_LABLE, *operand_to_use);
@@ -637,7 +668,7 @@ int tree_analys(treeNode *mytree)
             stack_ptr->top == when_to_end_if + if_stmt_remain - 1)
         {
             if_block_lst *block_now = &(if_stmts_lables->quene[if_stmts_lables->len - 1]);
-            IR_list* xxx = lst_of_ir;
+            IR_list *xxx = lst_of_ir;
             if_stmt_remain--;
             if (if_stmt_remain)
             {
@@ -676,7 +707,7 @@ int tree_analys(treeNode *mytree)
         }
         temp = top(stack_ptr);
     }
-    FILE* F = fopen("test.txt", "w");
+    FILE *F = fopen("test.txt", "w");
     print_IR(lst_of_ir, F);
     return 0;
 }

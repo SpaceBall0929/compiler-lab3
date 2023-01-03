@@ -32,6 +32,7 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
 {
     dataNodeVar *new_var;
     treeNode *origrn = dec_node;
+    int size;
     dec_node = dec_node->child;
     int dimension = 0;
     int dimensionlen[10];
