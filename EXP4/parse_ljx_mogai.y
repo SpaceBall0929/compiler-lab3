@@ -505,24 +505,24 @@ Args : Exp COMMA Args{
 
 #include "lex.yy.c"
 
-int main(int argc, char** argv)
+int main(/*int argc, char** argv*/)
 {
-	if(argc <= 1) return 1;
-	FILE* f = fopen(argv[1], "r");
+	// if(argc <= 1) return 1;
+	FILE* f = fopen("test3.cmm", "r");
 	if(!f){
-		perror(argv[1]);
+		perror("test1.cmm");
 		return 1;
 	}
     /*yylineno=1??*/
 	yyrestart(f);
 	yyparse();
-    // printf("Built the tree successfully\n");
+    printf("Built the tree successfully\n");
 
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
-    FILE* F = fopen(argv[2], "w");
+    FILE* F = fopen("test.txt", "w");
     print_IR(lst_of_ir, F);
         
 	return 0;
