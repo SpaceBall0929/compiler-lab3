@@ -1,8 +1,7 @@
 #include "exp.h"
 /*
     未完工部分：
-    保存和恢复s寄存器
-    多参数情况
+    参数特多的情况
 */
 
 //index表示定义的位置，arg_flag表示参数个数
@@ -141,6 +140,7 @@ int fun_pdec(int index, int arg_flag)
 
     //保存s寄存器
     index += 1;
+    sw_sreg(index, size - 12);
 
     //取出参数
     index += 1;
@@ -155,6 +155,7 @@ int fun_pdec(int index, int arg_flag)
 int fun_edec(int index, int arg_flag)
 {
     //恢复寄存器
+    lw_sreg(index, size - 12);
 
     //恢复ra
     index += 1;
@@ -175,7 +176,8 @@ int fun_edec(int index, int arg_flag)
 //获取栈的分配空间并加入语句**********
 int get_offset()
 {
-    int size = 0;
+    int size = 44;
+    return size;
 }
 
 //将\$ra压栈
@@ -232,4 +234,60 @@ void jr_ra(int index)
     operand_list *opl = init_operand_list();
     new_operand(opl, VARIABLE, "$ra", 0, 0);
     insert_op(lst_of_ir, I_JR, *opl, index);
+}
+
+void sw_sreg(int index, int offset)
+{
+    int o = offset;
+    for(int i = 0; i < 8; i ++)
+    {
+        sw_1s(index, i, o);
+        o -= 4;
+        index += 1;
+    }
+}
+
+void sw_1s(int index, int reg, int offset)
+{
+    operand_list *opl = init_operand_list();
+    new_operand(opl, VARIABLE, get_sreg(reg), 0, 0);
+    new_operand(opl, IMMEDIATE, NULL, offset, 0);
+    new_operand(opl, VARIABLE, "$sp", 0, 0);
+    insert_op(lst_of_ir, I_SW, *opl, index);
+}
+
+//获取第n个s寄存器的名字
+char* get_sreg(int n)
+{
+    switch(n){
+        case 0: return "s0";
+        case 1: return "s1";
+        case 2: return "s2";
+        case 3: return "s3";
+        case 4: return "s4";
+        case 5: return "s5";
+        case 6: return "s6";
+        case 7: return "s7";
+        case 8: return "s8";
+    }
+}
+
+void lw_sreg(int index, int offset)
+{
+    int o = offset;
+    for(int i = 0; i < 8; i ++)
+    {
+        lw_1s(index, i, o);
+        o -= 4;
+        index += 1;
+    }
+}
+
+void lw_1s(int index, int reg, int offset)
+{
+    operand_list *opl = init_operand_list();
+    new_operand(opl, VARIABLE, get_sreg(reg), 0, 0);
+    new_operand(opl, IMMEDIATE, NULL, offset, 0);
+    new_operand(opl, VARIABLE, "$sp", 0, 0);
+    insert_op(lst_of_ir, I_LW, *opl, index);
 }
