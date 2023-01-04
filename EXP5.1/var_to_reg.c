@@ -169,7 +169,7 @@ int init_all_vars(all_vars* vars){
 // 只用分析单个连通分量
 int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars* vars, int start, int end)
 {
-
+    
 }
 
 
