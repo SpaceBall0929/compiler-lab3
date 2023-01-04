@@ -199,6 +199,10 @@ int reg_alloc(IR_list *ir, basic_block *block_lst, int block_num, all_vars* vars
     operand* rand_ptr = op_ptr->opers;
     int rand_num = op_ptr->op_num;
     while(start <= end){
-        
+        //找到当前指令中的变量
+
+        //变量是否已分配寄存器？
+
+        //是，则从varinfo抄
     }
 }
