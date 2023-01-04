@@ -198,11 +198,29 @@ int reg_alloc(IR_list *ir, basic_block *block_lst, int block_num, all_vars* vars
     operation* op_ptr = find_op(ir, start);
     operand* rand_ptr = op_ptr->opers;
     int rand_num = op_ptr->op_num;
-    while(start <= end){
-        //找到当前指令中的变量
+    
 
+    
+    while(start <= end){
+        if(rand_ptr->o_type == VARIABLE){
+
+        }else{
+            if(rand_ptr->next != NULL){
+                rand_ptr = rand_ptr->next;
+            }else{
+                op_ptr = op_ptr->next;
+                rand_ptr = op_ptr->opers;
+                start += 1;
+            }
+            continue;
+        }
+        
+        //找到当前指令中的变量
+        
         //变量是否已分配寄存器？
 
-        //是，则从varinfo抄
+        //是，则从varinfo抄出寄存器名字，并且判断此处是否销毁寄存器，跟新寄存器占用情况
+
+        //否，则分配一个新的寄存器，在全部寄存器已满的情况下，计算一个最合适的寄存器进行溢出
     }
 }
