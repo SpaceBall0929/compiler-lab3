@@ -140,7 +140,9 @@ enum opcode {
     I_PARAM,         //函数参数声明
     I_READ,          //从控制台读取
     I_WRITE,          //向控制台打印
-    I_BOOL         //关系式
+    I_BOOL,         //关系式
+    I_CLEAN,        //把变量存储到静态区
+    I_RECOVER       //从静态区恢复变量
     };       
 
 struct operation
