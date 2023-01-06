@@ -167,7 +167,7 @@ int init_all_vars(all_vars *vars)
     {
         vars->all[i].reg_name = NULL;
         vars->all[i].var_name = NULL;
-        vars->all[i].var_last_use = 0;
+        //vars->all[i].var_last_use = 0;
         vars->all[i].bit_vector = (1 << i);
         vars->all[i].in_mem = -1;
     }
