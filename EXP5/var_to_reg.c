@@ -18,7 +18,6 @@ typedef struct var_info
 {
     char *var_name;                // 变量名字
     char *reg_name;                // 分配寄存器的名字
-    int var_last_use;               // 这个变量最后一次使用的IR的INDEX(INDEX最大值)
     unsigned long long bit_vector; // 变量位向量
     int in_mem;                    // 溢出时在数组中的位置
 } var_info;
@@ -317,7 +316,7 @@ int* single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
 
 
     //分析在本块中终结的变量的结束位点
-    
+
 
     
     //逐个语句的看，一句句的分配内存
