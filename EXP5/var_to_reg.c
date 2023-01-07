@@ -38,7 +38,6 @@ typedef struct basic_block
     int subs[2];            // 后继(后继理论上的最大个数就俩)
     int start;              // 语句块第一句话的index
     int end;                // 语句块最后一句的index
-    //int reg_flag;
     unsigned long long in;  // 计算活性分析的集合，用64bit位向量记录
     unsigned long long out; // 计算活性分析的集合，用64bit位向量记录
     unsigned long long def; // 计算活性分析的集合，用64bit位向量记录
@@ -51,16 +50,15 @@ int init_block_lst(basic_block *block_lst, int lst_len)
 {
     for (int i = 0; i < lst_len; i++)
     {
-        block_lst[i].start = -1;
-        block_lst[i].end = -1;
-        block_lst[i].subs[0] = -1;
-        block_lst[i].subs[1] = -1;
-        block_lst[i].pros_cnt = 0;
-        block_lst[i].in = 0;
-        block_lst[i].out = 0;
-        block_lst[i].def = 0;
-        block_lst[i].use = 0;
-
+        block_lst->start = -1;
+        block_lst->end = -1;
+        block_lst->subs[0] = -1;
+        block_lst->subs[1] = -1;
+        block_lst->pros_cnt = 0;
+        block_lst->in = 0;
+        block_lst->out = 0;
+        block_lst->def = 0;
+        block_lst->use = 0;
     }
 }
 
@@ -177,8 +175,42 @@ int init_all_vars(all_vars *vars)
 
 // 分析活跃流，并且给出变量信息记录
 // 只用分析单个连通分量
-int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars *vars, int start, int end)
+// 先定义一个函数，用来更新基本块的in和out的值
+void update_block(basic_block *block, basic_block *blocks)
 {
+    // 先计算出新的in值
+    unsigned long long new_in = block->out;
+    // 把所有前驱节点的out值与new_in求并
+    for (int i = 0; i < block->pros_cnt; i++)
+    {
+        new_in |= blocks[block->pros[i]].out;
+    }
+    // 如果new_in值发生了改变，则需要重新计算out值
+    if (new_in != block->in)
+    {
+        block->in = new_in;
+        block->out = (block->use | (block->out & ~block->def));
+    }
+}
+int live_var_analyser(IR_list *ir, basic_block *blocks, all_vars *vars, int start, int end, int lst_len)
+{
+    // 循环，直到所有基本块的in和out集合都不再发生改变
+    int flag = 1;
+    while (flag)
+    {
+        flag = 0; // 用来记录是否有基本块的in或out集合发生改变
+        for (int i = 0; i < lst_len; i++)
+        {
+            int pre_in = blocks[i].in;
+            int pre_out = blocks[i].out; 
+            update_block(&blocks[i], blocks);
+            // 如果基本块的in或out集合发生了改变，则需要继续循环
+            if (blocks[i].in != pre_in || blocks[i].out != pre_out)
+            {
+                flag = 1;
+            }
+        }
+    }
 }
 
 int insert_clean()
