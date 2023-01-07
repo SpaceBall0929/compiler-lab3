@@ -38,6 +38,7 @@ typedef struct basic_block
     int subs[2];            // 后继(后继理论上的最大个数就俩)
     int start;              // 语句块第一句话的index
     int end;                // 语句块最后一句的index
+    //int reg_flag;
     unsigned long long in;  // 计算活性分析的集合，用64bit位向量记录
     unsigned long long out; // 计算活性分析的集合，用64bit位向量记录
     unsigned long long def; // 计算活性分析的集合，用64bit位向量记录
@@ -58,6 +59,7 @@ int init_block_lst(basic_block *block_lst, int lst_len)
         block_lst->out = 0;
         block_lst->def = 0;
         block_lst->use = 0;
+        //block_lst->reg_flag = 0;
     }
 }
 
@@ -171,9 +173,47 @@ int init_all_vars(all_vars *vars)
 
 // 分析活跃流，并且给出变量信息记录
 // 只用分析单个连通分量
-int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars *vars, int start, int end)
+
+// 先定义一个函数，用来更新基本块的in和out的值
+void update_block(basic_block *block, basic_block *block_lst)
 {
+    // 先计算出新的in值
+    unsigned long long new_in = block->out;
+    // 把所有前驱节点的out值与new_in求并
+    for (int i = 0; i < block->pros_cnt; i++)
+    {
+        new_in |= block_lst[block->pros[i]].out;
+    }
+    // 如果new_in值发生了改变，则需要重新计算out值
+    if (new_in != block->in)
+    {
+        block->in = new_in;
+        block->out = (block->use | (block->out & ~block->def));
+    }
 }
+
+int live_var_analyser(IR_list *ir, basic_block *block_lst, all_vars *vars, int lst_len, int start, int end)
+{
+    // 循环，直到所有基本块的in和out集合都不再发生改变
+    int flag = 1;
+    while (flag)
+    {
+        flag = 0; // 用来记录是否有基本块的in或out集合发生改变
+        for (int i = 0; i < lst_len; i++)
+        {
+            int pre_in = block_lst[i].in;
+            int pre_out = block_lst[i].out;
+            update_block(&block_lst[i], block_lst);
+            // 如果基本块的in或out集合发生了改变，则需要继续循环
+            if (block_lst[i].in != pre_in || block_lst[i].out != pre_out)
+            {
+                flag = 1;
+            }
+        }
+    }
+}
+
+
 
 int insert_clean()
 {
