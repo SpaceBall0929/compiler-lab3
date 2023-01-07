@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "exp.c"
+//#include "live_analysis.c"
 #define NUM_OF_REG 19
 
 // 把这一大堆破函数汇总成一个针对单个连通分量的函数就好啦~
@@ -61,6 +62,7 @@ int init_block_lst(basic_block *block_lst, int lst_len)
         block_lst->use = 0;
     }
 }
+
 
 // 划分基本快
 // 注意，由于多函数情况的存在，整个程序很可能出现多个联通分量...
@@ -170,46 +172,6 @@ int init_all_vars(all_vars *vars)
         vars->all[i].var_last_use = 0;
         vars->all[i].bit_vector = (1 << i);
         vars->all[i].in_mem = -1;
-    }
-}
-
-// 分析活跃流，并且给出变量信息记录
-// 只用分析单个连通分量
-// 先定义一个函数，用来更新基本块的in和out的值
-void update_block(basic_block *block, basic_block *blocks)
-{
-    // 先计算出新的in值
-    unsigned long long new_in = block->out;
-    // 把所有前驱节点的out值与new_in求并
-    for (int i = 0; i < block->pros_cnt; i++)
-    {
-        new_in |= blocks[block->pros[i]].out;
-    }
-    // 如果new_in值发生了改变，则需要重新计算out值
-    if (new_in != block->in)
-    {
-        block->in = new_in;
-        block->out = (block->use | (block->out & ~block->def));
-    }
-}
-int live_var_analyser(IR_list *ir, basic_block *blocks, all_vars *vars, int start, int end, int lst_len)
-{
-    // 循环，直到所有基本块的in和out集合都不再发生改变
-    int flag = 1;
-    while (flag)
-    {
-        flag = 0; // 用来记录是否有基本块的in或out集合发生改变
-        for (int i = 0; i < lst_len; i++)
-        {
-            int pre_in = blocks[i].in;
-            int pre_out = blocks[i].out; 
-            update_block(&blocks[i], blocks);
-            // 如果基本块的in或out集合发生了改变，则需要继续循环
-            if (blocks[i].in != pre_in || blocks[i].out != pre_out)
-            {
-                flag = 1;
-            }
-        }
     }
 }
 

@@ -20,7 +20,6 @@ int fun_call(int index, int arg_flag, char *funcname)
     //保存活跃变量
 
     //存入参数
-    index += 1;
     if(arg_flag)
     {
         //有参数
