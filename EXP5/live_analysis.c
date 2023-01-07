@@ -73,7 +73,7 @@ var_info * new_var(operand* o, all_vars * vars)
 //是不是有效的变量名
 char* check_name(char * name)
 {
-    if(name[0] == 'v' || 't' || '*') return name;
+    if(name[0] == 'v' || name[0] == 't' || name[0] == '*') return name;
     else return NULL;
 }
 
