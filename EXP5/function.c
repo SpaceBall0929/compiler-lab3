@@ -123,7 +123,8 @@ int size = 0;
 int fun_pdec(int index, int arg_flag)
 {
     //分配栈的空间
-    size = get_offset();
+    size = get_offset(index);
+
 
     //将\$ra压栈
     index += 1;
@@ -171,9 +172,14 @@ int fun_edec(int index, int arg_flag)
 }
 
 //获取栈的分配空间并加入语句**********
-int get_offset()
+int get_offset(int index)
 {
     int size = 44;
+    operand_list *opl = init_operand_list();
+    new_operand(opl, VARIABLE, "$sp", 0, 0);
+    new_operand(opl, VARIABLE, "$sp", 0, 0);
+    new_operand(opl, IMMEDIATE, NULL, size, 0);
+    insert_op(lst_of_ir, I_SUBU, *opl, index);
     return size;
 }
 
