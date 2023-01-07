@@ -1,8 +1,5 @@
 #include "exp.h"
-/*
-    未完工部分：
-    参数特多的情况
-*/
+
 
 //index表示定义的位置，arg_flag表示参数个数
 int fun_pdec(int index, int arg_flag);
