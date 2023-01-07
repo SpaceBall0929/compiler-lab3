@@ -3,9 +3,14 @@
 #define I_AND 198964
 #define I_OR 198965
 #define I_NOT 198966
+
 int isIO = 0;//是否为read或者write
 
-
+void set_flag()
+{
+        operation *o = find_op(lst_of_ir, lst_of_ir->length - 1);
+        o->flag = 1;
+}
 
 //返回是否报错，若只有一个参数，第二个参数写1
 int check_error(int a, int b)
@@ -212,6 +217,7 @@ operand* exp_o_exp(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *exp)
     {
         if( !strcmp(tn3->child->subtype.IDVal, "read"))
         {
+            lst_of_ir->if_read = 1;
             operand_list *opl = init_operand_list();
             add_operand(opl, Exp_s(Expnode1));
             new_op(lst_of_ir, I_READ, *opl);
@@ -365,6 +371,7 @@ operand* fun_with_args(treeNode *tn1, treeNode *tn2, treeNode *tn3, treeNode *tn
     operand_list* opl = init_operand_list();
     if(!strcmp(funcname, "write"))
     {
+        lst_of_ir->if_write = 1;
         operand* o = Exp_s(tn3->child);
         add_operand(opl, o);
         new_op(lst_of_ir, I_WRITE, *opl);
@@ -408,6 +415,7 @@ operand* exp_st(treeNode *tn1, treeNode *tn2, treeNode *tn3)
     {
         new_operand(oplst, ADDRESS, NULL, offset, 0);//地址偏移
         new_op(lst_of_ir, I_AS_ADDR, *oplst);
+        set_flag();
     }
     char ret_char[5] = "*";
     //strcat(ret_char, "*");
@@ -433,6 +441,7 @@ operand* exp_ar(treeNode *tn1, treeNode *exp)
             new_operand(opl, IMMEDIATE, NULL, byte_len(exp_re)*getchild(exp, 2)->child->subtype.intVal, 0);
         else new_operand(opl, VARIABLE, getNodeVarStack(var_domain_ptr, getchild(exp, 2)->child->subtype.IDVal).ir_name, 0, 0);
         new_op(lst_of_ir, I_AS_ADDR, *opl);
+        set_flag();
         char ret_char[5] = "*";
         strcat(ret_char, temp_op(0)->o_value.name);//*ti
         flag = 1;
@@ -454,6 +463,7 @@ operand* exp_ar(treeNode *tn1, treeNode *exp)
         else new_operand(opl1, VARIABLE, getNodeVarStack(var_domain_ptr, getchild(exp, 2)->child->subtype.IDVal).ir_name, 0, 0);
         add_operand(opl1, temp_op(-1));
         new_op(lst_of_ir, I_ADD, *opl1);
+        set_flag();
 
         operand_list *opl2 = init_operand_list();
         add_operand(opl2, temp_op(2));
