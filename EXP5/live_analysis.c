@@ -19,7 +19,7 @@ int check_group(int i, operation *op)
 }
 
 //加入use集或def集
-int use_or_def(var_info *v, int i, operation *op, basic_block b)
+void use_or_def(var_info *v, int i, operation *op, basic_block b)
 {
     // 如果是使用，则将变量加入 use 集合
     if (check_group(i, op) == USE)
@@ -64,14 +64,20 @@ operand* find_opd(operation * op, int i)
 int var_cnt = 0;
 var_info * new_var(operand* o, all_vars * vars)
 {
-    vars->all[var_cnt++].var_name = o->o_value.name;
+    //vars->all[var_cnt++].var_name = o->o_value.name;
+    strcpy(vars->all[var_cnt++].var_name, o->o_value.name);
     return &vars->all[var_cnt-1];
 }
 
 //是不是有效的变量名
 char* check_name(char * name)
 {
-    if(name[0] == 'v' || name[0] == 't' /*|| name[0] == '*'*/) return name;
+    if(name == NULL)
+    {
+        printf("检测出现空的操作数，可能是哪里出了问题。\n");
+        return NULL;
+    }
+    else if(name[0] == 'v' || name[0] == 't' /*|| name[0] == '*'*/) return name;
     else return NULL;
 }
 
@@ -158,7 +164,7 @@ int single_func_reg_alloc(IR_list *ir, int start, int end){
     return 0;
 }
 
-int all_func_reg_alloc(IR_list *ir){
+void all_func_reg_alloc(IR_list *ir){
     int start = 0;
     int end = 0;
     operation* temp_ptr = ir->head;
