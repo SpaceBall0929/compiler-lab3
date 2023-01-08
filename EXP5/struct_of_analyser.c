@@ -207,11 +207,11 @@ IR_list *tree_analys(treeNode *mytree)
 
             if (var_head == NULL)
             {
-                var_head = var_dec(temp, nearest_speci_type);
+                var_head = var_dec(temp, nearest_speci_type, lst_of_ir);
                 var_ptr = var_head;
                 break;
             }
-            var_ptr->next = var_dec(temp, nearest_speci_type);
+            var_ptr->next = var_dec(temp, nearest_speci_type, lst_of_ir);
             var_ptr = var_ptr->next;
             // if(IF_DEBUG_PRINT){printf("VarDec processed successfully\n");}
             break;
@@ -297,7 +297,7 @@ IR_list *tree_analys(treeNode *mytree)
             {
                 printf("Function declareration detected\n");
             }
-            func_ptr = fun_dec(temp, nearest_speci_type);
+            func_ptr = fun_dec(temp, nearest_speci_type, lst_of_ir);
             nearestfunc_type = nearest_speci_type;
             now_processing = IN_FUNC_DEC;
             if_unfold = 0;

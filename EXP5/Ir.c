@@ -141,8 +141,11 @@ enum opcode {
     I_READ,          //从控制台读取
     I_WRITE,          //向控制台打印
     I_BOOL,         //关系式
+    
+    //dcs增设的，没有对应的输出
     I_CLEAN,        //把变量存储到静态区
-    I_RECOVER       //从静态区恢复变量
+    I_RECOVER,       //从静态区恢复变量
+    I_DEF           //定义一下变量
     };       
 
 struct operation
@@ -484,7 +487,7 @@ void print_op(operation* op, FILE* F){
 
     default:
         printf("Operation type error!\n");
-        exit(1);
+        //exit(1);
         break;
     }
     return;

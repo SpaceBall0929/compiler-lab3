@@ -125,8 +125,7 @@ int block_divide(IR_list *ir, basic_block *block_lst, int start, int end)
     // 如果分块没有结束的话给收个尾
     if (block_lst[block_cnt].start < end + 1)
     {
-        block_lst[block_cnt].end = end;
-        block_cnt += 1;
+        block_lst[block_cnt++].end = end;
     }
 
     // 按照给定的标签信息，进行前驱后继的完善
@@ -202,7 +201,7 @@ int live_var_analyser(IR_list *ir, basic_block *blocks, all_vars *vars, int star
         for (int i = 0; i < lst_len; i++)
         {
             int pre_in = blocks[i].in;
-            int pre_out = blocks[i].out; 
+            int pre_out = blocks[i].out;
             update_block(&blocks[i], blocks);
             // 如果基本块的in或out集合发生了改变，则需要继续循环
             if (blocks[i].in != pre_in || blocks[i].out != pre_out)
@@ -317,6 +316,7 @@ int find_reg_from_LRU(int *lru_lst)
     {
         if (lru_lst[i] == -1)
         {
+            lru_lst[i] = 0;
             return -1 * i - 1;
         }
         if (lru_lst[i] > max)
@@ -325,6 +325,8 @@ int find_reg_from_LRU(int *lru_lst)
             max = lru_lst[i];
         }
     }
+    lru_lst[index] = 0;
+    // var_in_reg[index] = NULL;
     return index + 1;
 }
 
@@ -390,12 +392,13 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
         if (all_of_outs & 1)
         {
             reg_info->reg_state = reg_info->reg_state ^ find_reg_by_name(vars->all[i].reg_name);
+            reg_info->var_in_reg[i] = NULL;
         }
         all_of_outs = all_of_outs >> 1;
     }
 
     // 根据IN∪DEF - OUT分析在本块中终结的变量的结束位点
-    all_of_outs = (block->in | block->def) ^ block->out;
+    all_of_outs = (block->in | block->def) & (~block->out);
     var_info *outs_var_name[25];
     int out_cnt = 0;
     int temp_vec = all_of_outs;
@@ -409,25 +412,29 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
     }
     // 为了做到这件事，倒着预览块内语句
     operation *op_ptr = find_op(ir, end);
-    operand *rand_ptr = op_ptr->opers;
+    operand *to_del = init_operand(IMMEDIATE, NULL, 0, 0);
+    operand *rand_ptr = to_del;
+    rand_ptr->next = op_ptr->opers;
     int z = end;
     int preview_cnt = 0;
     while (preview_cnt < out_cnt)
     {
+        if (rand_ptr->next == NULL)
+        {
+            op_ptr = op_ptr->front;
+            rand_ptr = op_ptr->opers;
+            z -= 1;
+        }
+        else
+        {
+            rand_ptr = rand_ptr->next;
+        }
+
         if (rand_ptr->o_type != VARIABLE)
         {
-            if (rand_ptr->next != NULL)
-            {
-                rand_ptr = rand_ptr->next;
-            }
-            else
-            {
-                op_ptr = op_ptr->front;
-                rand_ptr = op_ptr->opers;
-                z -= 1;
-            }
             continue;
         }
+
         for (int i = 0; i < out_cnt; i++)
         {
             if (!strcmp(rand_ptr->o_value.name, outs_var_name[i]->var_name))
@@ -441,56 +448,81 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
 
     // 逐个语句的看，一句句的分配寄存器
     op_ptr = find_op(ir, start);
-    rand_ptr = op_ptr->opers;
+    rand_ptr = to_del;
+    rand_ptr->next = op_ptr->opers;
+    int to_new_LRU = 1;
+    operand* temp_ptr;
     while (start <= end)
     {
-        if (rand_ptr->o_type != VARIABLE)
+        if (rand_ptr->next == NULL)
         {
-            if (rand_ptr->next != NULL)
+            op_ptr = op_ptr->next;
+            rand_ptr = op_ptr->opers;
+            start++;
+            to_new_LRU = 1;
+            for (int j = 0; j < NUM_OF_REG; j++)
             {
-                rand_ptr = rand_ptr->next;
-            }
-            else
-            {
-                op_ptr = op_ptr->next;
-                rand_ptr = op_ptr->opers;
-                start += 1;
-                // LRU更新在这里，必须把三地址码中已经写入寄存器的LRU信息改掉，不然会有冲突
-                for (int j = 0; j < NUM_OF_REG; j++)
+                if (reg_info->LRU[j] != -1)
                 {
                     reg_info->LRU[j]++;
                 }
-                while (rand_ptr != NULL)
-                {
-                    if (rand_ptr->o_type == VARIABLE)
-                    {
-                        for (int j = 0; j < NUM_OF_REG; j++)
-                        {
-                            if (!strcmp(reg_info->var_in_reg, rand_ptr->o_value.name))
-                            {
-                                reg_info->LRU[j] = 0;
-                            }
-                        }
-                    }
-                    rand_ptr = rand_ptr->next;
-                }
-                rand_ptr = op_ptr->opers;
             }
+        }
+        else
+        {
+            rand_ptr = rand_ptr->next;
+        }
+
+        if (rand_ptr->o_type != VARIABLE)
+        {
             continue;
         }
+        // if (rand_ptr->next != NULL)
+        // {
+        //     rand_ptr = rand_ptr->next;
+        // }
+        // else
+        if(to_new_LRU)
+        {
+            
+            // LRU更新在这里，必须把三地址码中已经写入寄存器的LRU信息改掉，不然会有冲突
+            temp_ptr = rand_ptr;
+            while (temp_ptr != NULL)
+            {
+                
+                
+                
+                
+                // if (rand_ptr->o_type == VARIABLE)
+                // {
+                //     for (int j = 0; j < NUM_OF_REG; j++)
+                //     {
+                //         if (!strcmp(reg_info->var_in_reg, rand_ptr->o_value.name))
+                //         {
+                //             reg_info->LRU[j] = 0;
+                //         }
+                //     }
+                // }
+                // rand_ptr = rand_ptr->next;
+            }
+            rand_ptr = op_ptr->opers;
+            to_new_LRU = 0;
+        }
+ 
 
         // 找到当前指令中的变量
         info_now = find_var_by_name(rand_ptr->o_value.name, vars);
-
+        //找不到就建立新的
+        
         // 变量是否已分配寄存器？
         unsigned int temp = reg_info->reg_state;
         if (info_now->reg_name != NULL)
         {
             unsigned int temp_reg = find_reg_by_name(info_now->reg_name);
             // 注意：这个寄存器中有很小的可能还有其他数据，这里必须有个严谨的处理
-
-
-
+            if (strcmp(reg_info->var_in_reg[temp_reg], rand_ptr->o_value.name))
+            {
+            }
 
             // 是，则从varinfo抄出寄存器名字
             rand_ptr->o_value.name = info_now->reg_name;
@@ -512,14 +544,19 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             {
                 // 存储一个旧数值
                 int temp_bit_map = reg_info->overflow_bit_map;
-                int i =0;
-                for(; i < 32; i++){
-                    if(!temp_bit_map & 1){
+                int i = 0;
+                for (; i < 32; i++)
+                {
+                    if (!temp_bit_map & 1)
+                    {
                         insert_clean(ir, start, regs[new_reg], i);
+                        var_info *info_temp = find_var_by_name(reg_info->var_in_reg[new_reg], vars);
+                        info_temp->in_mem = i;
                         break;
                     }
                 }
-                if(i == 32){
+                if (i == 32)
+                {
                     printf("ERROR: too much overflow!(IN single_block_reg_alloc)\n");
                 }
             }
@@ -536,11 +573,15 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
                 info_now->in_mem = -1;
             }
 
-
-
+            reg_info->reg_state = reg_info->reg_state ^ (1 << new_reg);
+            reg_info->var_in_reg[new_reg] = info_now->var_name;
+            info_now->reg_name = regs[new_reg];
+            rand_ptr->o_value.name = regs[new_reg];
         }
         // 来一套前面的轮换处理流程
     }
+
+    free(to_del);
     block->reg_flag = 1;
     return &block->subs;
 }

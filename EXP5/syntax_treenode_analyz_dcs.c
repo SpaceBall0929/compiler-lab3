@@ -28,7 +28,7 @@ int specifier(treeNode * speci)
     }
 }
 
-dataNodeVar *var_dec(treeNode *dec_node, int var_type)
+dataNodeVar *var_dec(treeNode *dec_node, int var_type, IR_list* ir)
 {
     dataNodeVar *new_var;
     treeNode *origrn = dec_node;
@@ -46,6 +46,9 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     new_var = newNodeVar(dec_node->subtype.IDVal, var_name_gen(), var_type);
     if (dimension == 0)
     {
+        operand_list *operand_to_use = init_operand_list();
+        new_operand(operand_to_use, VARIABLE, new_var->ir_name, 0, 0);
+        new_op(ir, I_DEF, *operand_to_use);
         return new_var;
     }
     new_var->arrayVarType = var_type;
@@ -59,7 +62,7 @@ dataNodeVar *var_dec(treeNode *dec_node, int var_type)
     return new_var;
 }
 
-dataNodeVar *param_dec(treeNode *para)
+dataNodeVar *param_dec(treeNode *para, IR_list* ir)
 {
     int type_def = specifier(para->child);
     if (type_def == D_STRUCT_DEF)
@@ -68,20 +71,20 @@ dataNodeVar *param_dec(treeNode *para)
         return NULL;
     }
 
-    return var_dec(para->child->sibling, type_def);
+    return var_dec(para->child->sibling, type_def, ir);
 }
 
 //处理参数表
-dataNodeVar *var_list(treeNode *arg_list)
+dataNodeVar *var_list(treeNode *arg_list, IR_list* ir)
 {
     arg_list = arg_list->child;
-    dataNodeVar *temp_node = param_dec(arg_list);
+    dataNodeVar *temp_node = param_dec(arg_list, ir);
     dataNodeVar *ptr = temp_node;
     arg_list = arg_list->sibling;
     while (arg_list != NULL)
     {
         arg_list = arg_list->sibling->child;
-        ptr->next = param_dec(arg_list);
+        ptr->next = param_dec(arg_list, ir);
         ptr = ptr->next;
         arg_list = arg_list->sibling;
     }
@@ -91,13 +94,13 @@ dataNodeVar *var_list(treeNode *arg_list)
 }
 
 //处理FunDec
-dataNodeFunc *fun_dec(treeNode *dec_node, int return_type)
+dataNodeFunc *fun_dec(treeNode *dec_node, int return_type, IR_list* ir)
 {
     treeNode *temp_node = dec_node->child->sibling->sibling;
     dataNodeVar *arg_list = NULL;
     if (temp_node->nodeType == N_VAR_L)
     {
-        arg_list = var_list(temp_node);
+        arg_list = var_list(temp_node, ir);
     }
     return newNodeFunc(dec_node->child->subtype.IDVal, return_type, 0, arg_list);
 }
