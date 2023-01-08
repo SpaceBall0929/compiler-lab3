@@ -12,6 +12,8 @@
 
 char *regs[NUM_OF_REG] = {"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8",
                           "t9", "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"};
+char *regs_with_addr[NUM_OF_REG] = {"*t0", "*t1", "*t2", "*t3", "*t4", "*t5", "*t6", "*t7", "*t8",
+                                    "*t9", "*s0", "*s1", "*s2", "*s3", "*s4", "*s5", "*s6", "*s7", "*s8"};
 // 对全局的变量进行记录，最多64个（因为位向量最长64位）
 // 用这个数据结构开一个长64的列表
 // 变量的index就是位向量中对应的位数
@@ -258,6 +260,10 @@ int insert_recover(IR_list *ir, basic_block *block_lst, int block_cnt, int inser
 
 var_info *find_var_by_name(char *name, all_vars *vars)
 {
+    if (name[0] = '*')
+    {
+        name = name + 1;
+    }
     for (int i = 0; i < vars->cnt; i++)
     {
         if (!strcmp(name, vars->all[i].var_name))
@@ -424,9 +430,15 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             continue;
         }
 
+        char *temp_str;
+        temp_str = rand_ptr->o_value.name;
+        if (temp_str[0] = '*')
+        {
+            temp_str += 1;
+        }
         for (int i = 0; i < out_cnt; i++)
         {
-            if (!strcmp(rand_ptr->o_value.name, outs_var_name[i]->var_name))
+            if (!strcmp(temp_str, outs_var_name[i]->var_name))
             {
                 outs_var_name[i]->end = z;
                 preview_cnt++;
@@ -478,7 +490,12 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             // unsigned int temp_reg = find_reg_by_name(info_now->reg_name);
 
             // 是，则从varinfo抄出寄存器名字
-            rand_ptr->o_value.name = regs[info_now->reg_name_idx];
+            if (rand_ptr->o_value.name[0] == '*')
+            {
+                rand_ptr->o_value.name = regs_with_addr[info_now->reg_name_idx];
+            }else{
+                rand_ptr->o_value.name = regs[info_now->reg_name_idx];
+            }
             reg_info->LRU[info_now->reg_name_idx] = 0;
             // 判断此处是否取消寄存器占用，更新寄存器占用情况
             // 变量不在OUT集合中并且为最后一次使用
@@ -533,6 +550,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             int new_reg = find_reg_from_LRU(reg_info->LRU);
             if (new_reg > 0)
             {
+                new_reg--;
                 // 存储一个旧数值
                 int temp_bit_map = reg_info->overflow_bit_map;
                 int i = 0;
@@ -557,15 +575,20 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             else
             {
                 new_reg *= -1;
+                new_reg--;
             }
-            new_reg--;
 
             // 第二步 占地方，直接占上就行
 
             reg_info->reg_state = reg_info->reg_state ^ (1 << new_reg);
             reg_info->var_in_reg_idx[new_reg] = info_now->idx;
             info_now->reg_name_idx = new_reg;
-            rand_ptr->o_value.name = regs[new_reg];
+            if (rand_ptr->o_value.name[0] == '*')
+            {
+                rand_ptr->o_value.name = regs_with_addr[new_reg];
+            }else{
+                rand_ptr->o_value.name = regs[new_reg];
+            }
         }
     }
 
