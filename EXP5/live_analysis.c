@@ -19,7 +19,7 @@ int check_group(int i, operation *op)
 }
 
 //加入use集或def集
-int use_or_def(var_info *v, int i, operation *op, basic_block b)
+void use_or_def(var_info *v, int i, operation *op, basic_block b)
 {
     // 如果是使用，则将变量加入 use 集合
     if (check_group(i, op) == USE)
@@ -162,7 +162,7 @@ int sigle_func_reg_alloc(IR_list *ir, int start, int end){
     return 0;
 }
 
-int all_func_reg_alloc(IR_list *ir){
+void all_func_reg_alloc(IR_list *ir){
     int start = 0;
     int end = 0;
     operation* temp_ptr = ir->head;
