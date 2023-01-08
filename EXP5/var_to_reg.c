@@ -459,7 +459,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             op_ptr = op_ptr->next;
             rand_ptr = op_ptr->opers;
             start++;
-            to_new_LRU = 1;
+            // to_new_LRU = 1;
             for (int j = 0; j < NUM_OF_REG; j++)
             {
                 if (reg_info->LRU[j] != -1)
@@ -482,32 +482,32 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
         //     rand_ptr = rand_ptr->next;
         // }
         // else
-        if(to_new_LRU)
-        {
+        // if(to_new_LRU)
+        // {
             
-            // LRU更新在这里，必须把三地址码中已经写入寄存器的LRU信息改掉，不然会有冲突
-            temp_ptr = rand_ptr;
-            while (temp_ptr != NULL)
-            {
+        //     // LRU更新在这里，必须把三地址码中已经写入寄存器的LRU信息改掉，不然会有冲突
+        //     temp_ptr = rand_ptr;
+        //     while (temp_ptr != NULL)
+        //     {
                 
                 
                 
                 
-                // if (rand_ptr->o_type == VARIABLE)
-                // {
-                //     for (int j = 0; j < NUM_OF_REG; j++)
-                //     {
-                //         if (!strcmp(reg_info->var_in_reg, rand_ptr->o_value.name))
-                //         {
-                //             reg_info->LRU[j] = 0;
-                //         }
-                //     }
-                // }
-                // rand_ptr = rand_ptr->next;
-            }
-            rand_ptr = op_ptr->opers;
-            to_new_LRU = 0;
-        }
+        //         // if (rand_ptr->o_type == VARIABLE)
+        //         // {
+        //         //     for (int j = 0; j < NUM_OF_REG; j++)
+        //         //     {
+        //         //         if (!strcmp(reg_info->var_in_reg, rand_ptr->o_value.name))
+        //         //         {
+        //         //             reg_info->LRU[j] = 0;
+        //         //         }
+        //         //     }
+        //         // }
+        //         // rand_ptr = rand_ptr->next;
+        //     }
+        //     rand_ptr = op_ptr->opers;
+        //     to_new_LRU = 0;
+        // }
  
 
         // 找到当前指令中的变量
@@ -520,9 +520,9 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
         {
             unsigned int temp_reg = find_reg_by_name(info_now->reg_name);
             // 注意：这个寄存器中有很小的可能还有其他数据，这里必须有个严谨的处理
-            if (strcmp(reg_info->var_in_reg[temp_reg], rand_ptr->o_value.name))
-            {
-            }
+            // if (strcmp(reg_info->var_in_reg[temp_reg], rand_ptr->o_value.name))
+            // {
+            // }
 
             // 是，则从varinfo抄出寄存器名字
             rand_ptr->o_value.name = info_now->reg_name;
@@ -534,6 +534,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
                 reg_info->reg_state = reg_info->reg_state ^ 1 << temp_reg;
                 reg_info->LRU[temp_reg] = -1;
                 reg_info->var_in_reg[temp_reg] = NULL;
+                info_now->reg_name = NULL;
             }
         }
         else
