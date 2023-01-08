@@ -64,6 +64,7 @@ int init_block_lst(basic_block *block_lst, int lst_len)
         block_lst->out = 0;
         block_lst->def = 0;
         block_lst->use = 0;
+        block_lst->reg_flag = 0;
     }
 }
 
@@ -368,7 +369,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
         // 已经分析过了，结束分析
         return NULL;
     }
-
+    
     int start = block->start;
     int end = block->end;
     var_info *info_now = NULL;

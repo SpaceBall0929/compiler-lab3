@@ -1,0 +1,24 @@
+FUNCTION main:
+DEF a0
+a0:=#0
+DEF a1
+a1:=#1
+DEF a2
+a2:=#0
+DEF a3
+READ a3
+LABLE lb00:
+IF a2 < a3 GOTO lb01
+GOTO lb02
+LABLE lb01:
+DEF a4
+t2:=a2+#1
+a4:=t1
+WRITE a1
+a0:=a1
+a1:=a4
+t2:=a2+#1
+a2:=t2
+GOTO lb00
+LABLE lb02:
+RETURN #0

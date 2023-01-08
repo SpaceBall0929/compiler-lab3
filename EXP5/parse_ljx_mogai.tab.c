@@ -2394,10 +2394,12 @@ yyreturn:
 
 #include "lex.yy.c"
 
-int main(int argc, char** argv)
+int main()
 {
-	if(argc <= 1) return 1;
-	FILE* f = fopen(argv[1], "r");
+int argc = 2;
+  char* argv[2] = {"1", "2"};
+  if(argc <= 1) return 1;
+	FILE* f = fopen("test1.cmm", "r");
 	if(!f){
 		perror(argv[1]);
 		return 1;
@@ -2410,12 +2412,13 @@ int main(int argc, char** argv)
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
         ir = tree_analys(myTree);
+        all_func_reg_alloc(ir);
     }else{
         printf("ERROR! can't generate the ir");
     }
-    all_func_reg_alloc(ir);
     
-    FILE* F = fopen(argv[2], "w");
+
+    FILE* F = fopen("out1.ir", "w");
     print_IR(ir, F);
         
 	return 0;
