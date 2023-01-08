@@ -1,7 +1,7 @@
 %{
     #include <stdio.h>
     #include <stdlib.h>
-    #include "struct_of_analyser.c"
+    // #include "struct_of_analyser.c"
     #include "live_analysis.c"
     #define YYSTYPE treeNode*
 
@@ -517,10 +517,12 @@ int main(int argc, char** argv)
 	yyrestart(f);
 	yyparse();
     // printf("Built the tree successfully\n");
-
+    IR_list* ir;
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
-        IR_list* ir = tree_analys(myTree);
+        ir = tree_analys(myTree);
+    }else{
+        printf("ERROR! can't generate the ir");
     }
     all_func_reg_alloc(ir);
     

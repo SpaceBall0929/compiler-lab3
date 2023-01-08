@@ -1,9 +1,8 @@
 #include "var_to_reg.c"
-#include "exp.c"
 //****************************************************************
 // 分析活跃流，并且给出变量信息记录
-#define USE 838974723
-#define DEF 23847285654
+#define USE 2333
+#define DEF 7788
 //判断语句是否要变
 int have_cal(operation *op)
 {

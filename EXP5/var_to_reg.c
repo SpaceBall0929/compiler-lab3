@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "exp.c"
+#include "struct_of_analyser.c"
 // #include "live_analysis.c"
 #define NUM_OF_REG 19
 
@@ -354,41 +354,6 @@ int find_reg_from_LRU(int *lru_lst)
     return index + 1;
 }
 
-// 对整个连通分量的分析必须考虑到存在分支和回边的问题
-// 需要使用队列管理，必须采用广度优先！
-// 在外面再套一层逐个函数分析的...
-int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, int block_cnt, all_vars *vars)
-{
-    alloc_quene alloc_helper;
-    reg_alloc_info info_now;
-    init_alloc_info(&alloc_helper);
-    int *subs;
-    do
-    {
-        copy_alloc_info(&(alloc_helper.quene[(alloc_helper.start) % 64]), &info_now);
-        alloc_helper.start += 1;
-        subs = single_block_reg_alloc(ir, &block_lst[info_now.next_block], vars, &info_now, block_lst, block_cnt);
-        if (subs == NULL)
-        {
-            continue;
-        }
-        if (subs[0] != -1)
-        {
-            info_now.next_block = subs[0];
-            copy_alloc_info(&info_now, &(alloc_helper.quene[(alloc_helper.end) % 64]));
-            alloc_helper.end += 1;
-        }
-        if (subs[1] != -1)
-        {
-            info_now.next_block = subs[1];
-            copy_alloc_info(&info_now, &(alloc_helper.quene[(alloc_helper.end) % 64]));
-            alloc_helper.end += 1;
-        }
-    } while (alloc_helper.start != alloc_helper.end);
-
-    return 0;
-}
-
 // 对单个块的分析
 int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg_alloc_info *reg_info, basic_block *block_lst, int block_cnt)
 {
@@ -578,7 +543,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
                         insert_clean(ir, block_lst, block_cnt, start, regs[new_reg], i);
                         end++;
                         start++;
-                        var_info *info_temp = find_var_by_name(reg_info->var_in_reg_idx[new_reg], vars);
+                        var_info *info_temp = &(vars[reg_info->var_in_reg_idx[new_reg]]);
                         info_temp->in_mem = i;
                         // info_now->reg_name_idx = -1;
                         break;
@@ -606,5 +571,40 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
 
     free(to_del);
     block->reg_flag = 1;
-    return &block->subs;
+    return block->subs;
+}
+
+// 对整个连通分量的分析必须考虑到存在分支和回边的问题
+// 需要使用队列管理，必须采用广度优先！
+// 在外面再套一层逐个函数分析的...
+int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, int block_cnt, all_vars *vars)
+{
+    alloc_quene alloc_helper;
+    reg_alloc_info info_now;
+    init_alloc_info(&alloc_helper);
+    int *subs;
+    do
+    {
+        copy_alloc_info(&(alloc_helper.quene[(alloc_helper.start) % 64]), &info_now);
+        alloc_helper.start += 1;
+        subs = single_block_reg_alloc(ir, &block_lst[info_now.next_block], vars, &info_now, block_lst, block_cnt);
+        if (subs == NULL)
+        {
+            continue;
+        }
+        if (subs[0] != -1)
+        {
+            info_now.next_block = subs[0];
+            copy_alloc_info(&info_now, &(alloc_helper.quene[(alloc_helper.end) % 64]));
+            alloc_helper.end += 1;
+        }
+        if (subs[1] != -1)
+        {
+            info_now.next_block = subs[1];
+            copy_alloc_info(&info_now, &(alloc_helper.quene[(alloc_helper.end) % 64]));
+            alloc_helper.end += 1;
+        }
+    } while (alloc_helper.start != alloc_helper.end);
+
+    return 0;
 }
