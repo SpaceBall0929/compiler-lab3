@@ -66,7 +66,7 @@ operand* find_opd(operation * op, int i)
 int var_cnt = 0;
 var_info * new_var(operand* o, all_vars * vars)
 {
-    strcpy(vars->all[var_cnt++].var_name, o->o_value.name);
+    vars->all[var_cnt++].var_name = o->o_value.name;
     return &vars->all[var_cnt-1];
 }
 
@@ -145,5 +145,15 @@ int live_var_analyser(int lst_len, basic_block *basic_block, all_vars *vars)
     return 0;
 }
 
+
+int* sigle_func_reg_alloc(IR_list *ir, int start, int end){
+    basic_block block_lst[25];
+    all_vars vars;
+    init_block_lst(block_lst, 25);
+    init_all_vars(&vars);
+    block_divide(ir, block_lst, start, end);
+    live_var_analyser(25, block_lst, &vars);
+    all_block_reg_alloc(ir, block_lst, 25, &vars);
+}
 
 

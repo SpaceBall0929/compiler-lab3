@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "exp.c"
-//#include "live_analysis.c"
+// #include "live_analysis.c"
 #define NUM_OF_REG 19
 
 // 把这一大堆破函数汇总成一个针对单个连通分量的函数就好啦~
@@ -17,8 +17,10 @@ char *regs[NUM_OF_REG] = {"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8",
 // 变量的index就是位向量中对应的位数
 typedef struct var_info
 {
-    char *var_name;                // 变量名字
-    char *reg_name;                // 分配寄存器的名字
+    char *var_name; // 变量名字
+    int idx;
+    // char *reg_name;                // 分配寄存器的名字
+    int reg_name_idx;
     unsigned long long bit_vector; // 变量位向量
     int in_mem;                    // 溢出时在数组中的位置
     int end;                       // 存一下这个变量在块内哪里终结
@@ -62,7 +64,6 @@ int init_block_lst(basic_block *block_lst, int lst_len)
         block_lst->use = 0;
     }
 }
-
 
 // 划分基本快
 // 注意，由于多函数情况的存在，整个程序很可能出现多个联通分量...
@@ -161,15 +162,34 @@ int block_divide(IR_list *ir, basic_block *block_lst, int start, int end)
     return block_cnt;
 }
 
+// 插入新语句以后必须对原有的基本块划分做出调整，不然会出错
+int block_transition(basic_block *block_lst, int block_cnt, int insert_loc)
+{
+    for (int i = 0; i < block_cnt; i++)
+    {
+        if (block_lst[i].end >= insert_loc)
+        {
+            block_lst[i].end += 1;
+        }
+        if (block_lst[i].start > insert_loc)
+        {
+            block_lst[i].start += 1;
+        }
+    }
+
+    return 0;
+}
+
 int init_all_vars(all_vars *vars)
 {
     vars->cnt = 0;
     for (int i = 0; i < 64; i++)
     {
-        vars->all[i].reg_name = NULL;
+        vars->all[i].reg_name_idx = -1;
         vars->all[i].var_name = NULL;
         vars->all[i].end = -1;
         vars->all[i].bit_vector = (1 << i);
+        vars->all[i].idx = i;
         vars->all[i].in_mem = -1;
     }
 }
@@ -177,60 +197,62 @@ int init_all_vars(all_vars *vars)
 // 分析活跃流，并且给出变量信息记录
 // 只用分析单个连通分量
 // 先定义一个函数，用来更新基本块的in和out的值
-void update_block(basic_block *block, basic_block *blocks)
-{
-    // 先计算出新的in值
-    unsigned long long new_in = block->out;
-    // 把所有前驱节点的out值与new_in求并
-    for (int i = 0; i < block->pros_cnt; i++)
-    {
-        new_in |= blocks[block->pros[i]].out;
-    }
-    // 如果new_in值发生了改变，则需要重新计算out值
-    if (new_in != block->in)
-    {
-        block->in = new_in;
-        block->out = (block->use | (block->out & ~block->def));
-    }
-}
-int live_var_analyser(IR_list *ir, basic_block *blocks, all_vars *vars, int start, int end, int lst_len)
-{
-    // 循环，直到所有基本块的in和out集合都不再发生改变
-    int flag = 1;
-    while (flag)
-    {
-        flag = 0; // 用来记录是否有基本块的in或out集合发生改变
-        for (int i = 0; i < lst_len; i++)
-        {
-            int pre_in = blocks[i].in;
-            int pre_out = blocks[i].out; 
-            update_block(&blocks[i], blocks);
-            // 如果基本块的in或out集合发生了改变，则需要继续循环
-            if (blocks[i].in != pre_in || blocks[i].out != pre_out)
-            {
-                flag = 1;
-            }
-        }
-    }
-}
+// void update_block(basic_block *block, basic_block *blocks)
+// {
+//     // 先计算出新的in值
+//     unsigned long long new_in = block->out;
+//     // 把所有前驱节点的out值与new_in求并
+//     for (int i = 0; i < block->pros_cnt; i++)
+//     {
+//         new_in |= blocks[block->pros[i]].out;
+//     }
+//     // 如果new_in值发生了改变，则需要重新计算out值
+//     if (new_in != block->in)
+//     {
+//         block->in = new_in;
+//         block->out = (block->use | (block->out & ~block->def));
+//     }
+// }
+// int live_var_analyser(IR_list *ir, basic_block *blocks, all_vars *vars, int start, int end, int lst_len)
+// {
+//     // 循环，直到所有基本块的in和out集合都不再发生改变
+//     int flag = 1;
+//     while (flag)
+//     {
+//         flag = 0; // 用来记录是否有基本块的in或out集合发生改变
+//         for (int i = 0; i < lst_len; i++)
+//         {
+//             int pre_in = blocks[i].in;
+//             int pre_out = blocks[i].out;
+//             update_block(&blocks[i], blocks);
+//             // 如果基本块的in或out集合发生了改变，则需要继续循环
+//             if (blocks[i].in != pre_in || blocks[i].out != pre_out)
+//             {
+//                 flag = 1;
+//             }
+//         }
+//     }
+// }
 
-int insert_clean(IR_list *ir, int insert_index, char *reg, int temp_save)
+int insert_clean(IR_list *ir, basic_block *block_lst, int block_cnt, int insert_index, char *reg, int temp_save)
 {
     operand_list *lst = init_operand_list();
     new_operand(lst, IMMEDIATE, 0, temp_save, 0);
     new_operand(lst, VARIABLE, reg, 0, 0);
     insert_op(ir, I_CLEAN, *lst, insert_index);
     del_operand_content(lst);
+    block_transition(block_lst, block_cnt, insert_index);
     return 0;
 }
 
-int insert_recover(IR_list *ir, int insert_index, char *reg, int temp_save)
+int insert_recover(IR_list *ir, basic_block *block_lst, int block_cnt, int insert_index, char *reg, int temp_save)
 {
     operand_list *lst = init_operand_list();
     new_operand(lst, IMMEDIATE, 0, temp_save, 0);
     new_operand(lst, VARIABLE, reg, 0, 0);
     insert_op(ir, I_RECOVER, *lst, insert_index);
     del_operand_content(lst);
+    block_transition(block_lst, block_cnt, insert_index);
     return 0;
 }
 
@@ -268,7 +290,7 @@ typedef struct reg_alloc_info
 {
     unsigned int reg_state;
     int LRU[NUM_OF_REG];
-    char *var_in_reg[NUM_OF_REG];
+    int var_in_reg_idx[NUM_OF_REG];
     unsigned int overflow_bit_map;
     int next_block;
 } reg_alloc_info;
@@ -290,7 +312,7 @@ int init_alloc_info(alloc_quene *initor)
     for (int i = 0; i < NUM_OF_REG; i++)
     {
         initor->quene[0].LRU[i] = -1;
-        initor->quene[0].var_in_reg[i] = NULL;
+        initor->quene[0].var_in_reg_idx[i] = -1;
     }
 
     return 0;
@@ -304,7 +326,7 @@ int copy_alloc_info(reg_alloc_info *src, reg_alloc_info *dest)
     for (int i = 0; i < NUM_OF_REG; i++)
     {
         dest->LRU[i] = src->LRU[i];
-        dest->var_in_reg[i] = src->var_in_reg[i];
+        dest->var_in_reg_idx[i] = src->var_in_reg_idx[i];
     }
     return 0;
 }
@@ -335,7 +357,7 @@ int find_reg_from_LRU(int *lru_lst)
 // 对整个连通分量的分析必须考虑到存在分支和回边的问题
 // 需要使用队列管理，必须采用广度优先！
 // 在外面再套一层逐个函数分析的...
-int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, all_vars *vars)
+int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, int block_cnt, all_vars *vars)
 {
     alloc_quene alloc_helper;
     reg_alloc_info info_now;
@@ -345,7 +367,7 @@ int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, all_vars *vars)
     {
         copy_alloc_info(&(alloc_helper.quene[(alloc_helper.start) % 64]), &info_now);
         alloc_helper.start += 1;
-        subs = single_block_reg_alloc(ir, &block_lst[info_now.next_block], vars, &info_now, block_lst);
+        subs = single_block_reg_alloc(ir, &block_lst[info_now.next_block], vars, &info_now, block_lst, block_cnt);
         if (subs == NULL)
         {
             continue;
@@ -368,7 +390,7 @@ int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, all_vars *vars)
 }
 
 // 对单个块的分析
-int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg_alloc_info *reg_info, basic_block *block_lst)
+int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg_alloc_info *reg_info, basic_block *block_lst, int block_cnt)
 {
     if (block->reg_flag)
     {
@@ -387,14 +409,14 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
     {
         all_of_outs = all_of_outs | block_lst[block->pros[i]].out;
     }
-    all_of_outs = all_of_outs ^ block->in;
+    all_of_outs = all_of_outs & (~block->in);
     // 解除占用
     for (int i = 0; i < 64; i++)
     {
         if (all_of_outs & 1)
         {
-            reg_info->reg_state = reg_info->reg_state ^ find_reg_by_name(vars->all[i].reg_name);
-            reg_info->var_in_reg[i] = NULL;
+            reg_info->reg_state = reg_info->reg_state & (~(1 << vars->all[i].reg_name_idx));
+            reg_info->var_in_reg_idx[i] = -1;
         }
         all_of_outs = all_of_outs >> 1;
     }
@@ -453,7 +475,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
     rand_ptr = to_del;
     rand_ptr->next = op_ptr->opers;
     int to_new_LRU = 1;
-    operand* temp_ptr;
+    operand *temp_ptr;
     while (start <= end)
     {
         if (rand_ptr->next == NULL)
@@ -479,64 +501,65 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
         {
             continue;
         }
-        // if (rand_ptr->next != NULL)
-        // {
-        //     rand_ptr = rand_ptr->next;
-        // }
-        // else
-        // if(to_new_LRU)
-        // {
-            
-        //     // LRU更新在这里，必须把三地址码中已经写入寄存器的LRU信息改掉，不然会有冲突
-        //     temp_ptr = rand_ptr;
-        //     while (temp_ptr != NULL)
-        //     {
-                
-                
-                
-                
-        //         // if (rand_ptr->o_type == VARIABLE)
-        //         // {
-        //         //     for (int j = 0; j < NUM_OF_REG; j++)
-        //         //     {
-        //         //         if (!strcmp(reg_info->var_in_reg, rand_ptr->o_value.name))
-        //         //         {
-        //         //             reg_info->LRU[j] = 0;
-        //         //         }
-        //         //     }
-        //         // }
-        //         // rand_ptr = rand_ptr->next;
-        //     }
-        //     rand_ptr = op_ptr->opers;
-        //     to_new_LRU = 0;
-        // }
- 
 
         // 找到当前指令中的变量
         info_now = find_var_by_name(rand_ptr->o_value.name, vars);
-        //找不到就建立新的
-        
+        // 找不到就建立新的
+
         // 变量是否已分配寄存器？
         unsigned int temp = reg_info->reg_state;
-        if (info_now->reg_name != NULL)
+        if (info_now->reg_name_idx != -1)
         {
-            unsigned int temp_reg = find_reg_by_name(info_now->reg_name);
-            // 注意：这个寄存器中有很小的可能还有其他数据，这里必须有个严谨的处理
-            // if (strcmp(reg_info->var_in_reg[temp_reg], rand_ptr->o_value.name))
-            // {
-            // }
+            // unsigned int temp_reg = find_reg_by_name(info_now->reg_name);
 
             // 是，则从varinfo抄出寄存器名字
-            rand_ptr->o_value.name = info_now->reg_name;
+            rand_ptr->o_value.name = regs[info_now->reg_name_idx];
+            reg_info->LRU[info_now->reg_name_idx] = 0;
             // 判断此处是否取消寄存器占用，更新寄存器占用情况
             // 变量不在OUT集合中并且为最后一次使用
             if ((all_of_outs & info_now->bit_vector == 0) &&
                 start == info_now->end)
             {
-                reg_info->reg_state = reg_info->reg_state ^ 1 << temp_reg;
-                reg_info->LRU[temp_reg] = -1;
-                reg_info->var_in_reg[temp_reg] = NULL;
-                info_now->reg_name = NULL;
+                reg_info->reg_state = reg_info->reg_state & (~(1 << info_now->reg_name_idx));
+                reg_info->LRU[info_now->reg_name_idx] = -1;
+                reg_info->var_in_reg_idx[info_now->reg_name_idx] = -1;
+                info_now->reg_name_idx = -1;
+            }
+
+            // 如果寄存器中有原本的内容
+            if (info_now->in_mem != -1)
+            {
+                // 存起来
+                // int new_reg = find_reg_from_LRU(reg_info->LRU);
+                if (reg_info->var_in_reg_idx[info_now->reg_name_idx] != -1)
+                {
+                    int temp_bit_map = reg_info->overflow_bit_map;
+                    int i = 0;
+                    for (; i < 32; i++)
+                    {
+                        if (!temp_bit_map & 1)
+                        {
+                            insert_clean(ir, block_lst, block_cnt, start, regs[info_now->reg_name_idx], i);
+                            end++;
+                            start++;
+                            var_info *info_temp = &(vars->all[reg_info->var_in_reg_idx[info_now->reg_name_idx]]);
+                            info_temp->in_mem = i;
+                            break;
+                        }
+                    }
+                    if (i == 32)
+                    {
+                        printf("ERROR: too much overflow!(IN single_block_reg_alloc)\n");
+                    }
+                }
+
+                // 挪进去
+                insert_recover(ir, block_lst, block_cnt, start, regs[info_now->reg_name_idx], info_now->in_mem);
+                end++;
+                start++;
+                info_now->in_mem = -1;
+                reg_info->reg_state = reg_info->reg_state | (1 << info_now->reg_name_idx);
+                reg_info->var_in_reg_idx[info_now->reg_name_idx] = info_now->idx;
             }
         }
         else
@@ -552,9 +575,12 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
                 {
                     if (!temp_bit_map & 1)
                     {
-                        insert_clean(ir, start, regs[new_reg], i);
-                        var_info *info_temp = find_var_by_name(reg_info->var_in_reg[new_reg], vars);
+                        insert_clean(ir, block_lst, block_cnt, start, regs[new_reg], i);
+                        end++;
+                        start++;
+                        var_info *info_temp = find_var_by_name(reg_info->var_in_reg_idx[new_reg], vars);
                         info_temp->in_mem = i;
+                        // info_now->reg_name_idx = -1;
                         break;
                     }
                 }
@@ -569,19 +595,13 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
             }
             new_reg--;
 
-            // 第二步 占地方，如果是已经被暂存的就恢复，如果不是，就直接占上就行
-            if (info_now->in_mem != -1)
-            {
-                insert_recover(ir, start, regs[new_reg], info_now->in_mem);
-                info_now->in_mem = -1;
-            }
+            // 第二步 占地方，直接占上就行
 
             reg_info->reg_state = reg_info->reg_state ^ (1 << new_reg);
-            reg_info->var_in_reg[new_reg] = info_now->var_name;
-            info_now->reg_name = regs[new_reg];
+            reg_info->var_in_reg_idx[new_reg] = info_now->idx;
+            info_now->reg_name_idx = new_reg;
             rand_ptr->o_value.name = regs[new_reg];
         }
-        // 来一套前面的轮换处理流程
     }
 
     free(to_del);
