@@ -56,6 +56,7 @@ operand* find_opd(operation * op, int i)
     if(i == 0) return opr;
     for(int j=0; j < i; j++)
     {
+        if(!opr) return NULL;
         opr = opr->next;
     }
     return opr;
@@ -65,7 +66,7 @@ int var_cnt = 0;
 var_info * new_var(operand* o, all_vars * vars)
 {
     //vars->all[var_cnt++].var_name = o->o_value.name;
-    strcpy(vars->all[var_cnt++].var_name, o->o_value.name);
+   vars->all[var_cnt++].var_name = o->o_value.name;
     return &vars->all[var_cnt-1];
 }
 
@@ -74,10 +75,10 @@ char* check_name(char * name)
 {
     if(name == NULL)
     {
-        printf("检测出现空的操作数，可能是哪里出了问题。\n");
+        //printf("检测出现空的操作数，可能是哪里出了问题。\n");
         return NULL;
     }
-    else if(name[0] == 'v' || name[0] == 't' /*|| name[0] == '*'*/) return name;
+    else if(name[0] == 'a' || name[0] == 't' /*|| name[0] == '*'*/) return name;
     else return NULL;
 }
 
@@ -87,6 +88,12 @@ void traverse_var(operation *op, all_vars* vars, basic_block b)
     int opd_cnt = op->op_num;
     for(int i = 0; i < opd_cnt; i++)
     {
+       if(!find_opd(op, i))
+       {
+            printf("操作数居然不见了\n");
+            continue;
+       }
+        if(find_opd(op, i)->o_type != VARIABLE) continue;
         char* c = check_name(find_opd(op, i)->o_value.name);
         if(!c) continue;
         var_info* v = find_vars(vars, c);

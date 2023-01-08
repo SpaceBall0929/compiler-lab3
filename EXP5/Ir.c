@@ -245,6 +245,10 @@ void new_op(IR_list *lst, enum opcode co, operand_list oplst)
     new->index = lst->length;
     lst->tail = new;
     lst->length += 1;
+    if(co == I_ADD)
+    {
+        111;
+    }
     return;
 }
 
@@ -264,6 +268,10 @@ void add_op(IR_list *lst, operation *op)
     op->index = lst->length;
     lst->tail = op;
     lst->length += 1;
+    if(op->code == I_ADD)
+    {
+        111;
+    }
     return;
 }
 
