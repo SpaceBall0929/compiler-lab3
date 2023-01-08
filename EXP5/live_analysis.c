@@ -86,6 +86,7 @@ char* check_name(char * name)
 void traverse_var(operation *op, all_vars* vars, basic_block b)
 {
     int opd_cnt = op->op_num;
+    
     for(int i = 0; i < opd_cnt; i++)
     {
        if(!find_opd(op, i))
