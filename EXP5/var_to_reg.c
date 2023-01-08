@@ -543,7 +543,7 @@ int *single_block_reg_alloc(IR_list *ir, basic_block *block, all_vars *vars, reg
                         insert_clean(ir, block_lst, block_cnt, start, regs[new_reg], i);
                         end++;
                         start++;
-                        var_info *info_temp = &(vars[reg_info->var_in_reg_idx[new_reg]]);
+                        var_info *info_temp = &(vars->all[reg_info->var_in_reg_idx[new_reg]]);
                         info_temp->in_mem = i;
                         // info_now->reg_name_idx = -1;
                         break;
