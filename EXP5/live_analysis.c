@@ -72,7 +72,12 @@ var_info * new_var(operand* o, all_vars * vars)
 //是不是有效的变量名
 char* check_name(char * name)
 {
-    if(name[0] == 'v' || name[0] == 't' /*|| name[0] == '*'*/) return name;
+    if(name == NULL)
+    {
+        printf("检测出现空的操作数，可能是哪里出了问题。\n");
+        return NULL;
+    }
+    else if(name[0] == 'v' || name[0] == 't' /*|| name[0] == '*'*/) return name;
     else return NULL;
 }
 
