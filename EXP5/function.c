@@ -205,7 +205,7 @@ void addi_fp(int offset, int index)
     new_operand(opl, VARIABLE, "$fp", 0, 0);
     new_operand(opl, VARIABLE, "$sp", 0, 0);
     new_operand(opl, IMMEDIATE, NULL, offset, 0);
-    insert_op(lst_of_ir, I_ADDI, *opl, index);
+    insert_op(lst_of_ir, I_ADD, *opl, index);
 }
 void lw_ra(int offset, int index)
 {
@@ -229,7 +229,7 @@ void addi_sp(int offset, int index)
     new_operand(opl, VARIABLE, "$sp", 0, 0);
     new_operand(opl, VARIABLE, "$sp", 0, 0);
     new_operand(opl, IMMEDIATE, NULL, offset, 0);
-    insert_op(lst_of_ir, I_ADDI, *opl, index);
+    insert_op(lst_of_ir, I_ADD, *opl, index);
 }
 void jr_ra(int index)
 {
