@@ -5,7 +5,16 @@
 
 char* t_regs[10] = {"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"};
 
-
+char* get_arr_name(){
+    static int count = 0;
+    char* arr = (char*)malloc(4 * sizeof(char));
+    strcpy(arr, "_arr");
+    char *num = (char*)malloc(MAX_TEMP_OP_NUM * sizeof(char));
+    sprintf(num, "%d", count);
+    strcat(arr, num);
+    count += 1;
+    return arr;
+}
 
 char* getSubstr(char* str, int len){
     char* sub_str = (char*)malloc(len * sizeof(char));
@@ -90,15 +99,14 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         *index += 1;
         break;
 
-    //case I_AS_ADDR:
-        // if(op->op_num == 2)
-        //     fprintf(f, "%s:=&%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
-        // else
-        //     if(op->opers[2].o_type == IMMEDIATE)
-        //      fprintf(f, "%s:=&%s+#%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
-        //     else if(op->opers[2].o_type == VARIABLE)
-        //         fprintf(f, "%s:=&%s+%s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        //break;
+    case I_AS_ADDR:
+        if(op->op_num == 2)
+            fprintf(f, "la %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+        else
+            if(op->opers[2].o_type == IMMEDIATE)
+             fprintf(f, "la %s, %d(%s)\n", op->opers[0].o_value.name, op->opers[2].o_value.im_value, op->opers[1].o_value.name);
+        *index += 1;
+        break;
 
     case I_AS_VALUE:
         fprintf(f, "\tlw %s, 0(%s)\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
@@ -132,6 +140,7 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         break;
 
     case I_DEC:
+        fprintf(f, "\tla %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
         *index += 1;
         break;
     
@@ -338,11 +347,22 @@ void print_write(IR_list lst, int* index, FILE* f){
     //fprintf(f, "\tjr $ra\n\n");
 }
 
-void print_data(FILE* f){
+void print_data(IR_list lst, FILE* f){
     fprintf(f, ".data\n");
     fprintf(f, "_prompt: .asciiz \"Enter an integer\"\n");
     fprintf(f, "_ret: .asciiz \"\\n\"\n");
-    
+    operation* p = lst.head;
+    while(1){
+        if(p->code == I_DEC){
+            char* arr_name = get_arr_name();
+            fprintf(f, "%s: .space %d\n", arr_name, p->opers[1].o_value.im_value);
+            p->opers[1].o_type = VARIABLE;
+            p->opers[1].o_value.name = arr_name;
+        }
+        if(p == lst.tail)
+            break;
+        p = p->next;
+    }
 }
 
 void print_text(IR_list lst, FILE* f){
@@ -370,7 +390,8 @@ void print_text(IR_list lst, FILE* f){
 //生成目标代码
 void generate(IR_list lst, FILE* f){
     //数据段
-    print_data(f);
+    print_data(lst, f);
+    //设置.globl main
     fprintf(f, ".globl main\n");
     //代码段
     print_text(lst, f);
