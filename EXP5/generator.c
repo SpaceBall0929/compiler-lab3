@@ -5,6 +5,8 @@
 
 char* t_regs[10] = {"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"};
 
+
+
 char* getSubstr(char* str, int len){
     char* sub_str = (char*)malloc(len * sizeof(char));
     for(int i = 0; i < len; i++)
@@ -129,15 +131,13 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         *index += 1;
         break;
 
-    // case I_DEC:
-    //     fprintf(f, "DEC %s #%d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
-    //     break;
+    case I_DEC:
+        *index += 1;
+        break;
     
-    // case I_BOOL:
-    //     for(int i = 0; i < op->op_num; i++)
-    //         fprintf(f, "%s ", op->opers[i].o_value.name);
-    //     fprintf(f, "\n");
-    //     break;
+    case I_BOOL:
+        *index += 1;
+        break;
 
     
     //与函数相关指令
@@ -154,7 +154,7 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         break;
 
     case I_RETURN:
-        fprintf(f, "\tmove $v0, %s:\njr $ra\n", op->opers[0].o_value.name);
+        fprintf(f, "\tmove $v0, %s:\n", op->opers[0].o_value.name);
         *index = fun_edec(op->index, arg_flag) + 1;
         for(int j = op->index + 1; j < *index;){
             operation* p = find_op(&lst, j);
@@ -167,13 +167,14 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         break;
 
     case I_CALL:
+        int pre_index = op->index;
         //保存活跃变量，压入栈中
         for(int i = 0; i < T_REG_NUM; i++){
             *index += 1;
             sw_live(0, t_regs[i], 4 * i, *index);
         }
-        *index += 1;
-        for(int j = op->index + 1; j < *index;){
+        //*index += 1;
+        for(int j = pre_index + 1; j <= *index;){
             operation* p = find_op(&lst, j);
             assign(p, lst, f, &j);
         }
@@ -181,22 +182,24 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         arg_flag = 0;
         if(op->next->code == I_ARG)
             arg_flag = op->next->op_num;
-        *index = fun_call(op->index, arg_flag, op->opers[1].o_value.name) + 1;
-        for(int j = op->index + 1; j < *index;){
+        pre_index = *index;
+        *index = fun_call(*index, arg_flag, op->opers[1].o_value.name);
+        for(int j = pre_index + 1; j <= *index;){
             operation* p = find_op(&lst, j);
             assign(p, lst, f, &j);
         }
-        int pre_index = *index;
+        pre_index = *index;
         //恢复活跃变量
         for(int i = 0; i < T_REG_NUM; i++){
-            lw_live(0, t_regs[i], 4 * i, *index);
             *index += 1;
+            lw_live(0, t_regs[i], 4 * i, *index);
         }
-        for(int j = pre_index; j < *index;){
+        for(int j = pre_index + 1; j <= *index;){
             operation* p = find_op(&lst, j);
             assign(p, lst, f, &j);
         }
         fprintf(f, "\tmove %s, $v0\n", op->opers[0].o_value.name);
+        *index += 1;
         break;
 
     case I_PARAM:
@@ -205,7 +208,7 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
 
     //使用read和write功能相当于函数调用
     case I_READ:
-        *index = fun_call(op->index, 0, "read");
+        *index = fun_call(op->index, 0, "read") + 1;
         for(int j = op->index + 1; j < *index;){
             operation* p = find_op(&lst, j);
             assign(p, lst, f, &j);
@@ -214,7 +217,7 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         break;
 
     case I_WRITE:
-        *index = fun_call(op->index, 1, "write");
+        *index = fun_call(op->index, 1, "write") + 1;
         for(int j = op->index + 1; j < *index;){
             operation* p = find_op(&lst, j);
             assign(p, lst, f, &j);
@@ -290,44 +293,69 @@ void assign_optim(operation* op, FILE* f, int* index){
     }
 }
 
-void print_read(FILE* f){
+void print_read(IR_list lst, int* index, FILE* f){
+    int pre_index = *index;
     fprintf(f, "read:\n");
+    *index = fun_pdec(pre_index, 0);
+    for(int j = pre_index + 1; j <= *index;){
+        operation* p = find_op(&lst, j);
+        assign(p, lst, f, &j);
+    }
     fprintf(f, "\tli $v0, 4\n");
     fprintf(f, "\tla $a0, _prompt\n");
     fprintf(f, "\tsyscall\n");
     fprintf(f, "\tli $v0, 4\n");
     fprintf(f, "\tsyscall\n");
-    fprintf(f, "\tjr $ra\n\n");
+    pre_index = *index;
+    *index = fun_edec(pre_index, 0) + 1;
+    for(int j = pre_index + 1; j < *index;){
+        operation* p = find_op(&lst, j);
+        assign(p, lst, f, &j);
+    }
+    //fprintf(f, "\tjr $ra\n\n");
 }
 
-void print_write(FILE* f){
+void print_write(IR_list lst, int* index, FILE* f){
+    int pre_index = *index;
     fprintf(f, "write:\n");
+    *index = fun_pdec(pre_index, 0);
+    for(int j = pre_index + 1; j <= *index;){
+        operation* p = find_op(&lst, j);
+        assign(p, lst, f, &j);
+    }
     fprintf(f, "\tli $v0, 1\n");
     fprintf(f, "\tsyscall\n");
     fprintf(f, "\tli $v0, 4\n");
     fprintf(f, "\tla $a0, _ret\n");
     fprintf(f, "\tsyscall\n");
     fprintf(f, "\tmove $v0, $0\n");
-    fprintf(f, "\tjr $ra\n\n");
+    pre_index = *index;
+    *index = fun_edec(pre_index, 0) + 1;
+    for(int j = pre_index + 1; j < *index;){
+        operation* p = find_op(&lst, j);
+        assign(p, lst, f, &j);
+    }
+    //fprintf(f, "\tjr $ra\n\n");
 }
 
 void print_data(FILE* f){
     fprintf(f, ".data\n");
     fprintf(f, "_prompt: .asciiz \"Enter an integer\"\n");
     fprintf(f, "_ret: .asciiz \"\\n\"\n");
-    fprintf(f, ".globl main\n");
+    
 }
 
 void print_text(IR_list lst, FILE* f){
     fprintf(f, ".text\n");
+    //遍历指针初始指向index=0
+    int index = 0;
     //若需要read交互
     if(lst.if_read == 1)
-        print_read(f);
+        print_read(lst, &index, f);
     //若需要write交互
     if(lst.if_write == 1)
-        print_write(f);
+        print_write(lst, &index, f);
     operation* p = lst.head;
-    int index = 0;
     while(1){
         if(p->flag == 1)
             assign_optim(p, f, &index);  //需要窥孔优化
@@ -343,6 +371,7 @@ void print_text(IR_list lst, FILE* f){
 void generate(IR_list lst, FILE* f){
     //数据段
     print_data(f);
+    fprintf(f, ".globl main\n");
     //代码段
     print_text(lst, f);
 }
