@@ -2,7 +2,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include "struct_of_analyser.c"
-
+    #include "live_analysis.c"
     #define YYSTYPE treeNode*
 
     int line_check[5000];
@@ -520,10 +520,12 @@ int main(int argc, char** argv)
 
     if(error_count == 0){
         preOrderTraverse(myTree, 0);
-        tree_analys(myTree);
+        IR_list* ir = tree_analys(myTree);
     }
+    all_func_reg_alloc(ir);
+    
     FILE* F = fopen(argv[2], "w");
-    print_IR(lst_of_ir, F);
+    print_IR(ir, F);
         
 	return 0;
 }

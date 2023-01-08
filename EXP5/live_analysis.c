@@ -1,6 +1,5 @@
 #include "var_to_reg.c"
 #include "exp.c"
-#include "Ir.c"
 //****************************************************************
 // 分析活跃流，并且给出变量信息记录
 #define USE 838974723
@@ -146,7 +145,7 @@ int live_var_analyser(int lst_len, basic_block *basic_block, all_vars *vars)
 }
 
 
-int* sigle_func_reg_alloc(IR_list *ir, int start, int end){
+int sigle_func_reg_alloc(IR_list *ir, int start, int end){
     basic_block block_lst[25];
     all_vars vars;
     init_block_lst(block_lst, 25);
@@ -154,6 +153,25 @@ int* sigle_func_reg_alloc(IR_list *ir, int start, int end){
     block_divide(ir, block_lst, start, end);
     live_var_analyser(25, block_lst, &vars);
     all_block_reg_alloc(ir, block_lst, 25, &vars);
+
+    return 0;
+}
+
+int all_func_reg_alloc(IR_list *ir){
+    int start = 0;
+    int end = 0;
+    operation* temp_ptr = ir->head;
+    if(temp_ptr->code != I_FUNC){
+        printf("ERROR: NOT A FUNCITON IN INTER REPERSENTATION (in all_func_reg_alloc())\n");
+    }
+    do{
+        temp_ptr = temp_ptr->next;
+        end++;
+        if(temp_ptr->code == I_FUNC){
+          sigle_func_reg_alloc(ir, start, end - 1);  
+            start = end;
+        }
+    }while(temp_ptr != ir->tail); 
 }
 
 
