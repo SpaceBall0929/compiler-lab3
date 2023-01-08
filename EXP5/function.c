@@ -3,6 +3,7 @@
 
 //index表示定义的位置，arg_flag表示参数个数
 int fun_pdec(int index, int arg_flag);
+int fun_edec(int index, int arg_flag);
 //index表示call的位置，arg_flag表示参数个数
 int fun_call(int index, int arg_flag, char*);
 

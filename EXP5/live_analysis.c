@@ -64,7 +64,8 @@ operand* find_opd(operation * op, int i)
 int var_cnt = 0;
 var_info * new_var(operand* o, all_vars * vars)
 {
-    vars->all[var_cnt++].var_name = o->o_value.name;
+    //vars->all[var_cnt++].var_name = o->o_value.name;
+    strcpy(vars->all[var_cnt++].var_name, o->o_value.name);
     return &vars->all[var_cnt-1];
 }
 

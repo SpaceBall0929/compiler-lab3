@@ -196,46 +196,6 @@ int init_all_vars(all_vars *vars)
     }
 }
 
-// 分析活跃流，并且给出变量信息记录
-// 只用分析单个连通分量
-// 先定义一个函数，用来更新基本块的in和out的值
-// void update_block(basic_block *block, basic_block *blocks)
-// {
-//     // 先计算出新的in值
-//     unsigned long long new_in = block->out;
-//     // 把所有前驱节点的out值与new_in求并
-//     for (int i = 0; i < block->pros_cnt; i++)
-//     {
-//         new_in |= blocks[block->pros[i]].out;
-//     }
-//     // 如果new_in值发生了改变，则需要重新计算out值
-//     if (new_in != block->in)
-//     {
-//         block->in = new_in;
-//         block->out = (block->use | (block->out & ~block->def));
-//     }
-// }
-// int live_var_analyser(IR_list *ir, basic_block *blocks, all_vars *vars, int start, int end, int lst_len)
-// {
-//     // 循环，直到所有基本块的in和out集合都不再发生改变
-//     int flag = 1;
-//     while (flag)
-//     {
-//         flag = 0; // 用来记录是否有基本块的in或out集合发生改变
-//         for (int i = 0; i < lst_len; i++)
-//         {
-//             int pre_in = blocks[i].in;
-//             int pre_out = blocks[i].out;
-//             update_block(&blocks[i], blocks);
-//             // 如果基本块的in或out集合发生了改变，则需要继续循环
-//             if (blocks[i].in != pre_in || blocks[i].out != pre_out)
-//             {
-//                 flag = 1;
-//             }
-//         }
-//     }
-// }
-
 int insert_clean(IR_list *ir, basic_block *block_lst, int block_cnt, int insert_index, char *reg, int temp_save)
 {
     operand_list *lst = init_operand_list();
