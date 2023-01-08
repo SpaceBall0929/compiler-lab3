@@ -253,7 +253,7 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
         *index += 1;
         break;
 
-    case DEF:
+    case I_CLEAN: case I_RECOVER: case I_DEF:
         *index += 1;
         break;
 
