@@ -71,7 +71,7 @@ var_info * new_var(operand* o, all_vars * vars)
 //是不是有效的变量名
 char* check_name(char * name)
 {
-    if(name[0] == 'v' || name[0] == 't' || name[0] == '*') return name;
+    if(name[0] == 'v' || name[0] == 't' /*|| name[0] == '*'*/) return name;
     else return NULL;
 }
 
@@ -87,7 +87,7 @@ void traverse_var(operation *op, all_vars* vars, basic_block b)
         if(!v)
         {
             //变量没加入，新建一个
-            v = new_var(op, vars);
+            v = new_var(find_opd(op, i), vars);
         }
         use_or_def(v, i, op, b);
     }
