@@ -15,6 +15,7 @@ int fun_call(int index, int arg_flag, char*);
     弹出参数（如果参数个数>4)
     恢复活跃变量
 */
+
 int fun_call(int index, int arg_flag, char *funcname)
 {
     //char *funcname = find_op(lst_of_ir, index)->opers->o_value.name;
@@ -26,8 +27,8 @@ int fun_call(int index, int arg_flag, char *funcname)
         //有参数
         for(int i = 0; i < arg_flag; i++)
         {
-            add_move(index, i);
             index += 1;
+            add_move(index, i);
         }
         if(arg_flag > 4)
         {
@@ -42,9 +43,10 @@ int fun_call(int index, int arg_flag, char *funcname)
     //弹出参数（如果参数个数>4)
 
     //恢复活跃变量
-    index += 1;
+    //index += 1;
     return index;
 }
+
 //获取参数（arg_no表示第几个参数,从1开始）
 operand* get_arg(int index, int arg_no)
 {
@@ -123,6 +125,7 @@ int size = 0;
 int fun_pdec(int index, int arg_flag)
 {
     //分配栈的空间
+    index += 1;
     size = get_offset(index);
 
 
@@ -137,11 +140,11 @@ int fun_pdec(int index, int arg_flag)
     addi_fp(size, index);
 
     //保存s寄存器
-    index += 1;
+    //index += 1;
     sw_sreg(index, size - 12);
 
     //取出参数
-    index += 1;
+    //index += 1;
         if(arg_flag > 4)
         {
             //参数较多,在栈里
