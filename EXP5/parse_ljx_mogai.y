@@ -3,6 +3,7 @@
     #include <stdlib.h>
     // #include "struct_of_analyser.c"
     #include "live_analysis.c"
+    #include "generator.c"
     #define YYSTYPE treeNode*
 
     int line_check[5000];
@@ -505,14 +506,12 @@ Args : Exp COMMA Args{
 
 #include "lex.yy.c"
 
-int main()
+int main(int argc, char** argv)
 {
-int argc = 2;
-  char* argv[2] = {"1", "2"};
-  if(argc <= 1) return 1;
-	FILE* f = fopen("test1.cmm", "r");
+	if(argc <= 1) return 1;
+	FILE* f = fopen(argv[0], "r");
 	if(!f){
-		perror(argv[1]);
+		perror(argv[0]);
 		return 1;
 	}
     /*yylineno=1??*/
@@ -524,14 +523,12 @@ int argc = 2;
         preOrderTraverse(myTree, 0);
         ir = tree_analys(myTree);
         all_func_reg_alloc(ir);
+        FILE* F = fopen(argv[1], "w");
+        generate(ir, F);
     }else{
         printf("ERROR! can't generate the ir");
     }
-    
 
-    FILE* F = fopen("out1.ir", "w");
-    print_IR(ir, F);
-        
 	return 0;
 }
 

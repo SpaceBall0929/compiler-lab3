@@ -1,3 +1,5 @@
+#ifndef REG_C
+#define REG_C
 #include <stdio.h>
 #include <stdlib.h>
 #include "struct_of_analyser.c"
@@ -592,3 +594,4 @@ int all_block_reg_alloc(IR_list *ir, basic_block *block_lst, int block_cnt, all_
 
     return 0;
 }
+#endif

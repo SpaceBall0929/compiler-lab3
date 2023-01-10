@@ -505,12 +505,12 @@ Args : Exp COMMA Args{
 
 #include "lex.yy.c"
 
-int main(/*int argc, char** argv*/)
+int main(int argc, char** argv)
 {
-	// if(argc <= 1) return 1;
-	FILE* f = fopen("test3.cmm", "r");
+	if(argc <= 1) return 1;
+	FILE* f = fopen(argv[0], "r");
 	if(!f){
-		perror("test1.cmm");
+		perror(argv[0]);
 		return 1;
 	}
     /*yylineno=1??*/
@@ -522,7 +522,7 @@ int main(/*int argc, char** argv*/)
         preOrderTraverse(myTree, 0);
         tree_analys(myTree);
     }
-    FILE* F = fopen("test.txt", "w");
+    FILE* F = fopen(argv[1], "w");
     print_IR(lst_of_ir, F);
         
 	return 0;
