@@ -4,7 +4,9 @@ int main()
     n = read();
     while (i < n)
     {
-        int c = a + b;
+        //int c = a + b;
+        int c;
+        c = a + b;
         write(b);
         a = b;
         b = c;
