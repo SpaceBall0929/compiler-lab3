@@ -64,8 +64,8 @@ operand* find_opd(operation * op, int i)
 int var_cnt = 0;
 var_info * new_var(operand* o, all_vars * vars)
 {
-    //vars->all[var_cnt++].var_name = o->o_value.name;
-    strcpy(vars->all[var_cnt++].var_name, o->o_value.name);
+    vars->all[var_cnt++].var_name = o->o_value.name;
+    //strcpy(vars->all[var_cnt++].var_name, o->o_value.name);
     return &vars->all[var_cnt-1];
 }
 
@@ -150,14 +150,12 @@ int live_var_analyser(int lst_len, basic_block *basic_block, all_vars *vars)
 }
 
 
-int single_func_reg_alloc(IR_list *ir, int start, int end){
+int sigle_func_reg_alloc(IR_list *ir, int start, int end){
     basic_block block_lst[25];
     all_vars vars;
-    printf("Start analyze! with point 4\n");
     init_block_lst(block_lst, 25);
     init_all_vars(&vars);
     block_divide(ir, block_lst, start, end);
-    printf("divide the block!\n ");
     live_var_analyser(25, block_lst, &vars);
     all_block_reg_alloc(ir, block_lst, 25, &vars);
 
@@ -175,12 +173,10 @@ void all_func_reg_alloc(IR_list *ir){
         temp_ptr = temp_ptr->next;
         end++;
         if(temp_ptr->code == I_FUNC){
-          printf("Start analyze! with point 3\n");
-          single_func_reg_alloc(ir, start, end - 1);  
+          sigle_func_reg_alloc(ir, start, end - 1);  
             start = end;
         }
-    }while(temp_ptr != ir->tail);
-    single_func_reg_alloc(ir, start, end - 1);  
+    }while(temp_ptr != ir->tail); 
 }
 
 
