@@ -193,17 +193,6 @@ void jr_ra(int index)
     insert_op(lst_of_ir, I_JR, *opl, index);
 }
 
-void sw_sreg(int index, int offset)
-{
-    int o = offset;
-    for(int i = 0; i < 8; i ++)
-    {
-        sw_1s(index, i, o);
-        o -= 4;
-        index += 1;
-    }
-}
-
 void sw_1s(int index, int reg, int offset)
 {
     operand_list *opl = init_operand_list();
@@ -213,14 +202,12 @@ void sw_1s(int index, int reg, int offset)
     insert_op(lst_of_ir, I_SW, *opl, index);
 }
 
-
-
-void lw_sreg(int index, int offset)
+void sw_sreg(int index, int offset)
 {
     int o = offset;
     for(int i = 0; i < 8; i ++)
     {
-        lw_1s(index, i, o);
+        sw_1s(index, i, o);
         o -= 4;
         index += 1;
     }
@@ -234,6 +221,19 @@ void lw_1s(int index, int reg, int offset)
     new_operand(opl, VARIABLE, "$sp", 0, 0);
     insert_op(lst_of_ir, I_LW, *opl, index);
 }
+
+void lw_sreg(int index, int offset)
+{
+    int o = offset;
+    for(int i = 0; i < 8; i ++)
+    {
+        lw_1s(index, i, o);
+        o -= 4;
+        index += 1;
+    }
+}
+
+
 /*
     定义函数部分：
     *******以下为Prologue部分*********
