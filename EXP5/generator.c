@@ -23,12 +23,12 @@ char* getSubstr(char* str, int len){
     return sub_str;
 }
 
-int arrayLength(char* arr[]){
-    int len = 0;
-    for(int i = 0; arr[i] != '\0'; i++)
-        len += 1;
-    return len;
-}
+// int arrayLength(char* arr[]){
+//     int len = 0;
+//     for(int i = 0; arr[i] != "\0"; i++)
+//         len += 1;
+//     return len;
+// }
 
 //不带优化的代码生成
 void assign(operation* op, IR_list lst, FILE* f, int* index){
@@ -36,238 +36,293 @@ void assign(operation* op, IR_list lst, FILE* f, int* index){
     switch (op->code){
     //与函数无关指令
     case I_LABLE:
-        fprintf(f, "%s:\n", op->opers[0].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "%s:\n", op->opers[0].o_value.name);
+            *index += 1;
+            break;
+        }
         
     case I_ASSIGN:
-        switch (op->opers[1].o_type)
         {
-        case VARIABLE:
-            //右值为变量
-            if(op->opers[0].o_value.name[0] == '*'){
-                char* sub_str = getSubstr(op->opers[0].o_value.name, strlen(op->opers[0].o_value.name) - 1);
-                fprintf(f, "\tsw %s, 0(%s)\n", op->opers[1].o_value.name, sub_str);
+            switch (op->opers[1].o_type)
+            {
+            case VARIABLE:
+                //右值为变量
+                if(op->opers[0].o_value.name[0] == '*'){
+                    char* sub_str = getSubstr(op->opers[0].o_value.name, strlen(op->opers[0].o_value.name) - 1);
+                    fprintf(f, "\tsw %s, 0(%s)\n", op->opers[1].o_value.name, sub_str);
+                }
+                else
+                    fprintf(f, "\tmove %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+                break;
+            case IMMEDIATE:
+                //右值为立即数
+                fprintf(f, "\tli %s, %d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
+                break;
+            default:
+                printf("Operand type error!\n");
+                exit(1);
+                break;
             }
-            else
-                fprintf(f, "\tmove %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
-            break;
-        case IMMEDIATE:
-            //右值为立即数
-            fprintf(f, "\tli %s, %d\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
-            break;
-        default:
-            printf("Operand type error!\n");
-            exit(1);
+            *index += 1;
             break;
         }
-        *index += 1;
-        break;
 
     case I_ADD:
-        if(op->opers[2].o_type == VARIABLE)
-            fprintf(f, "\tadd %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers[2].o_type == IMMEDIATE)
-            fprintf(f, "\taddi %s, %s, %d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
-        else{
-            printf("Operand type error\n");
-            exit(1);
+        {
+            if(op->opers[2].o_type == VARIABLE)
+                fprintf(f, "\tadd %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers[2].o_type == IMMEDIATE)
+                fprintf(f, "\taddi %s, %s, %d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            else{
+                printf("Operand type error\n");
+                exit(1);
+            }
+            *index += 1;
+            break;
         }
-        *index += 1;
-        break;
 
     case I_SUB:
-        if(op->opers[2].o_type == VARIABLE)
-            fprintf(f, "\tsub %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers[2].o_type == IMMEDIATE)
-            fprintf(f, "\taddi %s, %s, -%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
-        else{
-            printf("Operand type error\n");
-            exit(1);
+        {
+            if(op->opers[2].o_type == VARIABLE)
+                fprintf(f, "\tsub %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers[2].o_type == IMMEDIATE)
+                fprintf(f, "\taddi %s, %s, -%d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            else{
+                printf("Operand type error\n");
+                exit(1);
+            }
+            *index += 1;
+            break;
         }
-        *index += 1;
-        break;
 
     case I_MUL:
-        fprintf(f, "\tmul %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tmul %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_DIV:
-        fprintf(f, "\tdiv %s, %s\n", op->opers[1].o_value.name, op->opers[2].o_value.name);
-        fprintf(f, "\tmflo %s\n", op->opers[0].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tdiv %s, %s\n", op->opers[1].o_value.name, op->opers[2].o_value.name);
+            fprintf(f, "\tmflo %s\n", op->opers[0].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_AS_ADDR:
-        if(op->op_num == 2)
-            fprintf(f, "la %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
-        else
-            if(op->opers[2].o_type == IMMEDIATE)
-             fprintf(f, "la %s, %d(%s)\n", op->opers[0].o_value.name, op->opers[2].o_value.im_value, op->opers[1].o_value.name);
-        *index += 1;
-        break;
+        {
+            if(op->op_num == 2)
+                fprintf(f, "la %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+            else
+                if(op->opers[2].o_type == IMMEDIATE)
+                fprintf(f, "la %s, %d(%s)\n", op->opers[0].o_value.name, op->opers[2].o_value.im_value, op->opers[1].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_AS_VALUE:
-        fprintf(f, "\tlw %s, 0(%s)\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tlw %s, 0(%s)\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_VALUE_ASSIGN:
-        fprintf(f, "\tsw %s, 0(%s)\n", op->opers[1].o_value.name, op->opers[0].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tsw %s, 0(%s)\n", op->opers[1].o_value.name, op->opers[0].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_GOTO:
-        fprintf(f, "\tj %s\n", op->opers[0].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tj %s\n", op->opers[0].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_IF:
-        if(op->opers->o_value.name == "==")
-            fprintf(f, "\tbeq %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers->o_value.name == "!=")
-            fprintf(f, "\tbne %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers->o_value.name == ">")
-            fprintf(f, "\tbgt %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers->o_value.name == "<")
-            fprintf(f, "\tblt %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers->o_value.name == ">=")
-            fprintf(f, "\tbge %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        else if(op->opers->o_value.name == "<=")
-            fprintf(f, "\tble %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
-        *index += 1;
-        break;
+        {
+            if(op->opers->o_value.name == "==")
+                fprintf(f, "\tbeq %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers->o_value.name == "!=")
+                fprintf(f, "\tbne %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers->o_value.name == ">")
+                fprintf(f, "\tbgt %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers->o_value.name == "<")
+                fprintf(f, "\tblt %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers->o_value.name == ">=")
+                fprintf(f, "\tbge %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            else if(op->opers->o_value.name == "<=")
+                fprintf(f, "\tble %s, %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_DEC:
-        fprintf(f, "\tla %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tla %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+            *index += 1;
+            break;
+        }
     
     case I_BOOL:
-        *index += 1;
-        break;
+        {
+            *index += 1;
+            break;
+        }
 
     
     //与函数相关指令
     case I_FUNC:
-        fprintf(f, "%s:\n", op->opers[0].o_value.name);
-        arg_flag = 0;
-        if(op->next->code == I_PARAM)
-            arg_flag = op->next->op_num;
-        *index = fun_pdec(op->index, arg_flag) + 1;
-        for(int j = op->index + 1; j < *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
+        {
+            fprintf(f, "%s:\n", op->opers[0].o_value.name);
+            arg_flag = 0;
+            if(op->next->code == I_PARAM)
+                arg_flag = op->next->op_num;
+            *index = fun_pdec(op->index, arg_flag) + 1;
+            for(int j = op->index + 1; j < *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            break;
         }
-        break;
 
     case I_RETURN:
-        fprintf(f, "\tmove $v0, %s:\n", op->opers[0].o_value.name);
-        *index = fun_edec(op->index, arg_flag) + 1;
-        for(int j = op->index + 1; j < *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
+        {
+            fprintf(f, "\tmove $v0, %s:\n", op->opers[0].o_value.name);
+            *index = fun_edec(op->index, arg_flag) + 1;
+            for(int j = op->index + 1; j < *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            break;
         }
-        break;
 
     case I_ARG:
-        *index += 1;
-        break;
+        {
+            *index += 1;
+            break;
+        }
 
     case I_CALL:
-        int pre_index = op->index;
-        //保存活跃变量，压入栈中
-        for(int i = 0; i < T_REG_NUM; i++){
+        {
+            int pre_index;
+            pre_index = op->index;
+            //保存活跃变量，压入栈中
+            for(int i = 0; i < T_REG_NUM; i++){
+                *index += 1;
+                sw_live(0, t_regs[i], 4 * i, *index);
+            }
+            //*index += 1;
+            for(int j = pre_index + 1; j <= *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            //调用函数
+            arg_flag = 0;
+            if(op->next->code == I_ARG)
+                arg_flag = op->next->op_num;
+            pre_index = *index;
+            *index = fun_call(*index, arg_flag, op->opers[1].o_value.name);
+            for(int j = pre_index + 1; j <= *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            pre_index = *index;
+            //恢复活跃变量
+            for(int i = 0; i < T_REG_NUM; i++){
+                *index += 1;
+                lw_live(0, t_regs[i], 4 * i, *index);
+            }
+            for(int j = pre_index + 1; j <= *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            fprintf(f, "\tmove %s, $v0\n", op->opers[0].o_value.name);
             *index += 1;
-            sw_live(0, t_regs[i], 4 * i, *index);
+            break;
         }
-        //*index += 1;
-        for(int j = pre_index + 1; j <= *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
-        }
-        //调用函数
-        arg_flag = 0;
-        if(op->next->code == I_ARG)
-            arg_flag = op->next->op_num;
-        pre_index = *index;
-        *index = fun_call(*index, arg_flag, op->opers[1].o_value.name);
-        for(int j = pre_index + 1; j <= *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
-        }
-        pre_index = *index;
-        //恢复活跃变量
-        for(int i = 0; i < T_REG_NUM; i++){
-            *index += 1;
-            lw_live(0, t_regs[i], 4 * i, *index);
-        }
-        for(int j = pre_index + 1; j <= *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
-        }
-        fprintf(f, "\tmove %s, $v0\n", op->opers[0].o_value.name);
-        *index += 1;
-        break;
 
     case I_PARAM:
-        *index += 1;
-        break;
+        {
+            *index += 1;
+            break;
+        }
 
     //使用read和write功能相当于函数调用
     case I_READ:
-        *index = fun_call(op->index, 0, "read") + 1;
-        for(int j = op->index + 1; j < *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
+        {
+            *index = fun_call(op->index, 0, "read") + 1;
+            for(int j = op->index + 1; j < *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            fprintf(f, "\tmove %s, $v0\n", op->opers[0].o_value.name);
+            break;
         }
-        fprintf(f, "\tmove %s, $v0\n", op->opers[0].o_value.name);
-        break;
 
     case I_WRITE:
-        *index = fun_call(op->index, 1, "write") + 1;
-        for(int j = op->index + 1; j < *index;){
-            operation* p = find_op(&lst, j);
-            assign(p, lst, f, &j);
+        {
+            *index = fun_call(op->index, 1, "write") + 1;
+            for(int j = op->index + 1; j < *index;){
+                operation* p = find_op(&lst, j);
+                assign(p, lst, f, &j);
+            }
+            //write相当于一个没有返回值的函数，后面无move指令
+            break;
         }
-        //write相当于一个没有返回值的函数，后面无move指令
-        break;
 
     //栈管理相关指令
     case I_SW:
-        fprintf(f, "\tsw %s, %d($sp)\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tsw %s, %d($sp)\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
+            *index += 1;
+            break;
+        }
 
     case I_LW:
-        fprintf(f, "\tlw %s, %d($sp)\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tlw %s, %d($sp)\n", op->opers[0].o_value.name, op->opers[1].o_value.im_value);
+            *index += 1;
+            break;
+        }
 
     case I_JAL:
-        fprintf(f, "\tjal %s\n", op->opers[0].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tjal %s\n", op->opers[0].o_value.name);
+            *index += 1;
+            break;
+        }
     
     case I_JR:
-        fprintf(f, "\tjr %s\n", op->opers[0].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tjr %s\n", op->opers[0].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_MOVE:
-        fprintf(f, "\tmove %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tmove %s, %s\n", op->opers[0].o_value.name, op->opers[1].o_value.name);
+            *index += 1;
+            break;
+        }
 
     case I_SUBU:
-        fprintf(f, "\tsubu %s, %s, %d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
-        *index += 1;
-        break;
+        {
+            fprintf(f, "\tsubu %s, %s, %d\n", op->opers[0].o_value.name, op->opers[1].o_value.name, op->opers[2].o_value.im_value);
+            *index += 1;
+            break;
+        }
 
     case I_CLEAN: case I_RECOVER: case I_DEF:
-        *index += 1;
-        break;
+        {
+            *index += 1;
+            break;
+        }
 
     default:
         printf("Wrong operation type!\n");
@@ -388,11 +443,11 @@ void print_text(IR_list lst, FILE* f){
 }
 
 //生成目标代码
-void generate(IR_list lst, FILE* f){
+void generate(IR_list* lst, FILE* f){
     //数据段
-    print_data(lst, f);
+    print_data(*lst, f);
     //设置.globl main
     fprintf(f, ".globl main\n");
     //代码段
-    print_text(lst, f);
+    print_text(*lst, f);
 }
