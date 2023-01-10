@@ -7,6 +7,67 @@ int fun_edec(int index, int arg_flag);
 //index表示call的位置，arg_flag表示参数个数
 int fun_call(int index, int arg_flag, char*);
 
+//获取第n个参数寄存器的名字
+char* get_reg(int n)
+{
+    switch(n){
+        case 0: return "a0";
+        case 1: return "a1";
+        case 2: return "a2";
+        case 3: return "a3";
+    }
+}
+
+
+//获取参数（arg_no表示第几个参数,从1开始）
+operand* get_arg(int index, int arg_no)
+{
+    if(!arg_no) return NULL;
+    operation* op = find_op(lst_of_ir, index);
+    operand* opr = op->opers;
+    for(int i = 0; i < arg_no - 1; i++)
+    {
+        opr = opr->next;
+    }
+    return opr;
+}
+
+
+//保存活跃变量,reg表示寄存器名称，offset表示栈的偏移
+void sw_live(int index, char* reg, int offset, int m_index)
+{
+    operand_list* opl = init_operand_list();
+    new_operand(opl, VARIABLE, reg, 0, 0);
+    new_operand(opl, IMMEDIATE, NULL, offset, 0);
+    //new_operand(opl, VARIABLE, "$sp", 0, 0);
+    insert_op(lst_of_ir, I_SW, *opl, m_index);
+}
+
+//恢复活跃变量，reg表示寄存器名称，offset表示栈的偏移
+void lw_live(int index, char* reg, int offset, int m_index)
+{
+    operand_list* opl = init_operand_list();
+    new_operand(opl, VARIABLE, reg, 0, 0);
+    new_operand(opl, IMMEDIATE, NULL, offset, 0);
+    new_operand(opl, VARIABLE, "$sp", 0, 0);
+    insert_op(lst_of_ir, I_LW, *opl, m_index);
+}
+//参数（寄存器里的），move
+void add_move(int index, int i)
+{
+    operand_list* opl = init_operand_list();
+    add_operand(opl, get_arg(index, i));
+    new_operand(opl, VARIABLE, get_reg(i), 0, 0);
+    insert_op(lst_of_ir, I_MOVE, *opl, index);
+}
+
+void add_jal(int index, char* funcname)
+{
+    operand_list* opl = init_operand_list();
+    new_operand(opl, VARIABLE, funcname, 0, 0);
+    insert_op(lst_of_ir, I_JAL, *opl, index);
+}
+
 /*
     调用函数部分：
     保存活跃变量(提供接口，由组员在调用函数前保存)
@@ -47,131 +108,21 @@ int fun_call(int index, int arg_flag, char *funcname)
     return index;
 }
 
-//获取参数（arg_no表示第几个参数,从1开始）
-operand* get_arg(int index, int arg_no)
-{
-    if(!arg_no) return NULL;
-    operation* op = find_op(lst_of_ir, index);
-    operand* opr = op->opers;
-    for(int i = 0; i < arg_no - 1; i++)
-    {
-        opr = opr->next;
-    }
-    return opr;
-}
 
-//获取第n个参数寄存器的名字
-char* get_reg(int n)
+//获取第n个s寄存器的名字
+char* get_sreg(int n)
 {
     switch(n){
-        case 0: return "a0";
-        case 1: return "a1";
-        case 2: return "a2";
-        case 3: return "a3";
+        case 0: return "s0";
+        case 1: return "s1";
+        case 2: return "s2";
+        case 3: return "s3";
+        case 4: return "s4";
+        case 5: return "s5";
+        case 6: return "s6";
+        case 7: return "s7";
+        case 8: return "s8";
     }
-}
-
-//保存活跃变量,reg表示寄存器名称，offset表示栈的偏移
-void sw_live(int index, char* reg, int offset, int m_index)
-{
-    operand_list* opl = init_operand_list();
-    new_operand(opl, VARIABLE, reg, 0, 0);
-    new_operand(opl, IMMEDIATE, NULL, offset, 0);
-    //new_operand(opl, VARIABLE, "$sp", 0, 0);
-    insert_op(lst_of_ir, I_SW, *opl, m_index);
-}
-
-//恢复活跃变量，reg表示寄存器名称，offset表示栈的偏移
-void lw_live(int index, char* reg, int offset, int m_index)
-{
-    operand_list* opl = init_operand_list();
-    new_operand(opl, VARIABLE, reg, 0, 0);
-    new_operand(opl, IMMEDIATE, NULL, offset, 0);
-    new_operand(opl, VARIABLE, "$sp", 0, 0);
-    insert_op(lst_of_ir, I_LW, *opl, m_index);
-}
-//参数（寄存器里的），move
-void add_move(int index, int i)
-{
-    operand_list* opl = init_operand_list();
-    add_operand(opl, get_arg(index, i));
-    new_operand(opl, VARIABLE, get_reg(i), 0, 0);
-    insert_op(lst_of_ir, I_MOVE, *opl, index);
-}
-
-void add_jal(int index, char* funcname)
-{
-    operand_list* opl = init_operand_list();
-    new_operand(opl, VARIABLE, funcname, 0, 0);
-    insert_op(lst_of_ir, I_JAL, *opl, index);
-}
-
-/*
-    定义函数部分：
-    *******以下为Prologue部分*********
-    将\$ra压栈
-    \$fp压栈并设置好新的\$fp
-    保存s寄存器
-    取出参数
-    *******以下为Epilogue部分*********
-    恢复寄存器
-    恢复栈顶
-    跳转回去
-*/
-
-int size = 0;
-
-//在函数定义开头调用
-int fun_pdec(int index, int arg_flag)
-{
-    //分配栈的空间
-    index += 1;
-    size = get_offset(index);
-
-
-    //将\$ra压栈
-    index += 1;
-    sw_ra(size - 4, index);
-
-    //\$fp压栈并设置好新的\$fp
-    index += 1;
-    sw_fp(size - 8, index);
-    index += 1;
-    addi_fp(size, index);
-
-    //保存s寄存器
-    //index += 1;
-    sw_sreg(index, size - 12);
-
-    //取出参数
-    //index += 1;
-        if(arg_flag > 4)
-        {
-            //参数较多,在栈里
-        }
-    return index;
-}
-
-//函数定义结束调用
-int fun_edec(int index, int arg_flag)
-{
-    //恢复寄存器
-    lw_sreg(index, size - 12);
-
-    //恢复ra
-    index += 1;
-    lw_ra(size - 4, index);
-
-    //恢复fp和栈顶
-    index += 1;
-    lw_fp(size - 8, index);
-    index += 1;
-    addi_sp(size, index);
-
-    //跳转回去
-    index += 1;
-    jr_ra(index);
-    return index;
 }
 
 //获取栈的分配空间并加入语句**********
@@ -262,21 +213,7 @@ void sw_1s(int index, int reg, int offset)
     insert_op(lst_of_ir, I_SW, *opl, index);
 }
 
-//获取第n个s寄存器的名字
-char* get_sreg(int n)
-{
-    switch(n){
-        case 0: return "s0";
-        case 1: return "s1";
-        case 2: return "s2";
-        case 3: return "s3";
-        case 4: return "s4";
-        case 5: return "s5";
-        case 6: return "s6";
-        case 7: return "s7";
-        case 8: return "s8";
-    }
-}
+
 
 void lw_sreg(int index, int offset)
 {
@@ -296,4 +233,71 @@ void lw_1s(int index, int reg, int offset)
     new_operand(opl, IMMEDIATE, NULL, offset, 0);
     new_operand(opl, VARIABLE, "$sp", 0, 0);
     insert_op(lst_of_ir, I_LW, *opl, index);
+}
+/*
+    定义函数部分：
+    *******以下为Prologue部分*********
+    将\$ra压栈
+    \$fp压栈并设置好新的\$fp
+    保存s寄存器
+    取出参数
+    *******以下为Epilogue部分*********
+    恢复寄存器
+    恢复栈顶
+    跳转回去
+*/
+
+int size = 0;
+
+//在函数定义开头调用
+int fun_pdec(int index, int arg_flag)
+{
+    //分配栈的空间
+    index += 1;
+    size = get_offset(index);
+
+
+    //将\$ra压栈
+    index += 1;
+    sw_ra(size - 4, index);
+
+    //\$fp压栈并设置好新的\$fp
+    index += 1;
+    sw_fp(size - 8, index);
+    index += 1;
+    addi_fp(size, index);
+
+    //保存s寄存器
+    //index += 1;
+    sw_sreg(index, size - 12);
+
+    //取出参数
+    //index += 1;
+        if(arg_flag > 4)
+        {
+            //参数较多,在栈里
+        }
+    return index;
+}
+
+//函数定义结束调用
+int fun_edec(int index, int arg_flag)
+{
+    //恢复寄存器
+    lw_sreg(index, size - 12);
+
+    //恢复ra
+    index += 1;
+    lw_ra(size - 4, index);
+
+    //恢复fp和栈顶
+    index += 1;
+    lw_fp(size - 8, index);
+    index += 1;
+    addi_sp(size, index);
+
+    //跳转回去
+    index += 1;
+    jr_ra(index);
+    return index;
 }
