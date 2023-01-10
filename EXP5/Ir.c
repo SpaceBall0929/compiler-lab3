@@ -278,10 +278,10 @@ void add_op(IR_list *lst, operation *op)
 // 插入后为第index个（从0开始）
 void insert_op(IR_list *lst, enum opcode co, operand_list oplst, int index)
 {
-    if (index >= lst->length)
+    if (index > lst->length || index < 0)
     {
         printf("Index out of range!\n");
-        exit(1);
+        exit(0);
     }
     operation *new = init_op(co, oplst);
     if (lst->head == NULL && lst->tail == NULL)
@@ -305,10 +305,10 @@ void insert_op(IR_list *lst, enum opcode co, operand_list oplst, int index)
 // 根据index查找指令
 operation *find_op(IR_list *lst, int index)
 {
-    if (index >= lst->length)
+    if (index >= lst->length || index < 0)
     {
         printf("Index out of range!\n");
-        exit(1);
+        exit(0);
     }
     operation *pt = lst->head;
     for (int i = 1; i <= index; i++)
